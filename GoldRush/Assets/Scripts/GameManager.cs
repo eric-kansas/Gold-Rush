@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour {
         //shuffle cards
         //build board
         BuildDeck();
+        ShuffleDeck();
         BuildBoard();
 	}
 	
@@ -49,8 +50,21 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    private void ShuffleDeck()
+    {
+        Card temp;
+        for (int i = 0; i < deck.Length; i++)
+        {
+            int randomCard = Random.Range(0, 51);
+            temp = deck[i];
+            deck[i] = deck[randomCard];
+            deck[randomCard] = temp;
+        }
+    }
 
-    private void BuildBoard(){
+
+    private void BuildBoard()
+    {
 
         int counter = 0;
         for (int i = 0; i < BOARD_WIDTH; i++)
