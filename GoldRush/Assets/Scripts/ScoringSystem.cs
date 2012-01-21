@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ScoringSystem : MonoBehaviour {
 	
@@ -10,11 +11,11 @@ public class ScoringSystem : MonoBehaviour {
 	
 	}
 	
-	void selectSystem(ScoringRules rules) {
+	public void selectSystem(ScoringRules rules) {
 		_rules = rules;	
 	}
 	
-	int score(Card[] hand) {
+	public int score(Card[] hand) {
 		return _rules.calculateScore(hand);	
 	}
 	
@@ -31,21 +32,61 @@ public abstract class ScoringRules : MonoBehaviour {
 	}
 	
 	protected int nOfAKind(Card[] hand) {
-		//List<Card> matching = new List<Card>(); //keep track of cards of matching kind
-		//List<Card> not_matching = new List<Card>(); //keep track of non-matching cards
-		
+		Card matching = null; // card being matched
+		List<Card> non_matching = new List<Card>();
 		int count = 0, score = 0, highestScore = 0;
+		
+		//loop through cards in hand
 		for(int i = 0; i < hand.Length; i++) {
+			
+			//make sure values are reset
+			matching = null;
+			non_matching.Clear();
 			count = 0;
 			score = 0;
-			for(int j = i; j < hand.Length; j++) {
+			
+			//check against other cards that haven't been checked against this card
+			for(int j = i+1; j < hand.Length; j++) {
 				if (hand[i].Kind == hand[j].Kind) {
+					matching = hand[i];
 					count++;
-					//score += hand[i].Value;
+				} else {
+					non_matching.Add(hand[j]);	
+				}
+				
+				//at the end of the internal loop, score if a match was found
+				if (j == hand.Length && matching != null) {
+					score = count * matching.Value;
+					
+					//add value of lowest other card
+					int lowestRemaining = 1000;
+					for(int k = 0; k < non_matching.Count; k++) {
+						if (non_matching[k].Value < lowestRemaining)
+							lowestRemaining = non_matching[k].Value;
+					}
+					score += lowestRemaining;
 					if (score > highestScore)
 						highestScore = score;
 				}
 			}
+		}
+		
+		return highestScore;
+	}
+	
+	protected int checkSuits(Card[] hand) {
+		int score = 0, highestScore = 0;
+		
+		char[] suits = { 'D', 'H', 'C', 'S' };
+		for(int i = 0; i < 4; i++) {	//check all suits
+			score = 0;
+			for (int j = 0; j < hand.Length; j++) { //check all cards in hand
+				if (hand[j].Suit == suits[i]) {
+					score += hand[j].Value;	
+				}
+			}
+			if (score > highestScore)
+				highestScore = score;
 		}
 		
 		return highestScore;
@@ -61,7 +102,8 @@ public class PokerRules : ScoringRules {
 
 public class Grouping : ScoringRules {
 	public override int calculateScore(Card[] hand) {
-		
-		return -1;
+		int score1= nOfAKind(hand);
+		int score2 = checkSuits(hand);
+		return (score1 > score2) ? score1 : score2;
 	}
 }

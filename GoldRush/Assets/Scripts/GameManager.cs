@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour {
     public GameObject Diamond;
     public GameObject Club;
     public GameObject Spade;
+	
+	public ScoringSystem scoringSystem;
 
     private Card[] deck = new Card[52];
 
@@ -22,6 +24,9 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		scoringSystem = new ScoringSystem();
+		scoringSystem.selectSystem(new Grouping());
+		
         if (!Heart || !Diamond || !Club || !Spade)
             Debug.LogError("No card prefab set.");
 
@@ -44,7 +49,7 @@ public class GameManager : MonoBehaviour {
         {
             for (int j = 0; j < suits.Length; j++)
             {
-                deck[counter] = new Card(kinds[i], suits[j]);
+                deck[counter] = new Card(kinds[i], suits[j], values[i]);
                 counter++;
             }
         }
