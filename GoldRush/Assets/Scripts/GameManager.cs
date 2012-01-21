@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour {
 
     // 0 = 10
     private char[] kinds = {'2','3','4','5','6','7','8','9','0','J', 'Q', 'K', 'A'};
-    private int[] values = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 10 };
+    private int[] values = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11 };
     private char[] suits= { 'H', 'D', 'C', 'S'};
 
     private GameObject[,] board = new GameObject[BOARD_WIDTH, BOARD_HEIGHT];
