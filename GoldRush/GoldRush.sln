@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
+Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 
 Project("{7157F4BB-40A9-6D31-0632-223935AB84AD}") = "GoldRush", "Assembly-CSharp-firstpass.csproj", "{B81FA91E-71C4-396C-3466-71C942A69755}"
