@@ -2,7 +2,10 @@ using UnityEngine;
 using System.Collections;
 
 public class CardData {
-
+	
+	public int row;
+	public int col;
+	
     private char _suit;
     public char Suit{
         get { return _suit; }
