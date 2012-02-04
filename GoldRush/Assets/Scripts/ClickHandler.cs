@@ -30,6 +30,7 @@ public class ClickHandler : MonoBehaviour {
 
             Card tempCard = (Card) targetCard.GetComponent<Card>();
             Debug.Log(tempCard.data.Suit + ". " + tempCard.data.Kind);
+            flipCard(tempCard.data);
 
             //Camera.main.ScreenPointToRay(-normal);
             //Debug.Log("card: " + tempCard.Suit + ", " + tempCard.Value);
@@ -43,6 +44,11 @@ public class ClickHandler : MonoBehaviour {
             // then use the Send command with the smartFox object 
             // smartFox.Send(...);
         }
+
+    }
+
+    void flipCard(CardData data)
+    {
 
     }
 }

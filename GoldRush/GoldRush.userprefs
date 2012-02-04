@@ -1,0 +1,15 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\ClickHandler.cs">
+    <Files>
+      <File FileName="Assets\Scripts\Card.cs" Line="18" Column="1" />
+      <File FileName="Assets\Scripts\CardData.cs" Line="25" Column="6" />
+      <File FileName="Assets\Scripts\GameManager.cs" Line="87" Column="26" />
+      <File FileName="Assets\Scripts\ClickHandler.cs" Line="24" Column="10" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

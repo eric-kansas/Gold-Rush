@@ -13,16 +13,16 @@ public class GameManager : MonoBehaviour {
     private CardData[] deck = new CardData[52];
 
     // 0 = 10
-    private char[] kinds = {'2','3','4','5','6','7','8','9','0','J', 'Q', 'K', 'A'};
-    private int[] values = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11 };
-    private char[] suits= { 'H', 'D', 'C', 'S'};
+    private char[] kinds = {'A', '2','3','4','5','6','7','8','9','0','J', 'Q', 'K'};
+    private int[] values = { 11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 };
+    private char[] suits= { 'C', 'D', 'H', 'S' };
 
     private GameObject[,] board = new GameObject[BOARD_WIDTH, BOARD_HEIGHT];
 
 	// Use this for initialization
 	void Start () {
-		scoringSystem = new ScoringSystem();
-		scoringSystem.selectSystem(new Grouping());
+		//scoringSystem = new ScoringSystem();
+		//scoringSystem.selectSystem(new Grouping());
 		
         if (!CardPrefab)
             Debug.LogError("No card prefab set.");
@@ -69,7 +69,6 @@ public class GameManager : MonoBehaviour {
     {
 
         int counter = 0;
-        Color bodyColor = new Color(1.0f, 0.0f, 0.0f);
 
         for (int i = 0; i < BOARD_WIDTH; i++)
         {
@@ -80,23 +79,18 @@ public class GameManager : MonoBehaviour {
                 {
                     case 'H':
                         board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
-                        bodyColor = new Color(1.0f, 0.0f, 0.0f);
                         break;
                     case 'D':
                         board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
-                        bodyColor = new Color(1.0f, 0.0f, 0.0f);
                         break;
                     case 'C':
                         board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
-                        bodyColor = new Color(0.0f, 0.0f, 0.0f);
                         break;
                     case 'S':
                         board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
-                        bodyColor = new Color(0.0f, 0.0f, 0.0f);
                         break;
                 }
                 board[i, j].GetComponent<Card>().data = deck[counter];
-                board[i, j].transform.renderer.material.color = bodyColor;
                 counter++;
             }
         }
