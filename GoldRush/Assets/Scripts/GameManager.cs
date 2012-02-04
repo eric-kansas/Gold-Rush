@@ -1,11 +1,15 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
     private const int BOARD_WIDTH = 13;
     private const int BOARD_HEIGHT = 4;
-
+	
+	private int numPlayers = 0;
+	public int maxPlayers;
+	
     public GameObject CardPrefab;
 	
 	public ScoringSystem scoringSystem;
@@ -16,9 +20,17 @@ public class GameManager : MonoBehaviour {
     private char[] kinds = {'2','3','4','5','6','7','8','9','0','J', 'Q', 'K', 'A'};
     private int[] values = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11 };
     private char[] suits= { 'H', 'D', 'C', 'S'};
+	
+	public List<Player> players;
 
-    private GameObject[,] board = new GameObject[BOARD_WIDTH, BOARD_HEIGHT];
-
+    public GameObject[,] board = new GameObject[BOARD_WIDTH, BOARD_HEIGHT];
+	
+	public int NumPlayers
+	{
+		get{return numPlayers;}
+		set{numPlayers = value;}
+	}
+	
 	// Use this for initialization
 	void Start () {
 		scoringSystem = new ScoringSystem();
