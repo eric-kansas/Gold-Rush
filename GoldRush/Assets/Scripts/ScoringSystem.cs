@@ -45,7 +45,7 @@ public abstract class ScoringRules : MonoBehaviour {
 		for(i = 0; i < hand.Length; i++) {
 			
 			//check suits
-			switch (hand[i].Suit) {
+			switch (hand[i].data.Suit) {
 				case 'D':
 					tests[0].Add(hand[i]);
 					break;
@@ -64,10 +64,10 @@ public abstract class ScoringRules : MonoBehaviour {
 			bool added = false;
 			if (tests.Count > 4) {
 				for(int j = 4; j < tests.Count; j++) {
-					if (tests[j][0].Kind == hand[i].Kind) {
+					if (tests[j][0].data.Kind == hand[i].data.Kind) {
 						tests[j].Add(hand[i]);	
-					} else if (j = tests.Count) {
-						tests.add(new List<Card>());
+					} else if (j == tests.Count) {
+						tests.Add(new List<Card>());
 						tests[tests.Count - 1].Add(hand[i]);
 					}
 				}
@@ -78,14 +78,16 @@ public abstract class ScoringRules : MonoBehaviour {
 		for(i = 0; i < tests.Count; i++) {
 			for(int j = 0; j < tests[i].Count; j++) {
 				if (i < 4) { //suits
-					score += tests[i][j].Value;
+					score += tests[i][j].data.Value;
 				} else {
-					score += tests[i][j].Value;
+					score += tests[i][j].data.Value;
 					//todo - add lowest
 					
 				}
 			}
 		}
+
+        return highestScore;
 	}
 
 	protected int nOfAKind(Card[] hand) {
@@ -103,7 +105,7 @@ public abstract class ScoringRules : MonoBehaviour {
 			
 			//check against other cards that haven't been checked against this card
 			for(int j = i+1; j < hand.Length; j++) {
-				if (hand[i].Kind == hand[j].Kind) {
+				if (hand[i].data.Kind == hand[j].data.Kind) {
 					matching = hand[i];
 					count++;
 				} else {
@@ -112,13 +114,13 @@ public abstract class ScoringRules : MonoBehaviour {
 
 				//at the end of the internal loop, score if a match was found
 				if (j == hand.Length && matching != null) {
-					score = count * matching.Value;
+					score = count * matching.data.Value;
 
 					//add value of lowest other card
 					int lowestRemaining = 1000;
 					for(int k = 0; k < non_matching.Count; k++) {
-						if (non_matching[k].Value < lowestRemaining)
-							lowestRemaining = non_matching[k].Value;
+						if (non_matching[k].data.Value < lowestRemaining)
+							lowestRemaining = non_matching[k].data.Value;
 					}
 
 					score += lowestRemaining;
@@ -141,8 +143,8 @@ public abstract class ScoringRules : MonoBehaviour {
 		for(int i = 0; i < 4; i++) {	//check all suits
 			score = 0;
 			for (int j = 0; j < hand.Length; j++) { //check all cards in hand
-				if (hand[j].Suit == suits[i]) {
-					score += hand[j].Value;	
+				if (hand[j].data.Suit == suits[i]) {
+					score += hand[j].data.Value;	
 				}
 			}
 

@@ -6,14 +6,11 @@ public class GameManager : MonoBehaviour {
     private const int BOARD_WIDTH = 13;
     private const int BOARD_HEIGHT = 4;
 
-    public GameObject Heart;
-    public GameObject Diamond;
-    public GameObject Club;
-    public GameObject Spade;
+    public GameObject CardPrefab;
 	
 	public ScoringSystem scoringSystem;
 
-    private Card[] deck = new Card[52];
+    private CardData[] deck = new CardData[52];
 
     // 0 = 10
     private char[] kinds = {'2','3','4','5','6','7','8','9','0','J', 'Q', 'K', 'A'};
@@ -27,7 +24,7 @@ public class GameManager : MonoBehaviour {
 		scoringSystem = new ScoringSystem();
 		scoringSystem.selectSystem(new Grouping());
 		
-        if (!Heart || !Diamond || !Club || !Spade)
+        if (!CardPrefab)
             Debug.LogError("No card prefab set.");
 
         //shuffle cards
@@ -49,7 +46,7 @@ public class GameManager : MonoBehaviour {
         {
             for (int j = 0; j < suits.Length; j++)
             {
-                deck[counter] = new Card(kinds[i], suits[j], values[i]);
+                deck[counter] = new CardData(kinds[i], suits[j], values[i]);
                 counter++;
             }
         }
@@ -57,7 +54,7 @@ public class GameManager : MonoBehaviour {
 
     private void ShuffleDeck()
     {
-        Card temp;
+        CardData temp;
         for (int i = 0; i < deck.Length; i++)
         {
             int randomCard = Random.Range(0, 51);
@@ -72,6 +69,8 @@ public class GameManager : MonoBehaviour {
     {
 
         int counter = 0;
+        Color bodyColor = new Color(1.0f, 0.0f, 0.0f);
+
         for (int i = 0; i < BOARD_WIDTH; i++)
         {
             for (int j = 0; j < BOARD_HEIGHT; j++)
@@ -79,19 +78,25 @@ public class GameManager : MonoBehaviour {
                 Vector3 pos = new Vector3(.88f* i , .5f, 1.1f * j);
                 switch (deck[counter].Suit)
                 {
-                    case 'H': 
-                        board[i, j] = (GameObject)Instantiate(Heart, pos, Quaternion.identity); 
+                    case 'H':
+                        board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
+                        bodyColor = new Color(1.0f, 0.0f, 0.0f);
                         break;
                     case 'D':
-                        board[i, j] = (GameObject)Instantiate(Diamond, pos, Quaternion.identity);
+                        board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
+                        bodyColor = new Color(1.0f, 0.0f, 0.0f);
                         break;
-                    case 'C': 
-                        board[i, j] = (GameObject)Instantiate(Club, pos, Quaternion.identity); 
+                    case 'C':
+                        board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
+                        bodyColor = new Color(0.0f, 0.0f, 0.0f);
                         break;
-                    case 'S': 
-                        board[i, j] = (GameObject)Instantiate(Spade, pos, Quaternion.identity); 
+                    case 'S':
+                        board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
+                        bodyColor = new Color(0.0f, 0.0f, 0.0f);
                         break;
                 }
+                board[i, j].GetComponent<Card>().data = deck[counter];
+                board[i, j].transform.renderer.material.color = bodyColor;
                 counter++;
             }
         }
