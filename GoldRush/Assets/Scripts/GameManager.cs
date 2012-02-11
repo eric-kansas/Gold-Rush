@@ -18,7 +18,11 @@ public class GameManager : MonoBehaviour {
 	public ScoringSystem scoringSystem;
 
     private CardData[] deck = new CardData[52];
+    private CardData[] hand = new CardData[5];
     public List<Vector2> moves;
+
+    public bool pEnabled = false, sEnabled = false;
+    private bool showSkipButton = false;
 
 
     // 0 = 10
@@ -59,9 +63,123 @@ public class GameManager : MonoBehaviour {
         ShuffleDeck();
         BuildBoard();
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void OnGUI()
+    {
+        //Hand
+        for (int i = 0; i < 5; i++)
+        {
+            Texture2D test = new Texture2D(0,0);
+            GUI.Box(new Rect((i * 88) + 160, 550, 75, 100), "Card " + (i+1));
+        }
+
+        string actionText = "", skipText = "";
+        if (players.Count <= 1)
+        {
+            showSkipButton = false;
+            actionText = "Please place player.";
+        }
+        else
+        {
+            switch (gameState.CurrentTurnState)
+            {
+                case GameStateManager.TurnState.TURN_ROLL:
+                    actionText = "Roll";
+                    skipText = "Prospect";
+                    showSkipButton = true;
+                    break;
+                case GameStateManager.TurnState.TURN_MOVE:
+                    actionText = "Prospect";
+                    break;
+                case GameStateManager.TurnState.TURN_STAKE:
+                    actionText = "Stake";
+                    if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
+                    {
+                        showSkipButton = true;
+                        skipText = "Mine";
+                    }
+                    clicker.myUpdate();
+                    break;
+                case GameStateManager.TurnState.TURN_MINE:
+                    actionText = "Mine";
+                    skipText = "Roll";
+                    break;
+            }
+        }
+        if (GUI.Button(new Rect(1180, 550, 150, 75), actionText))
+        {
+            switch (gameState.CurrentTurnState)
+            {
+                case GameStateManager.TurnState.TURN_ROLL:
+
+                    currentRoll = Roll();
+                    Debug.Log("rolled: " + currentRoll);
+
+                    calculateMoveLocations();
+                    gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+                    gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE;
+
+                    pEnabled = sEnabled = false; //reset these variables for this turn
+
+
+                    // At the beginning, this bool is true - player can stay where he/she is by choosing not to roll. 
+                    // Once the player rolls, he must move, so set this bool to false.
+                    showSkipButton = false;
+                    break;
+                case GameStateManager.TurnState.TURN_MOVE:
+
+                    break;
+                case GameStateManager.TurnState.TURN_STAKE:
+                    Debug.Log("turn state: TURN_STAKE");
+                    clicker.myUpdate();
+                    if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
+                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
+                    else 
+                        endTurn();
+
+                    //the player can choose not to pick up a card this turn if he/she wants
+                    showSkipButton = true;
+                    break;
+                case GameStateManager.TurnState.TURN_MINE:
+                    Debug.Log("turn state: TURN_MINE");
+                    break;
+                default: Debug.Log("whoops"); break;
+            }
+        }
+
+        if (showSkipButton) //only show skip button if player can choose not to do this action
+        {
+            if (GUI.Button(new Rect(1250, 625, 70, 20), skipText))
+            {
+                switch (gameState.CurrentTurnState)
+                {
+                    case GameStateManager.TurnState.TURN_ROLL:
+                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
+                        pEnabled = sEnabled = false;
+                        showSkipButton = false;
+                        break;
+                    case GameStateManager.TurnState.TURN_STAKE:
+                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
+                        break;
+                    case GameStateManager.TurnState.TURN_MINE:
+                        endTurn();
+                        break;
+                }
+            }
+        }
+    }
+
+    public void endTurn()
+    {
+        currentPlayerIndex++;
+        if (currentPlayerIndex > maxPlayers)
+            currentPlayerIndex = 0;
+        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         switch (gameState.CurrentGameState)
         {
             case GameStateManager.GameState.GAME_SETUP: 
@@ -81,11 +199,6 @@ public class GameManager : MonoBehaviour {
         switch (gameState.CurrentTurnState)
         {
             case GameStateManager.TurnState.TURN_ROLL:
-                currentRoll = Roll();
-                Debug.Log("rolled: " + currentRoll);
-
-                calculateMoveLocations();
-                gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE;
                 break;
             case GameStateManager.TurnState.TURN_MOVE:
                 clicker.myUpdate();

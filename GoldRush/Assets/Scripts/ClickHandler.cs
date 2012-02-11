@@ -92,6 +92,12 @@ public class ClickHandler : MonoBehaviour {
                                      hit.transform.position.y + 0.25f,
                                      tempCard.transform.position.z);
                 gM.players[gM.CurrentPlayerIndex].transform.position = moveToLocation;
+
+
+                /* add this shit!!!!!
+                 * 
+                 */
+                gM.enabled = true;
             }
         }
     }
@@ -99,6 +105,12 @@ public class ClickHandler : MonoBehaviour {
     private void stakeClick(RaycastHit hit, Card tempCard)
     {
         Debug.Log("stake click");
+
+
+        /* add this shit!!!!!
+        * 
+        */
+        gM.pEnabled = true;
     }
 
 
