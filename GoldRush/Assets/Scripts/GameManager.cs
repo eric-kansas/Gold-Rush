@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour {
 	public ScoringSystem scoringSystem;
 
     private CardData[] deck = new CardData[52];
+    public List<Vector2> moves;
+
 
     // 0 = 10
     private char[] kinds = {'A','2','3','4','5','6','7','8','9','0','J', 'Q', 'K'};
@@ -102,21 +104,19 @@ public class GameManager : MonoBehaviour {
     private void calculateMoveLocations()
     {
         Vector2 currentPlayerPos = players[currentPlayerIndex].Position;
-        Debug.Log("here stuff: " + currentPlayerPos);
-        List<GameObject> moves = findMoves(currentPlayerPos);
-        Debug.Log("Moves size: " + moves.Count);
+        moves = findMoves(currentPlayerPos);
 
     }
 
-    private List<GameObject> findMoves(Vector2 currentPlayerPos)
+    private List<Vector2> findMoves(Vector2 currentPlayerPos)
     {
         checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
-        List<GameObject> holder = new List<GameObject>();
+        List<Vector2> holder = new List<Vector2>();
 
         return findMovesAccumlative(currentPlayerPos, 0, checkedList, holder);
     }
 
-    private List<GameObject> findMovesAccumlative(Vector2 currentPos, int currentCount, bool[,] looked, List<GameObject> holder)
+    private List<Vector2> findMovesAccumlative(Vector2 currentPos, int currentCount, bool[,] looked, List<Vector2> holder)
     {
         //out of bounds
         if (currentPos.x < 0 || currentPos.x > 12 ||
@@ -127,7 +127,6 @@ public class GameManager : MonoBehaviour {
         //if we have been here
         if (looked[(int)currentPos.x, (int)currentPos.y])
         {
-            Debug.Log("been here: " + currentPos);
             return holder;
         }
         else
@@ -138,7 +137,11 @@ public class GameManager : MonoBehaviour {
 
             if (currentCount == currentRoll && board[(int)currentPos.x, (int)currentPos.y] != null)
             {
-                holder.Add(board[(int)currentPos.x, (int)currentPos.y]);
+                if(!holder.Contains(new Vector2((int)currentPos.x, (int)currentPos.y)))
+                {
+                    holder.Add(new Vector2((int)currentPos.x, (int)currentPos.y));
+                }
+                
                 board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(255,0,0);
                 looked[(int)currentPos.x, (int)currentPos.y] = false;
                 return holder;
@@ -162,7 +165,7 @@ public class GameManager : MonoBehaviour {
 
 
     private int Roll(){
-        return Random.Range(0, 7);
+        return Random.Range(1, 6);
     }
 
     private void BuildDeck()

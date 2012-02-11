@@ -82,6 +82,18 @@ public class ClickHandler : MonoBehaviour {
     private void moveClick(RaycastHit hit, Card tempCard)
     {
         Debug.Log("move click");
+        foreach (Vector2 pos in gM.moves)
+        {
+            if(pos.Equals(PositionToVector2(hit.transform.position)))
+            {
+                Debug.Log(pos + " and " + PositionToVector2(hit.transform.position));
+                Debug.Log("HEREHERHEHR");
+                Vector3 moveToLocation = new Vector3(hit.transform.position.x,
+                                     hit.transform.position.y + 0.25f,
+                                     tempCard.transform.position.z);
+                gM.players[gM.CurrentPlayerIndex].transform.position = moveToLocation;
+            }
+        }
     }
 
     private void stakeClick(RaycastHit hit, Card tempCard)
@@ -115,7 +127,8 @@ public class ClickHandler : MonoBehaviour {
 
                 holderPlayer = (Player)Instantiate(tempPlayer, pos, Quaternion.identity);
             }
-            holderPlayer.Position = new Vector2((int)(pos.x / 0.88f)+1, (int)(pos.z / 1.1f));
+            holderPlayer.Position = PositionToVector2(pos);
+            Debug.Log("huh: " + holderPlayer.Position.x);
 
             //set color & add to game manager
             holderPlayer.transform.renderer.material.color = bodyColor[gM.players.Count];
@@ -125,5 +138,13 @@ public class ClickHandler : MonoBehaviour {
                 GameStateManager.Instance.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
             }
         }
+    }
+
+    private Vector2 PositionToVector2(Vector3 pos)
+    {
+        Debug.Log("huh: " +pos.x);
+
+
+        return new Vector2((int)((pos.x +.0001) / .88f) , (int)((pos.z +.0001) / 1.1f));
     }
 }
