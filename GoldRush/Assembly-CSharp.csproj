@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\CardData.cs" />
      <Compile Include="Assets\Scripts\ClickHandler.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\GameStateManager.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\ScoringSystem.cs" />
   </ItemGroup>

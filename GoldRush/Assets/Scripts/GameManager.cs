@@ -3,15 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
-
+   
     private const int BOARD_WIDTH = 13;
     private const int BOARD_HEIGHT = 4;
 	
-	private int numPlayers = 0;
-	public int maxPlayers;
+	private int currentPlayerIndex = 0;
+    private int currentRoll = -1;
+
+	public int maxPlayers = 2;
+    private GameStateManager gameState;
+    private ClickHandler clicker;
 	
     public GameObject CardPrefab;
-	
 	public ScoringSystem scoringSystem;
 
     private CardData[] deck = new CardData[52];
@@ -24,17 +27,26 @@ public class GameManager : MonoBehaviour {
 	public List<Player> players;
 
     public GameObject[,] board = new GameObject[BOARD_WIDTH, BOARD_HEIGHT];
-	
-	public int NumPlayers
+    public bool[,] checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
+
+    public int CurrentPlayerIndex
 	{
-		get{return numPlayers;}
-		set{numPlayers = value;}
+        get { return currentPlayerIndex; }
+        set { currentPlayerIndex = value; }
 	}
+
+    public int CurrentRoll
+    {
+        get { return currentRoll; }
+        set { currentRoll = value; }
+    }
 	
 	// Use this for initialization
 	void Start () {
+        gameState = new GameStateManager();
 		scoringSystem = new ScoringSystem();
 		scoringSystem.selectSystem(new Grouping());
+        clicker = this.GetComponent<ClickHandler>();
 		
         if (!CardPrefab)
             Debug.LogError("No card prefab set.");
@@ -48,8 +60,110 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+        switch (gameState.CurrentGameState)
+        {
+            case GameStateManager.GameState.GAME_SETUP: 
+                clicker.myUpdate();    
+                break;
+            case GameStateManager.GameState.GAME_PROSPECTING_STATE:
+                prospectingTurn();
+                break;
+            case GameStateManager.GameState.GAME_MINING_STATE: Debug.Log("game state: MINING"); break;
+            case GameStateManager.GameState.GAME_END: Debug.Log("game state: END"); break;
+            default: Debug.Log("whoops"); break;
+        }
 	}
+
+    private void prospectingTurn()
+    {
+        switch (gameState.CurrentTurnState)
+        {
+            case GameStateManager.TurnState.TURN_ROLL:
+                currentRoll = Roll();
+                Debug.Log("rolled: " + currentRoll);
+
+                calculateMoveLocations();
+                gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE;
+                break;
+            case GameStateManager.TurnState.TURN_MOVE:
+                clicker.myUpdate();
+                break;
+            case GameStateManager.TurnState.TURN_STAKE:
+                Debug.Log("turn state: TURN_STAKE");
+                clicker.myUpdate();
+                break;
+            case GameStateManager.TurnState.TURN_MINE:
+                Debug.Log("turn state: TURN_MINE"); 
+                break;
+            default: Debug.Log("whoops"); break;
+        }
+    }
+
+    private void calculateMoveLocations()
+    {
+        Vector2 currentPlayerPos = players[currentPlayerIndex].Position;
+        Debug.Log("here stuff: " + currentPlayerPos);
+        List<GameObject> moves = findMoves(currentPlayerPos);
+        Debug.Log("Moves size: " + moves.Count);
+
+    }
+
+    private List<GameObject> findMoves(Vector2 currentPlayerPos)
+    {
+        checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
+        List<GameObject> holder = new List<GameObject>();
+
+        return findMovesAccumlative(currentPlayerPos, 0, checkedList, holder);
+    }
+
+    private List<GameObject> findMovesAccumlative(Vector2 currentPos, int currentCount, bool[,] looked, List<GameObject> holder)
+    {
+        //out of bounds
+        if (currentPos.x < 0 || currentPos.x > 12 ||
+            currentPos.y < 0 || currentPos.y > 3)
+        {
+            return holder;
+        }
+        //if we have been here
+        if (looked[(int)currentPos.x, (int)currentPos.y])
+        {
+            Debug.Log("been here: " + currentPos);
+            return holder;
+        }
+        else
+        {
+            
+            //set that this one has been checked
+            looked[(int)currentPos.x, (int)currentPos.y] = true;
+
+            if (currentCount == currentRoll && board[(int)currentPos.x, (int)currentPos.y] != null)
+            {
+                holder.Add(board[(int)currentPos.x, (int)currentPos.y]);
+                board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(255,0,0);
+                looked[(int)currentPos.x, (int)currentPos.y] = false;
+                return holder;
+            }
+            else
+            {
+                currentCount++;
+                //look up
+                holder = findMovesAccumlative(new Vector2(currentPos.x, currentPos.y + 1), currentCount, looked, holder);
+                //look right
+                holder = findMovesAccumlative(new Vector2(currentPos.x + 1, currentPos.y), currentCount, looked, holder);
+                //look left
+                holder = findMovesAccumlative(new Vector2(currentPos.x - 1, currentPos.y), currentCount, looked, holder);
+                //look down
+                holder = findMovesAccumlative(new Vector2(currentPos.x, currentPos.y - 1), currentCount, looked, holder);
+                looked[(int)currentPos.x, (int)currentPos.y] = false;
+                return holder;
+            }
+        }
+    }
+
+
+    private int Roll(){
+        return Random.Range(0, 7);
+    }
 
     private void BuildDeck()
     {
@@ -97,7 +211,7 @@ public class GameManager : MonoBehaviour {
                         break;
                     case 'C':
                         board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
-                        break;
+                    break;
                     case 'S':
                         board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
                         break;
