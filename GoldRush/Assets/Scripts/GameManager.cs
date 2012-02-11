@@ -111,6 +111,8 @@ public class GameManager : MonoBehaviour {
         #region Action logic
         if (GUI.Button(new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75), actionText))
         {
+            if (players.Count <= 1)
+                return;
             switch (gameState.CurrentTurnState)
             {
                 case GameStateManager.TurnState.TURN_ROLL:
