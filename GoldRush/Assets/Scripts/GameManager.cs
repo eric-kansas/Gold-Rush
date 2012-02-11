@@ -70,9 +70,10 @@ public class GameManager : MonoBehaviour {
         for (int i = 0; i < 5; i++)
         {
             Texture2D test = new Texture2D(0,0);
-            GUI.Box(new Rect((i * 88) + 160, 550, 75, 100), "Card " + (i+1));
+            GUI.Box(new Rect((Screen.width * (i * .06f) + (Screen.width * .1f)), (Screen.height * .82f), 75, 100), "Card " + (i + 1));
         }
 
+        #region Set text
         string actionText = "", skipText = "";
         if (players.Count <= 1)
         {
@@ -98,7 +99,6 @@ public class GameManager : MonoBehaviour {
                         showSkipButton = true;
                         skipText = "Mine";
                     }
-                    clicker.myUpdate();
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
                     actionText = "Mine";
@@ -106,7 +106,10 @@ public class GameManager : MonoBehaviour {
                     break;
             }
         }
-        if (GUI.Button(new Rect(1180, 550, 150, 75), actionText))
+        #endregion
+
+        #region Action logic
+        if (GUI.Button(new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75), actionText))
         {
             switch (gameState.CurrentTurnState)
             {
@@ -146,10 +149,12 @@ public class GameManager : MonoBehaviour {
                 default: Debug.Log("whoops"); break;
             }
         }
+        #endregion
 
+        #region Skip-action logic
         if (showSkipButton) //only show skip button if player can choose not to do this action
         {
-            if (GUI.Button(new Rect(1250, 625, 70, 20), skipText))
+            if (GUI.Button(new Rect(new Rect((Screen.width * .85f), (Screen.height * .935f), 70, 20)), skipText))
             {
                 switch (gameState.CurrentTurnState)
                 {
@@ -167,6 +172,7 @@ public class GameManager : MonoBehaviour {
                 }
             }
         }
+        #endregion
     }
 
     public void endTurn()
