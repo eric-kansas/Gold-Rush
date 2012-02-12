@@ -129,7 +129,8 @@ public class GameManager : MonoBehaviour {
         #endregion
 
         #region Action logic
-        if (GUI.Button(new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75), actionText))
+		Rect actionBox = new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75);
+        if (GUI.Button(actionBox, actionText))
         {
             if (players.Count <= 1)
                 return;
@@ -195,9 +196,10 @@ public class GameManager : MonoBehaviour {
         #endregion
 
         #region Skip-action logic
+		float width = 70;
         if (showSkipButton) //only show skip button if player can choose not to do this action
         {
-            if (GUI.Button(new Rect(new Rect((Screen.width * .85f), (Screen.height * .935f), 70, 20)), skipText))
+            if (GUI.Button(new Rect(new Rect((actionBox.x + actionBox.width - width), (actionBox.y+actionBox.height), width, 20)), skipText))
             {
                 switch (gameState.CurrentTurnState)
                 {
