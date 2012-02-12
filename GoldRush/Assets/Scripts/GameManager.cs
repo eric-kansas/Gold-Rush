@@ -6,7 +6,11 @@ public class GameManager : MonoBehaviour {
    
     private const int BOARD_WIDTH = 13;
     private const int BOARD_HEIGHT = 4;
-	
+
+    public Texture2D CardTexture;
+    private const float CARD_TEX_X_OFFSET = 0.0687f;
+    private const float CARD_TEX_Y_OFFSET = 0.2f;
+
 	private int currentPlayerIndex = 0;
     private int currentRoll = -1;
 
@@ -155,6 +159,7 @@ public class GameManager : MonoBehaviour {
 					players[CurrentPlayerIndex].CurrentCard = board[(int)players[CurrentPlayerIndex].Position.x,
 				                                                (int)players[CurrentPlayerIndex].Position.y].GetComponent<Card>();
 					
+
 					for (int i = 0; i < BOARD_WIDTH; i++)
 			        {
 			            for (int j = 0; j < BOARD_HEIGHT; j++)
@@ -162,7 +167,10 @@ public class GameManager : MonoBehaviour {
 							 board[i, j].transform.renderer.material.color = new Color(1,1,1,1);
 						}
 					}
+                    CreateMaterial(players[currentPlayerIndex].CurrentCard.data.TexCoordinate, board[(int)players[CurrentPlayerIndex].Position.x,
+                                                                (int)players[CurrentPlayerIndex].Position.y]);
 					
+
 					Debug.Log("Calc Stakes");
 				
 					calculateStakeableCards();
@@ -399,7 +407,7 @@ public class GameManager : MonoBehaviour {
         {
             for (int j = 0; j < suits.Length; j++)
             {
-                deck[counter] = new CardData(kinds[i], suits[j], values[i]);
+                deck[counter] = new CardData(kinds[i], suits[j], values[i], new Vector2(i + 1, j + 1));
                 counter++;
             }
         }
@@ -447,5 +455,20 @@ public class GameManager : MonoBehaviour {
                 counter++;
             }
         }
+    }
+
+    public void CreateMaterial(Vector2 Coordinate, GameObject Card)
+    {
+        int aX = (int)Coordinate.x;
+        int aY = (int)Coordinate.y;
+
+        Debug.Log("material coord: " + Coordinate.x + ", " + Coordinate.y);
+        Debug.Log(CARD_TEX_X_OFFSET * Coordinate.x);
+
+        Material newMat = new Material(Shader.Find("Diffuse"));
+        newMat.mainTexture = CardTexture;
+        newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);
+        newMat.mainTextureOffset = new Vector2(CARD_TEX_X_OFFSET * -Coordinate.x, CARD_TEX_Y_OFFSET * Coordinate.y);
+        Card.renderer.material = newMat;
     }
 }

@@ -131,6 +131,9 @@ public class ClickHandler : MonoBehaviour {
 							 gM.board[i, j].transform.renderer.material.color = new Color(1,1,1,1);
 						}
 					}
+
+                    gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
+                                                                (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
 					
 					gM.calculateStakeableCards();
 				}

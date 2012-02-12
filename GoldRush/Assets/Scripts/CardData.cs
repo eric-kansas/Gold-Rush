@@ -25,11 +25,19 @@ public class CardData {
 		set { _value = value; }
 	}
 
-    public CardData(char kind, char suit, int val)
+    private Vector2 _texCoordinate;
+    public Vector2 TexCoordinate
+    {
+        get { return _texCoordinate; }
+        set { _texCoordinate = value; }
+    }
+
+    public CardData(char kind, char suit, int val, Vector2 Coordinate)
     {
         _kind = kind;
         _suit = suit;
 		_value = val;
+        _texCoordinate = Coordinate;
 		staked = false;
     }
 }
