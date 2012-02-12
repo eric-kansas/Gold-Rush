@@ -156,12 +156,14 @@ public class ClickHandler : MonoBehaviour {
 					                                               Quaternion.identity);
 					tempStake.transform.renderer.material.color = 
 						gM.players[gM.CurrentPlayerIndex].transform.renderer.material.color;
+
+					gM.sEnabled = true; //stake has been placed, action button should move on to the next turn phase
 				}
 				else
 				{
 					tempStake.transform.position = hit.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
-					
 					lastCard.data.staked = false;
+					gM.sEnabled = false;
 				}	
 				
 				tempCard.data.staked = true;

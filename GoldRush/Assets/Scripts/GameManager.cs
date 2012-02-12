@@ -177,15 +177,20 @@ public class GameManager : MonoBehaviour {
 					calculateStakeableCards();
                     break;
                 case GameStateManager.TurnState.TURN_STAKE:
-                    Debug.Log("turn state: TURN_STAKE");
-                    clicker.myUpdate();
-                    if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
-                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
-                    else 
-                        endTurn();
+					if (sEnabled)
+					{
+						Debug.Log("turn state: TURN_STAKE");
+						clicker.myUpdate();
+						if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
+							gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
+						else
+							endTurn();
 
-                    //the player can choose not to pick up a card this turn if he/she wants
-                    showSkipButton = true;
+						//the player can choose not to pick up a card this turn if he/she wants
+						showSkipButton = true;
+					}
+					else
+						Debug.Log("Pressed with no stake placed");
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
                     Debug.Log("turn state: TURN_MINE");
