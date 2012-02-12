@@ -108,7 +108,7 @@ public class ClickHandler : MonoBehaviour {
                                      hit.transform.position.y + 0.25f,
                                      tempCard.transform.position.z);
                 gM.players[gM.CurrentPlayerIndex].transform.position = moveToLocation;
-				
+				gM.pEnabled = true; //player moved, set prospect to true
 				if(lastPos == gM.players[gM.CurrentPlayerIndex].transform.position)
 				{
 					GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
@@ -156,6 +156,7 @@ public class ClickHandler : MonoBehaviour {
 					                                               Quaternion.identity);
 					tempStake.transform.renderer.material.color = 
 						gM.players[gM.CurrentPlayerIndex].transform.renderer.material.color;
+					Debug.Log(gM.CurrentPlayerIndex);
 
 					gM.sEnabled = true; //stake has been placed, action button should move on to the next turn phase
 				}

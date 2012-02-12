@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour {
         if (players.Count <= 1)
         {
             showSkipButton = false;
-            actionText = "Please place player.";
+            actionText = "Please place players.";
         }
         else
         {
@@ -132,17 +132,21 @@ public class GameManager : MonoBehaviour {
 		Rect actionBox = new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75);
         if (GUI.Button(actionBox, actionText))
         {
-            if (players.Count <= 1)
+            if (players.Count <= 1) //if there aren't enough players, don't do anything
                 return;
+			//start the game if there are enough players and a button is hit
+			if (gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
+				gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+
+
             switch (gameState.CurrentTurnState)
             {
                 case GameStateManager.TurnState.TURN_ROLL:
 
                     currentRoll = Roll();
-                    Debug.Log("rolled: " + currentRoll);
+                    
 
                     calculateMoveLocations();
-                    gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
                     gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE;
 
                     pEnabled = sEnabled = false; //reset these variables for this turn
@@ -153,33 +157,19 @@ public class GameManager : MonoBehaviour {
                     showSkipButton = false;
                     break;
                 case GameStateManager.TurnState.TURN_MOVE:
-					GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;		
-								
-					players[CurrentPlayerIndex].Position = GetComponent<ClickHandler>().PositionToVector2(players[CurrentPlayerIndex].transform.position);
-				
-					players[CurrentPlayerIndex].CurrentCard = board[(int)players[CurrentPlayerIndex].Position.x,
-				                                                (int)players[CurrentPlayerIndex].Position.y].GetComponent<Card>();
-					
+					if (pEnabled)
+					{
 
-					for (int i = 0; i < BOARD_WIDTH; i++)
-			        {
-			            for (int j = 0; j < BOARD_HEIGHT; j++)
-			            {
-							 board[i, j].transform.renderer.material.color = new Color(1,1,1,1);
-						}
+						GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
+
+						calculateStakes();
 					}
-                    CreateMaterial(players[currentPlayerIndex].CurrentCard.data.TexCoordinate, board[(int)players[CurrentPlayerIndex].Position.x,
-                                                                (int)players[CurrentPlayerIndex].Position.y]);
-					
-
-					Debug.Log("Calc Stakes");
-				
-					calculateStakeableCards();
+					else
+						Debug.Log("Player rolled, they need to actually move");
                     break;
                 case GameStateManager.TurnState.TURN_STAKE:
 					if (sEnabled)
 					{
-						Debug.Log("turn state: TURN_STAKE");
 						clicker.myUpdate();
 						if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
 							gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
@@ -194,6 +184,7 @@ public class GameManager : MonoBehaviour {
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
                     Debug.Log("turn state: TURN_MINE");
+					endTurn();
                     break;
                 default: Debug.Log("whoops"); break;
             }
@@ -201,6 +192,10 @@ public class GameManager : MonoBehaviour {
         #endregion
 
         #region Skip-action logic
+		//start the game if there are enough players and a button is hit
+		if (players.Count > 1 && gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
+			gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+
 		float width = 70;
         if (showSkipButton) //only show skip button if player can choose not to do this action
         {
@@ -210,8 +205,11 @@ public class GameManager : MonoBehaviour {
                 {
                     case GameStateManager.TurnState.TURN_ROLL:
                         gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
-                        pEnabled = sEnabled = false;
+                        pEnabled = true; //player is skipping rolling, meaning they can prospect without moving
+						sEnabled = false; //reset stake boolean, player still needs to do this
                         showSkipButton = false;
+
+						calculateStakes();
                         break;
                     case GameStateManager.TurnState.TURN_STAKE:
                         gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
@@ -253,8 +251,8 @@ public class GameManager : MonoBehaviour {
             case GameStateManager.GameState.GAME_PROSPECTING_STATE:
                 prospectingTurn();
                 break;
-            case GameStateManager.GameState.GAME_MINING_STATE: Debug.Log("game state: MINING"); break;
-            case GameStateManager.GameState.GAME_END: Debug.Log("game state: END"); break;
+            case GameStateManager.GameState.GAME_MINING_STATE: break;
+            case GameStateManager.GameState.GAME_END: break;
             default: Debug.Log("whoops"); break;
         }
 	}
@@ -269,11 +267,11 @@ public class GameManager : MonoBehaviour {
                 clicker.myUpdate();
                 break;
             case GameStateManager.TurnState.TURN_STAKE:
-                Debug.Log("turn state: TURN_STAKE");
+                //Debug.Log("turn state: TURN_STAKE");
                 clicker.myUpdate();
                 break;
             case GameStateManager.TurnState.TURN_MINE:
-                Debug.Log("turn state: TURN_MINE"); 
+                //Debug.Log("turn state: TURN_MINE"); 
                 break;
             default: Debug.Log("whoops"); break;
         }
@@ -285,6 +283,30 @@ public class GameManager : MonoBehaviour {
         moves = findMoves(currentPlayerPos);
 
     }
+
+	private void calculateStakes()
+	{
+		players[CurrentPlayerIndex].Position = GetComponent<ClickHandler>().PositionToVector2(players[CurrentPlayerIndex].transform.position);
+
+		players[CurrentPlayerIndex].CurrentCard = board[(int)players[CurrentPlayerIndex].Position.x,
+													(int)players[CurrentPlayerIndex].Position.y].GetComponent<Card>();
+
+
+		for (int i = 0; i < BOARD_WIDTH; i++)
+		{
+			for (int j = 0; j < BOARD_HEIGHT; j++)
+			{
+				board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
+			}
+		}
+		CreateMaterial(players[currentPlayerIndex].CurrentCard.data.TexCoordinate, board[(int)players[CurrentPlayerIndex].Position.x,
+													(int)players[CurrentPlayerIndex].Position.y]);
+
+
+		Debug.Log("Calc Stakes");
+
+		calculateStakeableCards();
+	}
 
     private List<Vector2> findMoves(Vector2 currentPlayerPos)
     {
@@ -404,7 +426,9 @@ public class GameManager : MonoBehaviour {
 	}
 
     private int Roll(){
-        return Random.Range(1, 6);
+		int currentRoll = Random.Range(1, 6);
+		Debug.Log("rolled: " + currentRoll);
+		return currentRoll;
     }
 
     private void BuildDeck()
