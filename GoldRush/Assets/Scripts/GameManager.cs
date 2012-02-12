@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour {
 
     public bool pEnabled = false, sEnabled = false;
     private bool showSkipButton = false;
+	
+	public List<Vector2> possibleStakes = new List<Vector2>();
 
 
     // 0 = 10
@@ -46,6 +48,20 @@ public class GameManager : MonoBehaviour {
         get { return currentRoll; }
         set { currentRoll = value; }
     }
+	
+	public int getBoardWidth()
+	{
+		int bW = BOARD_WIDTH;
+		
+		return bW;
+	}
+	
+	public int getBoardHeight()
+	{
+		int bH = BOARD_HEIGHT;
+		
+		return bH;
+	}
 	
 	// Use this for initialization
 	void Start () {
@@ -132,7 +148,24 @@ public class GameManager : MonoBehaviour {
                     showSkipButton = false;
                     break;
                 case GameStateManager.TurnState.TURN_MOVE:
-
+					GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;		
+								
+					players[CurrentPlayerIndex].Position = GetComponent<ClickHandler>().PositionToVector2(players[CurrentPlayerIndex].transform.position);
+				
+					players[CurrentPlayerIndex].CurrentCard = board[(int)players[CurrentPlayerIndex].Position.x,
+				                                                (int)players[CurrentPlayerIndex].Position.y].GetComponent<Card>();
+					
+					for (int i = 0; i < BOARD_WIDTH; i++)
+			        {
+			            for (int j = 0; j < BOARD_HEIGHT; j++)
+			            {
+							 board[i, j].transform.renderer.material.color = new Color(1,1,1,1);
+						}
+					}
+					
+					Debug.Log("Calc Stakes");
+				
+					calculateStakeableCards();
                     break;
                 case GameStateManager.TurnState.TURN_STAKE:
                     Debug.Log("turn state: TURN_STAKE");
@@ -179,8 +212,17 @@ public class GameManager : MonoBehaviour {
 
     public void endTurn()
     {
+		
+		for (int i = 0; i < BOARD_WIDTH; i++)
+	    {
+            for (int j = 0; j < BOARD_HEIGHT; j++)
+            {
+				 board[i, j].transform.renderer.material.color = new Color(1,1,1,1);
+			}
+		}
+		
         currentPlayerIndex++;
-        if (currentPlayerIndex > maxPlayers)
+        if (currentPlayerIndex >= players.Count)
             currentPlayerIndex = 0;
         gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
     }
@@ -263,7 +305,7 @@ public class GameManager : MonoBehaviour {
                     holder.Add(new Vector2((int)currentPos.x, (int)currentPos.y));
                 }
                 
-                board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(255,0,0);
+                board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(2,2,0);
                 looked[(int)currentPos.x, (int)currentPos.y] = false;
                 return holder;
             }
@@ -283,7 +325,68 @@ public class GameManager : MonoBehaviour {
             }
         }
     }
-
+	
+	public void calculateStakeableCards()
+	{
+		players[currentPlayerIndex].CurrentCard.transform.renderer.material.color = new Color(2,2,0);
+		
+		possibleStakes.Add(players[currentPlayerIndex].Position);
+		
+		int currentCardRow = (int)players[currentPlayerIndex].Position.x;
+		int currentCardCol = (int)players[currentPlayerIndex].Position.y;
+		
+//		Debug.Log(players[currentPlayerIndex].CurrentCard.GetComponent<Card>().data.row + ", " 
+//		          + players[currentPlayerIndex].CurrentCard.GetComponent<Card>().data.col);
+		
+		
+		if(currentCardRow - 1 >= 0)
+		{
+			int row = currentCardRow - 1;
+			int col = currentCardCol;
+			
+			Vector2 newV2 = new Vector2(row, col);
+			
+			board[row, col].transform.renderer.material.color = new Color(2,2,0);
+			
+			possibleStakes.Add(newV2);
+		}
+		
+		if(currentCardRow + 1 <= 12)
+		{
+			int row = currentCardRow + 1;
+			int col = currentCardCol;
+			
+			Vector2 newV2 = new Vector2(row, col);;
+			
+			board[row, col].transform.renderer.material.color = new Color(2,2,0);
+			
+			possibleStakes.Add(newV2);
+		}
+		
+		if(currentCardCol - 1 >= 0)
+		{
+			int row = currentCardRow;
+			int col = currentCardCol - 1;
+			
+			Vector2 newV2 = new Vector2(row, col);
+			
+			board[row, col].transform.renderer.material.color = new Color(2,2,0);
+			
+			possibleStakes.Add(newV2);
+		}
+		
+		if(currentCardCol + 1 <= 3)
+		{
+			int row = currentCardRow;
+			int col = currentCardCol + 1;
+			
+			Vector2 newV2 = new Vector2(row, col);
+			
+			board[row, col].transform.renderer.material.color = new Color(2,2,0);
+			
+			possibleStakes.Add(newV2);
+		}
+	}
 
     private int Roll(){
         return Random.Range(1, 6);

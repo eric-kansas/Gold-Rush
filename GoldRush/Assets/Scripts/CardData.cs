@@ -5,6 +5,7 @@ public class CardData {
 	
 	public int row;
 	public int col;
+	public bool staked;
 	
     private char _suit;
     public char Suit{
@@ -29,5 +30,6 @@ public class CardData {
         _kind = kind;
         _suit = suit;
 		_value = val;
+		staked = false;
     }
 }

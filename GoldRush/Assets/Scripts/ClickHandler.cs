@@ -9,16 +9,28 @@ public class ClickHandler : MonoBehaviour {
 	private GameManager gM;
 	public Player tempPlayer;
     List<Color> bodyColor;
-
+	GameObject tempStake;
+	private Card tempCard;
+	
+	private Card lastCard;
+	
+	public GameObject stakePrefab;
+	
+	
+	public Card TempCard
+	{
+		get {return tempCard;}
+	}
+	
     // Use this for initialization
     void Start()
     {
 		gM = transform.GetComponent<GameManager>();
         bodyColor = new List<Color>();
-        bodyColor.Add(new Color(1.0f, 0.0f, 0.0f));
-        bodyColor.Add(new Color(0.0f, 1.0f, 0.0f));
-        bodyColor.Add(new Color(0.0f, 0.0f, 1.0f));
-        bodyColor.Add(new Color(0.75f, 0.75f, 0.0f));
+        bodyColor.Add(new Color(1.0f, 0.0f, 0.0f, 0.7f));
+        bodyColor.Add(new Color(0.0f, 1.0f, 0.0f, 0.7f));
+        bodyColor.Add(new Color(0.0f, 0.0f, 1.0f, 0.7f));
+        bodyColor.Add(new Color(0.75f, 0.75f, 0.0f, 0.7f));
     }
 
     // Update is called once per frame
@@ -70,6 +82,7 @@ public class ClickHandler : MonoBehaviour {
         switch (GameStateManager.Instance.CurrentTurnState)
         {
             case GameStateManager.TurnState.TURN_MOVE:
+				tempStake = null; 
                 moveClick(hit, tempCard);
                 break;
             case GameStateManager.TurnState.TURN_STAKE:
@@ -79,9 +92,12 @@ public class ClickHandler : MonoBehaviour {
         }
     }
 
-    private void moveClick(RaycastHit hit, Card tempCard)
+ private void moveClick(RaycastHit hit, Card tempCard)
     {
         Debug.Log("move click");
+		
+		Vector3 lastPos = gM.players[gM.CurrentPlayerIndex].transform.position;
+		
         foreach (Vector2 pos in gM.moves)
         {
             if(pos.Equals(PositionToVector2(hit.transform.position)))
@@ -92,12 +108,32 @@ public class ClickHandler : MonoBehaviour {
                                      hit.transform.position.y + 0.25f,
                                      tempCard.transform.position.z);
                 gM.players[gM.CurrentPlayerIndex].transform.position = moveToLocation;
-
-
-                /* add this shit!!!!!
-                 * 
-                 */
-                gM.enabled = true;
+				
+				if(lastPos == gM.players[gM.CurrentPlayerIndex].transform.position)
+				{
+					GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
+					
+					
+					gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard;
+					
+					gM.players[gM.CurrentPlayerIndex].Position = PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);
+					
+					Debug.Log(hit.transform.gameObject.GetComponent<Card>().data.row + ", " +
+					          hit.transform.gameObject.GetComponent<Card>().data.col);
+					
+					int bW = gM.getBoardWidth();
+					int bH = gM.getBoardHeight();
+					
+					for (int i = 0; i < bW; i++)
+			        {
+			            for (int j = 0; j < bH; j++)
+			            {
+							 gM.board[i, j].transform.renderer.material.color = new Color(1,1,1,1);
+						}
+					}
+					
+					gM.calculateStakeableCards();
+				}
             }
         }
     }
@@ -105,14 +141,35 @@ public class ClickHandler : MonoBehaviour {
     private void stakeClick(RaycastHit hit, Card tempCard)
     {
         Debug.Log("stake click");
-
-
-        /* add this shit!!!!!
-        * 
-        */
-        gM.pEnabled = true;
+		
+		foreach (Vector2 pos in gM.possibleStakes)
+        {
+			if(pos.Equals(PositionToVector2(hit.transform.position)) && !tempCard.data.staked)
+            {
+				
+				if(tempStake == null)
+				{
+					tempStake = (GameObject)Instantiate(stakePrefab, hit.transform.position + new Vector3(0.0f, 0.01f, 0.0f),
+					                                               Quaternion.identity);
+					tempStake.transform.renderer.material.color = 
+						gM.players[gM.CurrentPlayerIndex].transform.renderer.material.color;
+				}
+				else
+				{
+					tempStake.transform.position = hit.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
+					
+					lastCard.data.staked = false;
+				}	
+				
+				tempCard.data.staked = true;
+				
+				int bW = gM.getBoardWidth();
+				int bH = gM.getBoardHeight();
+				
+				lastCard = tempCard;
+			}
+		}
     }
-
 
     private void setupClick(RaycastHit hit, Card tempCard)
     {
@@ -152,7 +209,7 @@ public class ClickHandler : MonoBehaviour {
         }
     }
 
-    private Vector2 PositionToVector2(Vector3 pos)
+    public Vector2 PositionToVector2(Vector3 pos)
     {
         Debug.Log("huh: " +pos.x);
 
