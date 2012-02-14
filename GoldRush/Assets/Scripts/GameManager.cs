@@ -107,11 +107,17 @@ public class GameManager : MonoBehaviour
 	private void OnGUI()
     {
         //Hand
+        float handWidth = 500f;
+        float handHeight = 140f;
+        GUILayout.BeginArea(new Rect(Screen.width - (Screen.width - 10), Screen.height - handHeight - 10, handWidth, handHeight));
+        GUILayout.BeginHorizontal();
         for (int i = 0; i < 5; i++)
         {
-            Texture2D test = new Texture2D(0,0);
-            GUI.Box(new Rect((Screen.width * (i * .06f) + (Screen.width * .1f)), (Screen.height * .82f), 75, 100), "Card " + (i + 1));
+            Texture2D test = new Texture2D(0, 0);
+            GUILayout.Box("Card " + (i + 1), GUILayout.Height(handHeight));
         }
+        GUILayout.EndHorizontal();
+        GUILayout.EndArea();
 
 		//set the text fields on the buttons
         #region Set text
