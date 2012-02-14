@@ -2,26 +2,38 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class ClickHandler : MonoBehaviour {
+public class ClickHandler : MonoBehaviour
+{
 
+    #region Properties
+    /* The card the player clicked on */
     private GameObject targetCard;
+
+    /* An imaginary line coming out of the card */
     private Vector3 normal;
+
+    /* GameManager - handles game logic */
 	private GameManager gM;
-	public Player tempPlayer;
+
+    /* A list of colors that the players can be. */ 
     List<Color> bodyColor;
-	GameObject tempStake;
-	private Card tempCard;
+
+    /* Temporary objects */
+    public Player tempPlayer;            // A newly created player before it is added to the players list
+	GameObject tempStake;                // Temporary stake that can be moved around the board before the player locks it in
+	private Card lastCard;              // The last card the player staked, which isn't yet locked in
 	
-	private Card lastCard;
-	
+    /* Stake asset */
 	public GameObject stakePrefab;
-	
-	
-	public Card TempCard
-	{
-		get {return tempCard;}
-	}
-	
+
+    public GameObject TempStake 
+    {
+        get { return tempStake; }
+        set { tempStake = value; }
+    }
+    #endregion
+
+
     // Use this for initialization
     void Start()
     {
@@ -82,7 +94,6 @@ public class ClickHandler : MonoBehaviour {
         switch (GameStateManager.Instance.CurrentTurnState)
         {
             case GameStateManager.TurnState.TURN_MOVE:
-				tempStake = null; 
                 moveClick(hit, tempCard);
                 break;
             case GameStateManager.TurnState.TURN_STAKE:
@@ -145,34 +156,29 @@ public class ClickHandler : MonoBehaviour {
     {
         Debug.Log("stake click");
 		
-		foreach (Vector2 pos in gM.possibleStakes)
+		foreach (Vector2 pos in gM.possibleStakes)  // go through all possible stake locations (should be 5 at most)
         {
-			if(pos.Equals(PositionToVector2(hit.transform.position)) && !tempCard.data.staked)
+			if(pos.Equals(PositionToVector2(hit.transform.position)) && !tempCard.data.staked) //see if card is valid and not already staked
             {
 				
-				if(tempStake == null)
+				if(tempStake == null) //create a stake if they haven't placed it
 				{
-					tempStake = (GameObject)Instantiate(stakePrefab, hit.transform.position + new Vector3(0.0f, 0.01f, 0.0f),
+					tempStake = (GameObject)Instantiate(stakePrefab, hit.transform.position + new Vector3(0.0f, 0.01f, 0.0f),   //create the stake
 					                                               Quaternion.identity);
-					tempStake.transform.renderer.material.color = 
+					tempStake.transform.renderer.material.color =               //set to current player's color
 						gM.players[gM.CurrentPlayerIndex].transform.renderer.material.color;
 					Debug.Log(gM.CurrentPlayerIndex);
-
-					gM.sEnabled = true; //stake has been placed, action button should move on to the next turn phase
 				}
-				else
+				else //otherwise move it around
 				{
-					tempStake.transform.position = hit.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
-					lastCard.data.staked = false;
-					gM.sEnabled = false;
-				}	
+					tempStake.transform.position = hit.transform.position + new Vector3(0.0f, 0.01f, 0.0f); // move the stake
+					lastCard.data.staked = false; //mark the previously staked card as free
+				}
+
+                gM.sEnabled = true; //stake has been placed, action button should move on to the next turn phase
+				tempCard.data.staked = true;    // mark the currently staked card as staked
 				
-				tempCard.data.staked = true;
-				
-				int bW = gM.getBoardWidth();
-				int bH = gM.getBoardHeight();
-				
-				lastCard = tempCard;
+				lastCard = tempCard;    //sets the last card equal to the current card
 			}
 		}
     }
@@ -203,13 +209,14 @@ public class ClickHandler : MonoBehaviour {
                 holderPlayer = (Player)Instantiate(tempPlayer, pos, Quaternion.identity);
             }
             holderPlayer.Position = PositionToVector2(pos);
-            Debug.Log("huh: " + holderPlayer.Position.x);
+            //Debug.Log("huh: " + holderPlayer.Position.x);
 
             //set color & add to game manager
             holderPlayer.transform.renderer.material.color = bodyColor[gM.players.Count];
             gM.players.Add(holderPlayer);
             if (gM.players.Count == gM.maxPlayers)
             {
+                Debug.Log("MAX");
                 GameStateManager.Instance.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
             }
         }
@@ -217,7 +224,7 @@ public class ClickHandler : MonoBehaviour {
 
     public Vector2 PositionToVector2(Vector3 pos)
     {
-        Debug.Log("huh: " +pos.x);
+        //Debug.Log("huh: " +pos.x);
 
 
         return new Vector2((int)((pos.x +.0001) / .88f) , (int)((pos.z +.0001) / 1.1f));

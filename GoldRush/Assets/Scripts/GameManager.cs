@@ -163,7 +163,6 @@ public class GameManager : MonoBehaviour
 			if (gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
 				gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
 
-
             switch (gameState.CurrentTurnState)
             {
 				case GameStateManager.TurnState.TURN_ROLL:		// The player is choosing to roll
@@ -221,15 +220,16 @@ public class GameManager : MonoBehaviour
         #endregion
 
         #region Skip-action logic
-		//start the game if there are enough players and a button is hit
-		if (players.Count > 1 && gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
-			gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
 
 		float width = 70;
         if (showSkipButton) //only show skip button if player can choose not to do this action
         {
             if (GUI.Button(new Rect(new Rect((actionBox.x + actionBox.width - width), (actionBox.y+actionBox.height), width, 20)), skipText))
             {
+                //start the game if there are enough players and a button is hit
+                if (players.Count > 1 && gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
+                    gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+
                 switch (gameState.CurrentTurnState)
                 {
                     case GameStateManager.TurnState.TURN_ROLL:		// the player is choosing to stay where they are and not roll the dice this turn
@@ -274,21 +274,23 @@ public class GameManager : MonoBehaviour
 	#endregion
 
 	# region Calculations
+
 	private void calculateMoveLocations()
     {
         Vector2 currentPlayerPos = players[currentPlayerIndex].Position;
         moves = findMoves(currentPlayerPos);
-
     }
 
 	private void calculateStakes()
 	{
+        //get the location of the current player based on the grid
 		players[CurrentPlayerIndex].Position = GetComponent<ClickHandler>().PositionToVector2(players[CurrentPlayerIndex].transform.position);
 
+        // set the card that the player is currently on
 		players[CurrentPlayerIndex].CurrentCard = board[(int)players[CurrentPlayerIndex].Position.x,
 													(int)players[CurrentPlayerIndex].Position.y].GetComponent<Card>();
 
-
+        //return board to default colors
 		for (int i = 0; i < BOARD_WIDTH; i++)
 		{
 			for (int j = 0; j < BOARD_HEIGHT; j++)
@@ -296,6 +298,8 @@ public class GameManager : MonoBehaviour
 				board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
 			}
 		}
+
+        //prospect - turn the card over
 		CreateMaterial(players[currentPlayerIndex].CurrentCard.data.TexCoordinate, board[(int)players[CurrentPlayerIndex].Position.x,
 													(int)players[CurrentPlayerIndex].Position.y]);
 
@@ -313,6 +317,9 @@ public class GameManager : MonoBehaviour
         return findMovesAccumlative(currentPlayerPos, 0, checkedList, holder);
     }
 
+    /// <summary>
+    /// Recursive function which would find all available moves
+    /// </summary>
     private List<Vector2> findMovesAccumlative(Vector2 currentPos, int currentCount, bool[,] looked, List<Vector2> holder)
     {
         //out of bounds
@@ -362,17 +369,18 @@ public class GameManager : MonoBehaviour
 	
 	public void calculateStakeableCards()
 	{
+        // color the cards that can be staked as yellow
 		players[currentPlayerIndex].CurrentCard.transform.renderer.material.color = new Color(2,2,0);
 		
+        // add the card the player is currently on
 		possibleStakes.Add(players[currentPlayerIndex].Position);
 		
+        // temp variables for current card's row and column
 		int currentCardRow = (int)players[currentPlayerIndex].Position.x;
 		int currentCardCol = (int)players[currentPlayerIndex].Position.y;
 		
-//		Debug.Log(players[currentPlayerIndex].CurrentCard.GetComponent<Card>().data.row + ", " 
-//		          + players[currentPlayerIndex].CurrentCard.GetComponent<Card>().data.col);
-		
-		
+        //check if the player is on the edge
+        //below the current card
 		if(currentCardRow - 1 >= 0)
 		{
 			int row = currentCardRow - 1;
@@ -380,11 +388,12 @@ public class GameManager : MonoBehaviour
 			
 			Vector2 newV2 = new Vector2(row, col);
 			
-			board[row, col].transform.renderer.material.color = new Color(2,2,0);
+			board[row, col].transform.renderer.material.color = new Color(2,2,0); // color yellow
 			
 			possibleStakes.Add(newV2);
 		}
 		
+        //above the current card
 		if(currentCardRow + 1 <= 12)
 		{
 			int row = currentCardRow + 1;
@@ -397,6 +406,7 @@ public class GameManager : MonoBehaviour
 			possibleStakes.Add(newV2);
 		}
 		
+        //left of the current card
 		if(currentCardCol - 1 >= 0)
 		{
 			int row = currentCardRow;
@@ -409,6 +419,7 @@ public class GameManager : MonoBehaviour
 			possibleStakes.Add(newV2);
 		}
 		
+        //right of the current card
 		if(currentCardCol + 1 <= 3)
 		{
 			int row = currentCardRow;
@@ -434,6 +445,9 @@ public class GameManager : MonoBehaviour
 				board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
 			}
 		}
+
+        //reset temporary stake
+        clicker.TempStake = null;
 
 		currentPlayerIndex++;	// move to next player
 		if (currentPlayerIndex >= players.Count)	//wrap around if necessary
