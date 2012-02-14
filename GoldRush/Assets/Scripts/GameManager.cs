@@ -2,46 +2,63 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class GameManager : MonoBehaviour {
-   
-    private const int BOARD_WIDTH = 13;
-    private const int BOARD_HEIGHT = 4;
+public class GameManager : MonoBehaviour
+{
 
-    public Texture2D CardTexture;
-    private const float CARD_TEX_X_OFFSET = 0.0687f;
-    private const float CARD_TEX_Y_OFFSET = 0.2f;
+	#region Properties
+	/* Game Stage Manager - Defines and controls various stages of the game, including actions within a given turn. */
+	private GameStateManager gameState;
 
-	private int currentPlayerIndex = 0;
-    private int currentRoll = -1;
+	/* ClickHandler - Handles mouse clicks */
+	private ClickHandler clicker;
 
-	public int maxPlayers = 2;
-    private GameStateManager gameState;
-    private ClickHandler clicker;
-	
-    public GameObject CardPrefab;
+	/* ScoringSystem - Used to count up the score for mined cards */
 	public ScoringSystem scoringSystem;
 
-    private CardData[] deck = new CardData[52];
-    private CardData[] hand = new CardData[5];
-    public List<Vector2> moves;
+	/* The game "board" - represents 52 cards laid out in a 13x4 pattern */
+	private const int BOARD_WIDTH = 13;
+    private const int BOARD_HEIGHT = 4;
+	public GameObject[,] board = new GameObject[BOARD_WIDTH, BOARD_HEIGHT];
 
-    public bool pEnabled = false, sEnabled = false;
-    private bool showSkipButton = false;
-	
-	public List<Vector2> possibleStakes = new List<Vector2>();
+	/* Represents a common deck of 52 cards */
+	private CardData[] deck = new CardData[52];
 
+	/* Card properties */
+	private char[] kinds = { 'A', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'J', 'Q', 'K' };
+	private int[] values = { 11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 };
+	private char[] suits = { 'C', 'D', 'H', 'S' };
+	public GameObject CardPrefab;									// Card asset
+    public Texture2D CardTexture;									// Used in giving individual cards the correct images
+    private const float CARD_TEX_X_OFFSET = 0.0687f;				// X offset changes the card value
+    private const float CARD_TEX_Y_OFFSET = 0.2f;					// y value changes the suit
 
-    // 0 = 10
-    private char[] kinds = {'A','2','3','4','5','6','7','8','9','0','J', 'Q', 'K'};
-    private int[] values = {11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 };
-    private char[] suits= { 'C', 'D', 'H', 'S'};
-	
+	/* Amount of players */
 	public List<Player> players;
+	public int maxPlayers = 4;										// How many players can be in the game
+	private int currentPlayerIndex = 0;								// Index of the current player
 
-    public GameObject[,] board = new GameObject[BOARD_WIDTH, BOARD_HEIGHT];
+	/* The dice roll the player rolled */
+    private int currentRoll = -1;
+
+	/* Lists for what can be done on the current turn */
+    public List<Vector2> moves;										// Locations the current player can move to as a result of their dice roll
+	public List<Vector2> possibleStakes = new List<Vector2>();		// Locations the player can stake a claim too (should be at most 5 positions)
+
+	/* Whether or not the player can prospect - depends on whether they rolled the dice, and whether they've actually moved or not*/
+    public bool pEnabled = false;
+
+	/* Whether or not the player has staked a claim */
+	public bool sEnabled = false;
+
+	/* Whether or not the current action can be skipped */
+    private bool showSkipButton = false;
+
     public bool[,] checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
 
-    public int CurrentPlayerIndex
+	#endregion
+
+	#region Accessors / Mutators
+	public int CurrentPlayerIndex
 	{
         get { return currentPlayerIndex; }
         set { currentPlayerIndex = value; }
@@ -66,7 +83,9 @@ public class GameManager : MonoBehaviour {
 		
 		return bH;
 	}
-	
+
+	#endregion
+
 	// Use this for initialization
 	void Start () {
         gameState = new GameStateManager();
@@ -84,7 +103,8 @@ public class GameManager : MonoBehaviour {
         BuildBoard();
 	}
 
-    private void OnGUI()
+	#region Update() and OnGUI()
+	private void OnGUI()
     {
         //Hand
         for (int i = 0; i < 5; i++)
@@ -93,12 +113,13 @@ public class GameManager : MonoBehaviour {
             GUI.Box(new Rect((Screen.width * (i * .06f) + (Screen.width * .1f)), (Screen.height * .82f), 75, 100), "Card " + (i + 1));
         }
 
+		//set the text fields on the buttons
         #region Set text
         string actionText = "", skipText = "";
         if (players.Count <= 1)
         {
             showSkipButton = false;
-            actionText = "Please place players.";
+            actionText = "Please place players.";		// If not enough player objects have been placed, let the players know.
         }
         else
         {
@@ -116,24 +137,28 @@ public class GameManager : MonoBehaviour {
                     actionText = "Stake";
                     if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
                     {
-                        showSkipButton = true;
-                        skipText = "Mine";
+                        showSkipButton = true;		// only once all a player's stakes have been placed and it goes into the mining phase,
+                        skipText = "Mine";			// players can skip the option to move their stakes around
                     }
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
                     actionText = "Mine";
                     skipText = "Roll";
+					showSkipButton = true;
                     break;
             }
         }
         #endregion
 
+		// This section controls what clicking on the Action button (larger button will do)
         #region Action logic
+		//actually create a rectangle object so the skip button can be based off the same location
 		Rect actionBox = new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75);
         if (GUI.Button(actionBox, actionText))
         {
-            if (players.Count <= 1) //if there aren't enough players, don't do anything
+            if (players.Count <= 1) //if there aren't enough players, the button should not do anything
                 return;
+
 			//start the game if there are enough players and a button is hit
 			if (gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
 				gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
@@ -141,43 +166,47 @@ public class GameManager : MonoBehaviour {
 
             switch (gameState.CurrentTurnState)
             {
-                case GameStateManager.TurnState.TURN_ROLL:
-
-                    currentRoll = Roll();
+				case GameStateManager.TurnState.TURN_ROLL:		// The player is choosing to roll
                     
-
-                    calculateMoveLocations();
-                    gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE;
+					currentRoll = Roll();		// roll the dice
+                    calculateMoveLocations();	// calculate where the player can move as a result of the dice roll
 
                     pEnabled = sEnabled = false; //reset these variables for this turn
-
 
                     // At the beginning, this bool is true - player can stay where he/she is by choosing not to roll. 
                     // Once the player rolls, he must move, so set this bool to false.
                     showSkipButton = false;
+
+					gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE; //move on to the next turn state
                     break;
-                case GameStateManager.TurnState.TURN_MOVE:
-					if (pEnabled)
-					{
+                case GameStateManager.TurnState.TURN_MOVE:	// the player is moving after rolling the dice
+					
+					if (pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
+					{			//pEnabled is set to true in clickHandler's moveClick()
 
-						GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
+						calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
-						calculateStakes();
+						GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
 					}
 					else
 						Debug.Log("Player rolled, they need to actually move");
-                    break;
-                case GameStateManager.TurnState.TURN_STAKE:
-					if (sEnabled)
-					{
-						clicker.myUpdate();
-						if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
-							gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
-						else
-							endTurn();
 
-						//the player can choose not to pick up a card this turn if he/she wants
-						showSkipButton = true;
+                    break;
+                case GameStateManager.TurnState.TURN_STAKE: //player is staking a claim after placing a marker
+
+					if (sEnabled) // make sure the player has actually placed a marker
+					{ //sEnabled is set to true in clickHandler's stakeClick()
+
+						// this can probably be deleted, since this handles clicks on the card, not on the buttons...
+						//clicker.myUpdate();
+
+						// Either move on or let the next player go
+						if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
+						{
+							gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
+							showSkipButton = true;		//the player can choose not to pick up a card this turn if he/she wants
+						} else
+							endTurn();
 					}
 					else
 						Debug.Log("Pressed with no stake placed");
@@ -203,42 +232,28 @@ public class GameManager : MonoBehaviour {
             {
                 switch (gameState.CurrentTurnState)
                 {
-                    case GameStateManager.TurnState.TURN_ROLL:
-                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
+                    case GameStateManager.TurnState.TURN_ROLL:		// the player is choosing to stay where they are and not roll the dice this turn
+
                         pEnabled = true; //player is skipping rolling, meaning they can prospect without moving
 						sEnabled = false; //reset stake boolean, player still needs to do this
-                        showSkipButton = false;
 
-						calculateStakes();
+						calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
+
+						gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
                         break;
-                    case GameStateManager.TurnState.TURN_STAKE:
+                    case GameStateManager.TurnState.TURN_STAKE: //player is not moving his stakes his turn (option is available in mining phase only)
                         gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
                         break;
                     case GameStateManager.TurnState.TURN_MINE:
-                        endTurn();
+                        
+						endTurn(); //after the player takes a card, the turn ends
                         break;
                 }
             }
         }
         #endregion
-    }
+	}
 
-    public void endTurn()
-    {
-		
-		for (int i = 0; i < BOARD_WIDTH; i++)
-	    {
-            for (int j = 0; j < BOARD_HEIGHT; j++)
-            {
-				 board[i, j].transform.renderer.material.color = new Color(1,1,1,1);
-			}
-		}
-		
-        currentPlayerIndex++;
-        if (currentPlayerIndex >= players.Count)
-            currentPlayerIndex = 0;
-        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
-    }
 
     // Update is called once per frame
     void Update()
@@ -256,28 +271,10 @@ public class GameManager : MonoBehaviour {
             default: Debug.Log("whoops"); break;
         }
 	}
+	#endregion
 
-    private void prospectingTurn()
-    {
-        switch (gameState.CurrentTurnState)
-        {
-            case GameStateManager.TurnState.TURN_ROLL:
-                break;
-            case GameStateManager.TurnState.TURN_MOVE:
-                clicker.myUpdate();
-                break;
-            case GameStateManager.TurnState.TURN_STAKE:
-                //Debug.Log("turn state: TURN_STAKE");
-                clicker.myUpdate();
-                break;
-            case GameStateManager.TurnState.TURN_MINE:
-                //Debug.Log("turn state: TURN_MINE"); 
-                break;
-            default: Debug.Log("whoops"); break;
-        }
-    }
-
-    private void calculateMoveLocations()
+	# region Calculations
+	private void calculateMoveLocations()
     {
         Vector2 currentPlayerPos = players[currentPlayerIndex].Position;
         moves = findMoves(currentPlayerPos);
@@ -424,14 +421,37 @@ public class GameManager : MonoBehaviour {
 			possibleStakes.Add(newV2);
 		}
 	}
+	#endregion
 
-    private int Roll(){
+	#region Actions
+	public void endTurn()
+	{
+		//return board to default color, remove hightlighting from highlighted cards
+		for (int i = 0; i < BOARD_WIDTH; i++)
+		{
+			for (int j = 0; j < BOARD_HEIGHT; j++)
+			{
+				board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
+			}
+		}
+
+		currentPlayerIndex++;	// move to next player
+		if (currentPlayerIndex >= players.Count)	//wrap around if necessary
+			currentPlayerIndex = 0;
+
+		//move turn state back to the beginning
+		gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
+	}
+
+	private int Roll(){
 		int currentRoll = Random.Range(1, 6);
 		Debug.Log("rolled: " + currentRoll);
 		return currentRoll;
     }
+	#endregion
 
-    private void BuildDeck()
+	#region setup
+	private void BuildDeck()
     {
         int counter = 0;
         for (int i = 0; i < kinds.Length; i++)
@@ -501,5 +521,29 @@ public class GameManager : MonoBehaviour {
         newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);
         newMat.mainTextureOffset = new Vector2(CARD_TEX_X_OFFSET * -Coordinate.x, CARD_TEX_Y_OFFSET * Coordinate.y);
         Card.renderer.material = newMat;
-    }
+	}
+	#endregion
+
+
+	private void prospectingTurn()
+	{
+		switch (gameState.CurrentTurnState)
+		{
+			case GameStateManager.TurnState.TURN_ROLL:
+				break;
+			case GameStateManager.TurnState.TURN_MOVE:
+				clicker.myUpdate();
+				break;
+			case GameStateManager.TurnState.TURN_STAKE:
+				//Debug.Log("turn state: TURN_STAKE");
+				clicker.myUpdate();
+				break;
+			case GameStateManager.TurnState.TURN_MINE:
+				//Debug.Log("turn state: TURN_MINE"); 
+				break;
+			default:
+				Debug.Log("whoops");
+				break;
+		}
+	}
 }
