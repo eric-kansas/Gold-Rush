@@ -1,1 +1,0 @@
- - If a player doesn't move, but chooses to stay where they are and prospect a card, laying a stake will move the previous player's stake instead of adding a new one of the current player's color
