@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
     private bool showSkipButton = false;
 
     public bool[,] checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
-    public int numProspectingTurns = 1;
+    public int numProspectingTurns = 5;
 
 	#endregion
 
@@ -193,13 +193,12 @@ public class GameManager : MonoBehaviour
 					if (pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
 					{			//pEnabled is set to true in clickHandler's moveClick()
 
-                        if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
-                        {
-                            calculateMines();
-                        }else
-                        {
-                            calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
-                        }
+                        players[currentPlayerIndex].CurrentCard = clicker.TempCard; //set the player's current card
+
+                        players[CurrentPlayerIndex].Position = clicker.PositionToVector2(players[currentPlayerIndex].transform.position);   //update the player's grid position
+
+                        clearHighlights();
+                        calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
                         gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
 						GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
@@ -464,7 +463,7 @@ public class GameManager : MonoBehaviour
 
         //reset temporary stake
         clicker.TempStake = null;
-        clicker.selectedStake = false;
+        clicker.selectedCard = false;
 
 		currentPlayerIndex++;	// move to next player
 		if (currentPlayerIndex >= players.Count)	//wrap around if necessary
@@ -485,7 +484,7 @@ public class GameManager : MonoBehaviour
 	}
 
     //return board to default color, remove hightlighting from highlighted cards
-    private void clearHighlights()
+    public void clearHighlights()
     {
         for (int i = 0; i < BOARD_WIDTH; i++)
         {

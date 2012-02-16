@@ -22,3 +22,11 @@ C:\Users\Jack\Gold-Rush\GoldRush\Temp\bin\Debug\nunit.framework.dll
 C:\Users\Jack\Gold-Rush\GoldRush\obj\Debug\ResolveAssemblyReference.cache
 C:\Users\Jack\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp-firstpass.dll
 C:\Users\Jack\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp-firstpass.pdb
+P:\Users\emh5567\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-CSharp-firstpass.dll
+P:\Users\emh5567\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
+P:\Users\emh5567\Gold-Rush\GoldRush\Temp\bin\Debug\UnityEditor.dll
+P:\Users\emh5567\Gold-Rush\GoldRush\Temp\bin\Debug\UnityEngine.dll
+P:\Users\emh5567\Gold-Rush\GoldRush\Temp\bin\Debug\nunit.framework.dll
+P:\Users\emh5567\Gold-Rush\GoldRush\obj\Debug\ResolveAssemblyReference.cache
+P:\Users\emh5567\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp-firstpass.dll
+P:\Users\emh5567\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp-firstpass.pdb
