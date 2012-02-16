@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
 	/* The dice roll the player rolled */
     private int currentRoll = -1;
 
+    /* The number of turns that have passed so far for this phase */
+    private int phaseTurns = 0;
+
 	/* Lists for what can be done on the current turn */
     public List<Vector2> moves;										// Locations the current player can move to as a result of their dice roll
 	public List<Vector2> possibleStakes = new List<Vector2>();		// Locations the player can stake a claim too (should be at most 5 positions)
@@ -54,6 +57,7 @@ public class GameManager : MonoBehaviour
     private bool showSkipButton = false;
 
     public bool[,] checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
+    public int numProspectingTurns = 1;
 
 	#endregion
 
@@ -189,8 +193,15 @@ public class GameManager : MonoBehaviour
 					if (pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
 					{			//pEnabled is set to true in clickHandler's moveClick()
 
-						calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
+                        if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
+                        {
+                            calculateMines();
+                        }else
+                        {
+                            calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
+                        }
 
+                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
 						GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
 					}
 					else
@@ -210,6 +221,10 @@ public class GameManager : MonoBehaviour
 						{
 							gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
 							showSkipButton = true;		//the player can choose not to pick up a card this turn if he/she wants
+                            
+                            //clear board and show new highlights
+                            clearHighlights();
+                            calculateMines();
 						} else
 							endTurn();
 					}
@@ -218,7 +233,8 @@ public class GameManager : MonoBehaviour
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
                     Debug.Log("turn state: TURN_MINE");
-					endTurn();
+                   
+					//endTurn();
                     break;
                 default: Debug.Log("whoops"); break;
             }
@@ -242,8 +258,6 @@ public class GameManager : MonoBehaviour
 
                         pEnabled = true; //player is skipping rolling, meaning they can prospect without moving
 						sEnabled = false; //reset stake boolean, player still needs to do this
-
-						calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
 						gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
                         break;
@@ -272,7 +286,9 @@ public class GameManager : MonoBehaviour
             case GameStateManager.GameState.GAME_PROSPECTING_STATE:
                 prospectingTurn();
                 break;
-            case GameStateManager.GameState.GAME_MINING_STATE: break;
+            case GameStateManager.GameState.GAME_MINING_STATE:
+                prospectingTurn();
+                break;
             case GameStateManager.GameState.GAME_END: break;
             default: Debug.Log("whoops"); break;
         }
@@ -297,23 +313,23 @@ public class GameManager : MonoBehaviour
 													(int)players[CurrentPlayerIndex].Position.y].GetComponent<Card>();
 
         //return board to default colors
-		for (int i = 0; i < BOARD_WIDTH; i++)
-		{
-			for (int j = 0; j < BOARD_HEIGHT; j++)
-			{
-				board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
-			}
-		}
+        clearHighlights();
 
         //prospect - turn the card over
 		CreateMaterial(players[currentPlayerIndex].CurrentCard.data.TexCoordinate, board[(int)players[CurrentPlayerIndex].Position.x,
 													(int)players[CurrentPlayerIndex].Position.y]);
-
-
 		Debug.Log("Calc Stakes");
 
 		calculateStakeableCards();
 	}
+
+    public void calculateMines()
+    {
+        for (int i = 0; i < players[currentPlayerIndex].stakes.Count; i++)
+        {
+            players[currentPlayerIndex].stakedCards[i].transform.renderer.material.color = new Color(2, 2, 0);
+        }
+    }
 
     private List<Vector2> findMoves(Vector2 currentPlayerPos)
     {
@@ -444,24 +460,41 @@ public class GameManager : MonoBehaviour
 	public void endTurn()
 	{
 		//return board to default color, remove hightlighting from highlighted cards
-		for (int i = 0; i < BOARD_WIDTH; i++)
-		{
-			for (int j = 0; j < BOARD_HEIGHT; j++)
-			{
-				board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
-			}
-		}
+        clearHighlights();
 
         //reset temporary stake
         clicker.TempStake = null;
+        clicker.selectedStake = false;
 
 		currentPlayerIndex++;	// move to next player
 		if (currentPlayerIndex >= players.Count)	//wrap around if necessary
 			currentPlayerIndex = 0;
+        
+        //increment the turns and check if game state needs to be changed
+        phaseTurns++;
+
+        if (phaseTurns >= players.Count * numProspectingTurns)
+        {
+            gameState.CurrentGameState = GameStateManager.GameState.GAME_MINING_STATE;  //move on to the next game state
+            GameStateManager.Instance.CurrentGameState = GameStateManager.GameState.GAME_MINING_STATE;  //move on to the next game state
+            phaseTurns = 0;
+        }
 
 		//move turn state back to the beginning
 		gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
 	}
+
+    //return board to default color, remove hightlighting from highlighted cards
+    private void clearHighlights()
+    {
+        for (int i = 0; i < BOARD_WIDTH; i++)
+        {
+            for (int j = 0; j < BOARD_HEIGHT; j++)
+            {
+                board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
+            }
+        }
+    }
 
 	private int Roll(){
 		int currentRoll = Random.Range(1, 6);
@@ -560,10 +593,12 @@ public class GameManager : MonoBehaviour
 				break;
 			case GameStateManager.TurnState.TURN_MINE:
 				//Debug.Log("turn state: TURN_MINE"); 
+                clicker.myUpdate();
 				break;
 			default:
 				Debug.Log("whoops");
 				break;
 		}
 	}
+
 }

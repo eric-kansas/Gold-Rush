@@ -18,3 +18,13 @@ C:\Users\Gary\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
 C:\Users\Gary\Gold-Rush\GoldRush\obj\Debug\ResolveAssemblyReference.cache
 C:\Users\Gary\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp.dll
 C:\Users\Gary\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp.pdb
+C:\Users\Jack\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-CSharp.dll
+C:\Users\Jack\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-CSharp.pdb
+C:\Users\Jack\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-UnityScript-firstpass.dll
+C:\Users\Jack\Gold-Rush\GoldRush\Temp\bin\Debug\UnityEditor.dll
+C:\Users\Jack\Gold-Rush\GoldRush\Temp\bin\Debug\UnityEngine.dll
+C:\Users\Jack\Gold-Rush\GoldRush\Temp\bin\Debug\nunit.framework.dll
+C:\Users\Jack\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
+C:\Users\Jack\Gold-Rush\GoldRush\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Jack\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp.dll
+C:\Users\Jack\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp.pdb
