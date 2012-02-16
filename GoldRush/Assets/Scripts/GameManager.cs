@@ -57,7 +57,9 @@ public class GameManager : MonoBehaviour
     private bool showSkipButton = false;
 
     public bool[,] checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
-    public int numProspectingTurns = 5;
+
+	/* Number of turns the player will have in the first round. Also used as the number of stakes the player will have. */
+    public int numProspectingTurns = 1;
 
 	#endregion
 
@@ -147,6 +149,7 @@ public class GameManager : MonoBehaviour
                     actionText = "Stake";
                     if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
                     {
+						Debug.Log("Staking, mining state");
                         showSkipButton = true;		// only once all a player's stakes have been placed and it goes into the mining phase,
                         skipText = "Mine";			// players can skip the option to move their stakes around
                     }
@@ -180,8 +183,6 @@ public class GameManager : MonoBehaviour
 					currentRoll = Roll();		// roll the dice
                     calculateMoveLocations();	// calculate where the player can move as a result of the dice roll
 
-                    pEnabled = sEnabled = false; //reset these variables for this turn
-
                     // At the beginning, this bool is true - player can stay where he/she is by choosing not to roll. 
                     // Once the player rolls, he must move, so set this bool to false.
                     showSkipButton = false;
@@ -200,8 +201,7 @@ public class GameManager : MonoBehaviour
                         clearHighlights();
                         calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
-                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
-						GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
+                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
 					}
 					else
 						Debug.Log("Player rolled, they need to actually move");
@@ -254,9 +254,13 @@ public class GameManager : MonoBehaviour
                 switch (gameState.CurrentTurnState)
                 {
                     case GameStateManager.TurnState.TURN_ROLL:		// the player is choosing to stay where they are and not roll the dice this turn
+						Debug.Log("Skipped movement");
 
                         pEnabled = true; //player is skipping rolling, meaning they can prospect without moving
 						sEnabled = false; //reset stake boolean, player still needs to do this
+
+						clearHighlights();
+                        calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
 						gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
                         break;
@@ -464,6 +468,9 @@ public class GameManager : MonoBehaviour
         //reset temporary stake
         clicker.TempStake = null;
         clicker.selectedCard = false;
+		
+		//reset for this turn - the player hasn't moved or placed a stake
+		pEnabled = sEnabled = false;
 
 		currentPlayerIndex++;	// move to next player
 		if (currentPlayerIndex >= players.Count)	//wrap around if necessary
