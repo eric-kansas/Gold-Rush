@@ -26,6 +26,8 @@ public class ClickHandler : MonoBehaviour
 	
     /* Stake asset */
 	public GameObject stakePrefab;
+
+	/* Whether or not the player has selected a card to stake (in mining phase) */
     public bool selectedCard = false;
 
     public GameObject TempStake 
@@ -197,8 +199,9 @@ public class ClickHandler : MonoBehaviour
     private void stakeClickMiningPhase(RaycastHit hit)
     {
         Debug.Log("stake click mining phase");
-        if (!selectedCard) //select a stake to move
+		if (!selectedCard || gM.players[gM.CurrentPlayerIndex].stakedCards.Contains(tempCard))
         {
+			//selecting where to place a stake
             Debug.Log("here in first part");
             foreach (Vector2 pos in gM.possibleStakes)  // go through all possible stake locations (should be 5 at most)
             {
@@ -206,13 +209,15 @@ public class ClickHandler : MonoBehaviour
                 {
                     if (tempStake == null)
                     {
+						Debug.Log("Tempstake is null");
                         selectedCard = true;    //player has selected a card to stake
                         lastCard = tempCard;    //save selected card
                         gM.clearHighlights();   //clear board highlights
                         gM.calculateMines();    //now calculate already staked cards so a stake can be moved
                     }
                     else
-                    {
+					{
+						Debug.Log("Tempstake is not");
                         clearStakeValues();
 
                         tempStake.transform.position = tempCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f); // move the stake
@@ -226,7 +231,7 @@ public class ClickHandler : MonoBehaviour
         }
         else
         {
-            
+			Debug.Log("Second part");
             //loop through number of stakes
             for (int i = 0; i < gM.numProspectingTurns; i++)
             {
@@ -236,14 +241,27 @@ public class ClickHandler : MonoBehaviour
                    
                     tempStake = gM.players[gM.CurrentPlayerIndex].stakes[i]; //save stake to move
 
-                    clearStakeValues();
+					//free old stake
+					lastCard.data.staked = false;
+					gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(gM.players[gM.CurrentPlayerIndex].stakedCards[i]);
+					gM.players[gM.CurrentPlayerIndex].stakes.Remove(gM.players[gM.CurrentPlayerIndex].stakes[i]);
 
-                    tempStake.transform.position = lastCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f); // move the stake
+					// move the stake
+					tempStake.transform.position = lastCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
+					Vector2 newPosition = PositionToVector2(tempStake.transform.position);
+					tempCard.data.row = (int)newPosition.x;
+					tempCard.data.col = (int)newPosition.y;
+					Debug.Log("Pos: " + newPosition + " Card: (" + tempCard.data.row + ", " + tempCard.data.col + ")");
+
+					//mark new stake
+					tempCard.data.staked = true;
+					gM.players[gM.CurrentPlayerIndex].stakedCards.Add(tempCard);
+					gM.players[gM.CurrentPlayerIndex].stakes.Add(tempStake);
 
                     gM.sEnabled = true; //stake has been placed, action button should move on to the next turn phase
                     
                     lastCard = tempCard;    //sets the last card equal to the current card
-                    selectedCard = false;
+					selectedCard = false;
 
                     gM.clearHighlights();
                     gM.calculateStakeableCards();
