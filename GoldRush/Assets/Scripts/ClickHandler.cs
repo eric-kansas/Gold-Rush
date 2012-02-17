@@ -48,10 +48,10 @@ public class ClickHandler : MonoBehaviour
     {
 		gM = transform.GetComponent<GameManager>();
         bodyColor = new List<Color>();
-        bodyColor.Add(new Color(1.0f, 0.0f, 0.0f, 0.7f));
-        bodyColor.Add(new Color(0.0f, 1.0f, 0.0f, 0.7f));
-        bodyColor.Add(new Color(0.0f, 0.0f, 1.0f, 0.7f));
-        bodyColor.Add(new Color(0.75f, 0.75f, 0.0f, 0.7f));
+        bodyColor.Add(new Color(1.0f, 0.0f, 0.0f, 0.5f));
+        bodyColor.Add(new Color(0.0f, 1.0f, 0.0f, 0.5f));
+        bodyColor.Add(new Color(0.0f, 0.0f, 1.0f, 0.5f));
+        bodyColor.Add(new Color(0.75f, 0.75f, 0.0f, 0.5f));
     }
 
     // Update is called once per frame
