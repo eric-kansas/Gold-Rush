@@ -149,7 +149,6 @@ public class GameManager : MonoBehaviour
                     actionText = "Stake";
                     if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
                     {
-						Debug.Log("Staking, mining state");
                         showSkipButton = true;		// only once all a player's stakes have been placed and it goes into the mining phase,
                         skipText = "Mine";			// players can skip the option to move their stakes around
                     }
@@ -163,7 +162,7 @@ public class GameManager : MonoBehaviour
         }
         #endregion
 
-		// This section controls what clicking on the Action button (larger button will do)
+		// This section controls what clicking on the Action button (larger button) will do
         #region Action logic
 		//actually create a rectangle object so the skip button can be based off the same location
 		Rect actionBox = new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75);
@@ -212,8 +211,7 @@ public class GameManager : MonoBehaviour
 					if (sEnabled) // make sure the player has actually placed a marker
 					{ //sEnabled is set to true in clickHandler's stakeClick()
 
-						// this can probably be deleted, since this handles clicks on the card, not on the buttons...
-						//clicker.myUpdate();
+						//clicker.selectedCard = false;
 
 						// Either move on or let the next player go
 						if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
@@ -240,6 +238,7 @@ public class GameManager : MonoBehaviour
         }
         #endregion
 
+		// This section controls what clicking on the Skip button (smaller button) will do
         #region Skip-action logic
 
 		float width = 70;
@@ -277,7 +276,6 @@ public class GameManager : MonoBehaviour
         #endregion
 	}
 
-
     // Update is called once per frame
     void Update()
     {
@@ -287,10 +285,10 @@ public class GameManager : MonoBehaviour
                 clicker.myUpdate();    
                 break;
             case GameStateManager.GameState.GAME_PROSPECTING_STATE:
-                prospectingTurn();
+				handleTurn();
                 break;
             case GameStateManager.GameState.GAME_MINING_STATE:
-                prospectingTurn();
+				handleTurn();
                 break;
             case GameStateManager.GameState.GAME_END: break;
             default: Debug.Log("whoops"); break;
@@ -583,8 +581,7 @@ public class GameManager : MonoBehaviour
 	}
 	#endregion
 
-
-	private void prospectingTurn()
+	private void handleTurn()
 	{
 		switch (gameState.CurrentTurnState)
 		{
