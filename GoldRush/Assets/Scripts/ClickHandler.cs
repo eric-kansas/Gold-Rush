@@ -199,8 +199,9 @@ public class ClickHandler : MonoBehaviour
     private void stakeClickMiningPhase(RaycastHit hit)
     {
         Debug.Log("stake click mining phase");
-        if (!selectedCard) //select a stake to move
+		if (!selectedCard || gM.players[gM.CurrentPlayerIndex].stakedCards.Contains(tempCard))
         {
+			//selecting where to place a stake
             Debug.Log("here in first part");
             foreach (Vector2 pos in gM.possibleStakes)  // go through all possible stake locations (should be 5 at most)
             {
