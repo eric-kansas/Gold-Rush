@@ -7,10 +7,13 @@ public class GameManager : MonoBehaviour
 
 	#region Properties
 	/* Game Stage Manager - Defines and controls various stages of the game, including actions within a given turn. */
-	private GameStateManager gameState;
+	public GameStateManager gameState;
 
 	/* ClickHandler - Handles mouse clicks */
 	private ClickHandler clicker;
+
+    /* GUI */
+    private GuiHandler gui;
 
 	/* ScoringSystem - Used to count up the score for mined cards */
 	public ScoringSystem scoringSystem;
@@ -52,9 +55,6 @@ public class GameManager : MonoBehaviour
 
 	/* Whether or not the player has staked a claim */
 	public bool sEnabled = false;
-
-	/* Whether or not the current action can be skipped */
-    private bool showSkipButton = false;
 
     public bool[,] checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
 
@@ -98,6 +98,7 @@ public class GameManager : MonoBehaviour
 		scoringSystem = new ScoringSystem();
 		scoringSystem.selectSystem(new Grouping());
         clicker = this.GetComponent<ClickHandler>();
+        gui = this.GetComponent<GuiHandler>();
 		
         if (!CardPrefab)
             Debug.LogError("No card prefab set.");
@@ -149,158 +150,10 @@ public class GameManager : MonoBehaviour
         GUILayout.EndArea();
 		#endregion
 
-		#region Buttons
-		//set the text fields on the buttons
-        #region Set text
-        string actionText = "", skipText = "";
-        if (players.Count <= 1)
-        {
-            showSkipButton = false;
-            actionText = "Please place players.";		// If not enough player objects have been placed, let the players know.
-        }
-        else
-        {
-            switch (gameState.CurrentTurnState)
-            {
-                case GameStateManager.TurnState.TURN_ROLL:
-                    actionText = "Roll";
-                    skipText = "Prospect";
-                    showSkipButton = true;
-                    break;
-                case GameStateManager.TurnState.TURN_MOVE:
-                    actionText = "Prospect";
-                    break;
-                case GameStateManager.TurnState.TURN_STAKE:
-                    actionText = "Stake";
-                    if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
-                    {
-                        showSkipButton = true;		// only once all a player's stakes have been placed and it goes into the mining phase,
-                        skipText = "Mine";			// players can skip the option to move their stakes around
-                    }
-                    break;
-                case GameStateManager.TurnState.TURN_MINE:
-                    actionText = "Mine";
-                    skipText = "Roll";
-					showSkipButton = true;
-                    break;
-            }
-        }
-        #endregion
-
-		// This section controls what clicking on the Action button (larger button) will do
-        #region Action logic
-		//actually create a rectangle object so the skip button can be based off the same location
-		Rect actionBox = new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75);
-        if (GUI.Button(actionBox, actionText))
-        {
-            if (players.Count <= 1) //if there aren't enough players, the button should not do anything
-                return;
-
-			//start the game if there are enough players and a button is hit
-			if (gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
-				gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
-
-            switch (gameState.CurrentTurnState)
-            {
-				case GameStateManager.TurnState.TURN_ROLL:		// The player is choosing to roll
-                    
-					currentRoll = Roll();		// roll the dice
-                    calculateMoveLocations();	// calculate where the player can move as a result of the dice roll
-
-                    // At the beginning, this bool is true - player can stay where he/she is by choosing not to roll. 
-                    // Once the player rolls, he must move, so set this bool to false.
-                    showSkipButton = false;
-
-					gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE; //move on to the next turn state
-                    break;
-                case GameStateManager.TurnState.TURN_MOVE:	// the player is moving after rolling the dice
-					
-					if (pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
-					{			//pEnabled is set to true in clickHandler's moveClick()
-
-                        players[currentPlayerIndex].CurrentCard = clicker.TempCard; //set the player's current card
-
-                        players[CurrentPlayerIndex].Position = clicker.PositionToVector2(players[currentPlayerIndex].transform.position);   //update the player's grid position
-
-                        clearHighlights();
-                        calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
-
-                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
-					}
-					else
-						Debug.Log("Player rolled, they need to actually move");
-
-                    break;
-                case GameStateManager.TurnState.TURN_STAKE: //player is staking a claim after placing a marker
-
-					if (sEnabled) // make sure the player has actually placed a marker
-					{ //sEnabled is set to true in clickHandler's stakeClick()
-
-						//clicker.selectedCard = false;
-
-						// Either move on or let the next player go
-						if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
-						{
-							gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
-							showSkipButton = true;		//the player can choose not to pick up a card this turn if he/she wants
-                            
-                            //clear board and show new highlights
-                            clearHighlights();
-                            calculateMines();
-						} else
-							endTurn();
-					}
-					else
-						Debug.Log("Pressed with no stake placed");
-                    break;
-                case GameStateManager.TurnState.TURN_MINE:
-                    Debug.Log("turn state: TURN_MINE");
-                   
-					//endTurn();
-                    break;
-                default: Debug.Log("whoops"); break;
-            }
-        }
-        #endregion
-
-		// This section controls what clicking on the Skip button (smaller button) will do
-        #region Skip-action logic
-
-		float width = 70;
-        if (showSkipButton) //only show skip button if player can choose not to do this action
-        {
-            if (GUI.Button(new Rect(new Rect((actionBox.x + actionBox.width - width), (actionBox.y+actionBox.height), width, 20)), skipText))
-            {
-                //start the game if there are enough players and a button is hit
-                if (players.Count > 1 && gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
-                    gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
-
-                switch (gameState.CurrentTurnState)
-                {
-                    case GameStateManager.TurnState.TURN_ROLL:		// the player is choosing to stay where they are and not roll the dice this turn
-						Debug.Log("Skipped movement");
-
-                        pEnabled = true; //player is skipping rolling, meaning they can prospect without moving
-						sEnabled = false; //reset stake boolean, player still needs to do this
-
-						clearHighlights();
-                        calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
-
-						gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
-                        break;
-                    case GameStateManager.TurnState.TURN_STAKE: //player is not moving his stakes his turn (option is available in mining phase only)
-                        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
-                        break;
-                    case GameStateManager.TurnState.TURN_MINE:
-                        
-						endTurn(); //after the player takes a card, the turn ends
-                        break;
-                }
-            }
-        }
-        #endregion
-
-		#endregion
+        gui.adjustLocation();
+        gui.setText();
+        gui.handleAction();
+        gui.handleSkip();
 	}
 
     // Update is called once per frame
@@ -325,13 +178,13 @@ public class GameManager : MonoBehaviour
 
 	# region Calculations
 
-	private void calculateMoveLocations()
+	public void calculateMoveLocations()
     {
         Vector2 currentPlayerPos = players[currentPlayerIndex].Position;
         moves = findMoves(currentPlayerPos);
     }
 
-	private void calculateStakes()
+	public void calculateStakes()
 	{
         //get the location of the current player based on the grid
 		players[CurrentPlayerIndex].Position = GetComponent<ClickHandler>().PositionToVector2(players[CurrentPlayerIndex].transform.position);
@@ -527,7 +380,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-	private int Roll(){
+	public int Roll(){
 		int currentRoll = Random.Range(1, 6);
 		Debug.Log("rolled: " + currentRoll);
 		return currentRoll;

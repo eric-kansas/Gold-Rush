@@ -198,18 +198,15 @@ public class ClickHandler : MonoBehaviour
 
     private void stakeClickMiningPhase(RaycastHit hit)
     {
-        Debug.Log("stake click mining phase");
-		if (!selectedCard || gM.players[gM.CurrentPlayerIndex].stakedCards.Contains(tempCard))
+		if (!selectedCard)
         {
 			//selecting where to place a stake
-            Debug.Log("here in first part");
             foreach (Vector2 pos in gM.possibleStakes)  // go through all possible stake locations (should be 5 at most)
             {
                 if (pos.Equals(PositionToVector2(hit.transform.position)) && !tempCard.data.staked) //see if card is valid and not already staked
                 {
                     if (tempStake == null)
                     {
-						Debug.Log("Tempstake is null");
                         selectedCard = true;    //player has selected a card to stake
                         lastCard = tempCard;    //save selected card
                         gM.clearHighlights();   //clear board highlights
@@ -217,7 +214,6 @@ public class ClickHandler : MonoBehaviour
                     }
                     else
 					{
-						Debug.Log("Tempstake is not");
                         clearStakeValues();
 
                         tempStake.transform.position = tempCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f); // move the stake
@@ -231,7 +227,6 @@ public class ClickHandler : MonoBehaviour
         }
         else
         {
-			Debug.Log("Second part");
             //loop through number of stakes
             for (int i = 0; i < gM.numProspectingTurns; i++)
             {
@@ -249,9 +244,6 @@ public class ClickHandler : MonoBehaviour
 					// move the stake
 					tempStake.transform.position = lastCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
 					Vector2 newPosition = PositionToVector2(tempStake.transform.position);
-					tempCard.data.row = (int)newPosition.x;
-					tempCard.data.col = (int)newPosition.y;
-					Debug.Log("Pos: " + newPosition + " Card: (" + tempCard.data.row + ", " + tempCard.data.col + ")");
 
 					//mark new stake
 					tempCard.data.staked = true;
