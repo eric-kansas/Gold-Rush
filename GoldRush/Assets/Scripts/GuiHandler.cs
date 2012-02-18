@@ -65,7 +65,14 @@ public class GuiHandler : MonoBehaviour {
                     if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
                     {
                         showSkipButton = true;		// only once all a player's stakes have been placed and it goes into the mining phase,
-                        skipText = "Mine";			// players can skip the option to move their stakes around
+                        if (gM.cancelStake)
+                        {
+                            skipText = "Cancel";			// players can skip the option to move their stakes around
+                        }
+                        else
+                        {
+                            skipText = "Mine";			// players can skip the option to move their stakes around
+                        }
                     }
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
@@ -184,10 +191,20 @@ public class GuiHandler : MonoBehaviour {
                         gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
                         break;
                     case GameStateManager.TurnState.TURN_STAKE: //player is not moving his stakes his turn (option is available in mining phase only)
-                        gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
+                        if (gM.cancelStake)
+                        {
+                            gM.clicker.resetStaking();
+                            gM.cancelStake = false;
+                            gM.sEnabled = false;
+                        }
+                        else
+                        {
+                            gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
+                            gM.clearHighlights();
+                            gM.calculateMines();
+                        }
                         break;
                     case GameStateManager.TurnState.TURN_MINE:
-
                         gM.endTurn(); //after the player takes a card, the turn ends
                         break;
                 }

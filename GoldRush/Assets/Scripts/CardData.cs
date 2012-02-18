@@ -32,12 +32,12 @@ public class CardData {
         set { _texCoordinate = value; }
     }
 
-    public CardData(char kind, char suit, int val, Vector2 Coordinate)
+    public CardData(char kind, char suit, int val, Vector2 coordinate)
     {
         _kind = kind;
         _suit = suit;
 		_value = val;
-        _texCoordinate = Coordinate;
+        _texCoordinate = coordinate;
 		staked = false;
     }
 }

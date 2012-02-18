@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
 	public GameStateManager gameState;
 
 	/* ClickHandler - Handles mouse clicks */
-	private ClickHandler clicker;
+	public ClickHandler clicker;
 
     /* GUI */
     private GuiHandler gui;
@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviour
 
 	/* Number of turns the player will have in the first round. Also used as the number of stakes the player will have. */
     public int numProspectingTurns = 1;
+    public bool cancelStake = false;
 
 	#endregion
 
@@ -208,7 +209,7 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < players[currentPlayerIndex].stakes.Count; i++)
         {
-            players[currentPlayerIndex].stakedCards[i].transform.renderer.material.color = new Color(2, 2, 0);
+            players[currentPlayerIndex].stakedCards[i].transform.renderer.material.color = new Color(1, 1, 0);
         }
     }
 
@@ -236,20 +237,27 @@ public class GameManager : MonoBehaviour
         {
             return holder;
         }
+
+        if (board[(int)currentPos.x, (int)currentPos.y] == null)
+        {
+            Debug.Log("space is null");
+            looked[(int)currentPos.x, (int)currentPos.y] = true;
+            return holder;
+        }
         else
         {
-            
+
             //set that this one has been checked
             looked[(int)currentPos.x, (int)currentPos.y] = true;
 
-            if (currentCount == currentRoll && board[(int)currentPos.x, (int)currentPos.y] != null)
+            if (currentCount == currentRoll)
             {
-                if(!holder.Contains(new Vector2((int)currentPos.x, (int)currentPos.y)))
+                if (!holder.Contains(new Vector2((int)currentPos.x, (int)currentPos.y)))
                 {
                     holder.Add(new Vector2((int)currentPos.x, (int)currentPos.y));
                 }
-                
-                board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(2,2,0);
+
+                board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(1, 1, 0);
                 looked[(int)currentPos.x, (int)currentPos.y] = false;
                 return holder;
             }
@@ -273,7 +281,7 @@ public class GameManager : MonoBehaviour
 	public void calculateStakeableCards()
 	{
         // color the cards that can be staked as yellow
-		players[currentPlayerIndex].CurrentCard.transform.renderer.material.color = new Color(2,2,0);
+		players[currentPlayerIndex].CurrentCard.transform.renderer.material.color = new Color(1,1,0);
 		
         // add the card the player is currently on
 		possibleStakes.Add(players[currentPlayerIndex].Position);
@@ -288,12 +296,15 @@ public class GameManager : MonoBehaviour
 		{
 			int row = currentCardRow - 1;
 			int col = currentCardCol;
-			
-			Vector2 newV2 = new Vector2(row, col);
-			
-			board[row, col].transform.renderer.material.color = new Color(2,2,0); // color yellow
-			
-			possibleStakes.Add(newV2);
+
+            if (board[row, col] != null)
+            {
+                Vector2 newV2 = new Vector2(row, col);
+
+                board[row, col].transform.renderer.material.color = new Color(1, 1, 0); // color yellow
+
+                possibleStakes.Add(newV2);
+            }
 		}
 		
         //above the current card
@@ -301,12 +312,15 @@ public class GameManager : MonoBehaviour
 		{
 			int row = currentCardRow + 1;
 			int col = currentCardCol;
-			
-			Vector2 newV2 = new Vector2(row, col);;
-			
-			board[row, col].transform.renderer.material.color = new Color(2,2,0);
-			
-			possibleStakes.Add(newV2);
+
+            if (board[row, col] != null)
+            {
+                Vector2 newV2 = new Vector2(row, col); ;
+
+                board[row, col].transform.renderer.material.color = new Color(1, 1, 0);
+
+                possibleStakes.Add(newV2);
+            }
 		}
 		
         //left of the current card
@@ -314,12 +328,15 @@ public class GameManager : MonoBehaviour
 		{
 			int row = currentCardRow;
 			int col = currentCardCol - 1;
-			
-			Vector2 newV2 = new Vector2(row, col);
-			
-			board[row, col].transform.renderer.material.color = new Color(2,2,0);
-			
-			possibleStakes.Add(newV2);
+
+            if (board[row, col] != null)
+            {
+                Vector2 newV2 = new Vector2(row, col);
+
+                board[row, col].transform.renderer.material.color = new Color(1, 1, 0);
+
+                possibleStakes.Add(newV2);
+            }
 		}
 		
         //right of the current card
@@ -327,12 +344,15 @@ public class GameManager : MonoBehaviour
 		{
 			int row = currentCardRow;
 			int col = currentCardCol + 1;
-			
-			Vector2 newV2 = new Vector2(row, col);
-			
-			board[row, col].transform.renderer.material.color = new Color(2,2,0);
-			
-			possibleStakes.Add(newV2);
+
+            if (board[row, col] != null)
+            {
+                Vector2 newV2 = new Vector2(row, col);
+
+                board[row, col].transform.renderer.material.color = new Color(1, 1, 0);
+
+                possibleStakes.Add(newV2);
+            }
 		}
 	}
 	#endregion
@@ -349,6 +369,7 @@ public class GameManager : MonoBehaviour
 		
 		//reset for this turn - the player hasn't moved or placed a stake
 		pEnabled = sEnabled = false;
+        cancelStake = false;
 
 		currentPlayerIndex++;	// move to next player
 		if (currentPlayerIndex >= players.Count)	//wrap around if necessary
@@ -375,7 +396,8 @@ public class GameManager : MonoBehaviour
         {
             for (int j = 0; j < BOARD_HEIGHT; j++)
             {
-                board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
+                if(board[i, j] != null)
+                    board[i, j].transform.renderer.material.color = new Color(1, 1, 1, 1);
             }
         }
     }
@@ -439,6 +461,8 @@ public class GameManager : MonoBehaviour
                         board[i, j] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
                         break;
                 }
+                deck[counter].row = i;
+                deck[counter].col = j;
                 board[i, j].GetComponent<Card>().data = deck[counter];
                 counter++;
             }
