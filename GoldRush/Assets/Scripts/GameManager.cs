@@ -114,47 +114,12 @@ public class GameManager : MonoBehaviour
 	#region Update() and OnGUI()
 	private void OnGUI()
 	{
-		#region Hand
-		//Hand
-        float handWidth = 500f;
-        float handHeight = 140f;
-        GUILayout.BeginArea(new Rect(Screen.width - (Screen.width - 10), Screen.height - handHeight - 10, handWidth, handHeight));
-        GUILayout.BeginHorizontal();
-        for (int i = 0; i < 5; i++)
-        {
-			/* COMMENTED OUT FOR NOW, DON'T DELETE
-
-			//if the player has staked cards, show the card image instead of a spaceholder
-			if (players[currentPlayerIndex].stakedCards.Count > i)
-			{
-				// Anything outside a GUIGroup will be hidden, meaning we can hide most of the card image
-				GUI.BeginGroup(new Rect(0, 0, 140, 200)); 
-
-				//figure out the offsets
-				int offsetX = (int)(140 * players[currentPlayerIndex].stakedCards[i].data.TexCoordinate.x);
-				int offsetY = (int)(200 * players[CurrentPlayerIndex].stakedCards[i].data.TexCoordinate.y);
-
-
-				//GUILayout.Box(CardTexture, GUILayout.Height(handHeight));
-				if (GUI.Button(new Rect(0, 0, handWidth, handHeight), CardTexture)) 
-				{ 
-					// do nothing
-				}
-
-				GUI.EndGroup(); 
-			}
-			else
-			*/
-				GUILayout.Box("Card " + (i + 1), GUILayout.Height(handHeight));
-        }
-        GUILayout.EndHorizontal();
-        GUILayout.EndArea();
-		#endregion
-
         gui.adjustLocation();
         gui.setText();
         gui.handleAction();
         gui.handleSkip();
+
+        gui.playerDisplay();
 	}
 
     // Update is called once per frame
