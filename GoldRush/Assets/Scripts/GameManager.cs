@@ -150,6 +150,17 @@ public class GameManager : MonoBehaviour
         moves = findMoves(currentPlayerPos);
     }
 
+	/// <summary>
+	/// Finds the move locations from a specific board location with a certain roll.
+	/// For example: Finding valid moves one space from a mined card to bump other players.
+	/// </summary>
+	/// <param name="position"></param>
+	public void calculateMoveLocations(Vector2 position, int roll)
+	{
+		currentRoll = roll;
+		moves = findMoves(position);
+	}
+
 	public void calculateStakes()
 	{
         //get the location of the current player based on the grid
@@ -178,12 +189,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private List<Vector2> findMoves(Vector2 currentPlayerPos)
+    private List<Vector2> findMoves(Vector2 position)
     {
         checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
         List<Vector2> holder = new List<Vector2>();
 
-        return findMovesAccumlative(currentPlayerPos, 0, checkedList, holder);
+		return findMovesAccumlative(position, 0, checkedList, holder);
     }
 
     /// <summary>

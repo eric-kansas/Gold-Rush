@@ -68,6 +68,7 @@ public class GuiHandler : MonoBehaviour {
                     break;
                 case GameStateManager.TurnState.TURN_STAKE:
                     actionText = "Stake";
+					showSkipButton = false;
                     if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
                     {
                         showSkipButton = true;		// only once all a player's stakes have been placed and it goes into the mining phase,
@@ -226,4 +227,12 @@ public class GuiHandler : MonoBehaviour {
         GUI.Box(playerRect, "");
         GUI.Label(playerRect, playerText);
     }
+
+	/// <summary>
+	/// Add text to playerText.
+	/// </summary>
+	public void printToGUI(string text)
+	{
+		playerText += "\n" + text;
+	}
 }

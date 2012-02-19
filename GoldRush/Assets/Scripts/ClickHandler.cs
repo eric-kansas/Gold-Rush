@@ -30,7 +30,11 @@ public class ClickHandler : MonoBehaviour
 
 	/* Whether or not the player has selected a card to stake (in mining phase) */
     public bool selectedCard = false;
-    private Card oldStakedCard;
+    
+	private Card oldStakedCard;
+
+	/* A list of players that need to be moved to an adjacent card because of mining */
+	List<Player> needToMove = new List<Player>();
 
     public GameObject TempStake 
     {
@@ -103,7 +107,6 @@ public class ClickHandler : MonoBehaviour
 
     private void gameClick(RaycastHit hit)
     {
-        Debug.Log("prospecting click");
         switch (GameStateManager.Instance.CurrentTurnState)
         {
             case GameStateManager.TurnState.TURN_MOVE:
@@ -117,7 +120,11 @@ public class ClickHandler : MonoBehaviour
                     stakeClickMiningPhase(hit);
                 break;
             case GameStateManager.TurnState.TURN_MINE:
-                mineClick(hit);
+				Debug.Log("NTM: " + needToMove.Count);
+				if (needToMove.Count == 0)
+					mineClick(hit);
+				else
+					moveOpponent(hit);
                 break;
             default: Debug.Log("whoops"); break;
         }
@@ -164,6 +171,48 @@ public class ClickHandler : MonoBehaviour
             }
         }
     }
+
+	 private void moveOpponent(RaycastHit hit)
+	 {
+		 //current player position in unity coordinates
+		Vector3 lastPos = gM.players[gM.CurrentPlayerIndex].transform.position;
+		
+        //loop through possible moves
+		foreach (Vector2 pos in gM.moves)
+		{
+			if (pos.Equals(PositionToVector2(hit.transform.position)))   //check if the card clicked is a valid move
+			{
+				Vector3 moveToLocation = new Vector3(hit.transform.position.x,
+									 hit.transform.position.y + 0.25f,
+									 tempCard.transform.position.z);
+				
+				//find index of the player we're moving
+				int index = 0;
+				for (int i = 0; i < gM.players.Count; i++)
+				{
+					if (gM.players[i] == needToMove[0])
+						index = i;
+				}
+
+				Debug.Log("Moving player " + index + " to " + moveToLocation);
+
+				//move the other player
+				gM.players[index].transform.position = moveToLocation;
+
+				//handle double click
+				if (lastPos == gM.players[gM.CurrentPlayerIndex].transform.position)
+				{
+					//confirm move
+					needToMove.RemoveAt(index);
+					Debug.Log("Only " + needToMove.Count + " left to move");
+
+					//end the turn if all players are on valid spots now
+					if (needToMove.Count == 0)
+						gM.endTurn();
+				}
+			}
+		}
+	 }
 
     private void stakeClickProspectingPhase(RaycastHit hit)
     {
@@ -328,22 +377,49 @@ public class ClickHandler : MonoBehaviour
             //check if that staked card is the one they clicked
             if (gM.players[gM.CurrentPlayerIndex].stakedCards[i] == tempCard)
             {
+				//add the card to the player's hand
                 gM.players[gM.CurrentPlayerIndex].hand.Add(tempCard);
 
+				//send the board position to null
                 gM.board[tempCard.data.row, tempCard.data.col] = null;
+
+				//do not mark the card as staked any more
                 tempCard.data.staked = false;
 
+				Vector2 boardPosition = new Vector2(gM.players[gM.CurrentPlayerIndex].stakedCards[i].data.row, gM.players[gM.CurrentPlayerIndex].stakedCards[i].data.col);
+
+				//move the card to the side of the board
                 tempCard.transform.position = new Vector3((0.8f * gM.players[gM.CurrentPlayerIndex].hand.Count) - 2.0f, 0.0f, (gM.CurrentPlayerIndex * -1.1f) - 1.2f);
 
+				//remove the card from the list of staked cards
                 gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(tempCard);
 
                 GameObject stake = gM.players[gM.CurrentPlayerIndex].stakes[i];
 
+				//remove the stake from the list of stakes
                 gM.players[gM.CurrentPlayerIndex].stakes.Remove(gM.players[gM.CurrentPlayerIndex].stakes[i]);
 
+				//get rid of the stake GameObject
                 Destroy(stake);
 
-                gM.endTurn();
+				//check to see if the mined card leaves any players on an empty space
+				for (int n = 0; n < gM.players.Count; n++)
+				{
+					if (gM.players[n].Position == boardPosition)
+					{
+						needToMove.Add(gM.players[i]);
+						if (needToMove.Count == 1)
+						{
+							Debug.Log("Oh no! A player was on top of a mined card!");
+							gM.clearHighlights();
+							gM.calculateMoveLocations(boardPosition, 1);
+						}
+					}
+				}
+
+				//move on to the next player's turn
+				if (needToMove.Count == 0)
+					gM.endTurn();
             }
         }
     }
