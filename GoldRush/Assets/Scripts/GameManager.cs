@@ -176,7 +176,6 @@ public class GameManager : MonoBehaviour
         //prospect - turn the card over
 		CreateMaterial(players[currentPlayerIndex].CurrentCard.data.TexCoordinate, board[(int)players[CurrentPlayerIndex].Position.x,
 													(int)players[CurrentPlayerIndex].Position.y]);
-		Debug.Log("Calc Stakes");
 
 		calculateStakeableCards();
 	}
@@ -214,9 +213,8 @@ public class GameManager : MonoBehaviour
             return holder;
         }
 
-        if (board[(int)currentPos.x, (int)currentPos.y] == null)
+        if (board[(int)currentPos.x, (int)currentPos.y] == null && currentCount != 0) //currentcount != 0 allows us to look for moves FROM empty spaces, but will ignore moves TO empty spaces
         {
-            Debug.Log("space is null");
             looked[(int)currentPos.x, (int)currentPos.y] = true;
             return holder;
         }
@@ -380,7 +378,6 @@ public class GameManager : MonoBehaviour
 
 	public int Roll(){
 		int currentRoll = Random.Range(1, 6);
-		Debug.Log("rolled: " + currentRoll);
 		return currentRoll;
     }
 	#endregion
@@ -450,9 +447,6 @@ public class GameManager : MonoBehaviour
         int aX = (int)Coordinate.x;
         int aY = (int)Coordinate.y;
 
-        Debug.Log("material coord: " + Coordinate.x + ", " + Coordinate.y);
-        Debug.Log(CARD_TEX_X_OFFSET * Coordinate.x);
-
         Material newMat = new Material(Shader.Find("Diffuse"));
         newMat.mainTexture = CardTexture;
         newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);
@@ -471,11 +465,9 @@ public class GameManager : MonoBehaviour
 				clicker.myUpdate();
 				break;
 			case GameStateManager.TurnState.TURN_STAKE:
-				//Debug.Log("turn state: TURN_STAKE");
 				clicker.myUpdate();
 				break;
 			case GameStateManager.TurnState.TURN_MINE:
-				//Debug.Log("turn state: TURN_MINE"); 
                 clicker.myUpdate();
 				break;
 			default:

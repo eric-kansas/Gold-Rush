@@ -34,7 +34,7 @@ public class ClickHandler : MonoBehaviour
 	private Card oldStakedCard;
 
 	/* A list of players that need to be moved to an adjacent card because of mining */
-	List<Player> needToMove = new List<Player>();
+    private int needToMove = 0;
 
     public GameObject TempStake 
     {
@@ -79,7 +79,6 @@ public class ClickHandler : MonoBehaviour
             targetCard = hit.transform.gameObject;
 
             tempCard = (Card) targetCard.GetComponent<Card>();
-            Debug.Log(tempCard.data.Suit + ". " + tempCard.data.Kind);
 
             switch (GameStateManager.Instance.CurrentGameState)
             {
@@ -88,15 +87,15 @@ public class ClickHandler : MonoBehaviour
                     setupClick(hit);
                     break;
                 case GameStateManager.GameState.GAME_PROSPECTING_STATE:
-                    Debug.Log("game state: PROSPECTING"); 
+                    Debug.Log("mouse: PROSPECTING"); 
                     gameClick(hit);
                     break;
-                case GameStateManager.GameState.GAME_MINING_STATE: 
-                    Debug.Log("game state: MINING");
+                case GameStateManager.GameState.GAME_MINING_STATE:
+                    Debug.Log("mouse: MINING");
                     gameClick(hit);
                     break;
-                case GameStateManager.GameState.GAME_END: 
-                    Debug.Log("game state: END");
+                case GameStateManager.GameState.GAME_END:
+                    Debug.Log("mouse: END");
                     break;
                 default: Debug.Log("whoops"); break;
             }
@@ -120,8 +119,7 @@ public class ClickHandler : MonoBehaviour
                     stakeClickMiningPhase(hit);
                 break;
             case GameStateManager.TurnState.TURN_MINE:
-				Debug.Log("NTM: " + needToMove.Count);
-				if (needToMove.Count == 0)
+				if (needToMove == 0)
 					mineClick(hit);
 				else
 					moveOpponent(hit);
@@ -132,8 +130,6 @@ public class ClickHandler : MonoBehaviour
 
  private void moveClick(RaycastHit hit)
     {
-        Debug.Log("move click");
-
         //current player position in unity coordinates
 		Vector3 lastPos = gM.players[gM.CurrentPlayerIndex].transform.position;
 		
@@ -190,7 +186,7 @@ public class ClickHandler : MonoBehaviour
 				int index = 0;
 				for (int i = 0; i < gM.players.Count; i++)
 				{
-					if (gM.players[i] == needToMove[0])
+					if (gM.players[i].Position == new Vector2(-1, -1))
 						index = i;
 				}
 
@@ -199,24 +195,23 @@ public class ClickHandler : MonoBehaviour
 				//move the other player
 				gM.players[index].transform.position = moveToLocation;
 
-				//handle double click
-				if (lastPos == gM.players[gM.CurrentPlayerIndex].transform.position)
-				{
-					//confirm move
-					needToMove.RemoveAt(index);
-					Debug.Log("Only " + needToMove.Count + " left to move");
+				//confirm move
+                gM.players[index].Position = PositionToVector2(gM.players[index].transform.position);   //update the player's grid position
+                needToMove--;
+				Debug.Log("Only " + needToMove + " left to move");
 
-					//end the turn if all players are on valid spots now
-					if (needToMove.Count == 0)
-						gM.endTurn();
-				}
+				//end the turn if all players are on valid spots now
+                if (needToMove <= 0)
+                {
+                    needToMove = 0;
+                    gM.endTurn();
+                }
 			}
 		}
 	 }
 
     private void stakeClickProspectingPhase(RaycastHit hit)
     {
-        Debug.Log("stake click");
 		foreach (Vector2 pos in gM.possibleStakes)  // go through all possible stake locations (should be 5 at most)
         {
 			if(pos.Equals(PositionToVector2(hit.transform.position)) && !tempCard.data.staked) //see if card is valid and not already staked
@@ -407,10 +402,10 @@ public class ClickHandler : MonoBehaviour
 				{
 					if (gM.players[n].Position == boardPosition)
 					{
-						needToMove.Add(gM.players[i]);
-						if (needToMove.Count == 1)
+                        gM.players[n].Position = new Vector2(-1, -1);
+                        needToMove++;
+						if (needToMove == 1)
 						{
-							Debug.Log("Oh no! A player was on top of a mined card!");
 							gM.clearHighlights();
 							gM.calculateMoveLocations(boardPosition, 1);
 						}
@@ -418,7 +413,7 @@ public class ClickHandler : MonoBehaviour
 				}
 
 				//move on to the next player's turn
-				if (needToMove.Count == 0)
+				if (needToMove == 0)
 					gM.endTurn();
             }
         }
