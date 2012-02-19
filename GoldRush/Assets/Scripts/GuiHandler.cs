@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-public class GuiHandler : MonoBehaviour {
+public class GuiHandler : MonoBehaviour
+{
 
     /* The position and size of the action button */
     private Rect actionRect;
@@ -23,17 +24,19 @@ public class GuiHandler : MonoBehaviour {
     /* A reference to the ClickHandler */
     ClickHandler clicker;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         gM = transform.GetComponent<GameManager>();
         clicker = this.GetComponent<ClickHandler>();
         showSkipButton = true;
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
 
-	}
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     public void adjustLocation()
     {
@@ -64,11 +67,19 @@ public class GuiHandler : MonoBehaviour {
                     showSkipButton = true;
                     break;
                 case GameStateManager.TurnState.TURN_MOVE:
-                    actionText = "Prospect";
+                    if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || clicker.stakeOwnerIndex == -1)
+                        actionText = "Prospect";
+                    else
+                    {
+                        actionText = "Move Opponent Stake";
+                        showSkipButton = true;
+                        skipText = "Cancel";
+                    }
+                    
                     break;
                 case GameStateManager.TurnState.TURN_STAKE:
                     actionText = "Stake";
-					showSkipButton = false;
+                    showSkipButton = false;
                     if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
                     {
                         showSkipButton = true;		// only once all a player's stakes have been placed and it goes into the mining phase,
@@ -136,9 +147,37 @@ public class GuiHandler : MonoBehaviour {
                         gM.players[gM.CurrentPlayerIndex].Position = clicker.PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
 
                         gM.clearHighlights();
-                        gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
-                        gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
+                        //prospect
+                        gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
+                                                                    (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
+
+                        if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || !clicker.TempCard.data.staked)
+                        {
+                            gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
+
+                            gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
+                        }
+                        else
+                        {
+                            if (clicker.stakeOwnerIndex == -1)
+                                clicker.prepareBump();
+
+                            if (clicker.movedStake)
+                            {
+                                Debug.Log("Confirm bump!");
+                                clicker.stakeOwnerIndex = clicker.stakeIndex = -1;
+                                clicker.movedStake = false;
+                                clicker.TempStake = null; //set to null for normal staking
+                                Vector2 pos = gM.players[gM.CurrentPlayerIndex].Position;
+                                clicker.TempCard = gM.board[(int)pos.x, (int)pos.y].GetComponent<Card>(); //reset to player's card
+
+
+                                gM.clearHighlights();
+                                gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
+                                gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
+                            }
+                        }
                     }
                     else
                         Debug.Log("Player rolled, they need to actually move");
@@ -178,7 +217,7 @@ public class GuiHandler : MonoBehaviour {
                     {
                         if (gM.players[clicker.indexToMove].Position != new Vector2(-1, -1))
                         {
-                            clicker.numToMove--;
+                            clicker.numToMove--; //one less that needs to be looked at
 
                             //end the turn if all players are on valid spots now
                             if (clicker.numToMove <= 0)
@@ -187,6 +226,7 @@ public class GuiHandler : MonoBehaviour {
                             }
                             else
                             {
+                                //someone isn't, find their index
                                 for (int index = 0; index < gM.players.Count; index++)
                                 {
                                     if (gM.players[index].Position == new Vector2(-1, -1))
@@ -231,6 +271,18 @@ public class GuiHandler : MonoBehaviour {
 
                         gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
                         break;
+                    case GameStateManager.TurnState.TURN_MOVE:
+                        Debug.Log("Canceling bump");
+
+                        gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].transform.position = gM.players[gM.CurrentPlayerIndex].Position;
+                        clicker.stakeOwnerIndex = clicker.stakeIndex = -1;
+                        clicker.movedStake = false;
+
+                        gM.clearHighlights();
+                        gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
+                        gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
+
+                        break;
                     case GameStateManager.TurnState.TURN_STAKE: //player is not moving his stakes his turn (option is available in mining phase only)
                         if (gM.cancelStake)
                         {
@@ -262,11 +314,11 @@ public class GuiHandler : MonoBehaviour {
         GUI.Label(playerRect, playerText);
     }
 
-	/// <summary>
-	/// Add text to playerText.
-	/// </summary>
-	public void printToGUI(string text)
-	{
-		playerText += "\n" + text;
-	}
+    /// <summary>
+    /// Add text to playerText.
+    /// </summary>
+    public void printToGUI(string text)
+    {
+        playerText += "\n" + text;
+    }
 }
