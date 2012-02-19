@@ -30,7 +30,12 @@ public class ClickHandler : MonoBehaviour
 
 	/* Whether or not the player has selected a card to stake (in mining phase) */
     public bool selectedCard = false;
-    private Card oldStakedCard;
+    
+	private Card oldStakedCard;
+
+	/* A list of players that need to be moved to an adjacent card because of mining */
+    public int numToMove = 0;
+    public int indexToMove = -1;
 
     public GameObject TempStake 
     {
@@ -75,7 +80,6 @@ public class ClickHandler : MonoBehaviour
             targetCard = hit.transform.gameObject;
 
             tempCard = (Card) targetCard.GetComponent<Card>();
-            Debug.Log(tempCard.data.Suit + ". " + tempCard.data.Kind);
 
             switch (GameStateManager.Instance.CurrentGameState)
             {
@@ -84,15 +88,15 @@ public class ClickHandler : MonoBehaviour
                     setupClick(hit);
                     break;
                 case GameStateManager.GameState.GAME_PROSPECTING_STATE:
-                    Debug.Log("game state: PROSPECTING"); 
+                    Debug.Log("mouse: PROSPECTING"); 
                     gameClick(hit);
                     break;
-                case GameStateManager.GameState.GAME_MINING_STATE: 
-                    Debug.Log("game state: MINING");
+                case GameStateManager.GameState.GAME_MINING_STATE:
+                    Debug.Log("mouse: MINING");
                     gameClick(hit);
                     break;
-                case GameStateManager.GameState.GAME_END: 
-                    Debug.Log("game state: END");
+                case GameStateManager.GameState.GAME_END:
+                    Debug.Log("mouse: END");
                     break;
                 default: Debug.Log("whoops"); break;
             }
@@ -103,7 +107,6 @@ public class ClickHandler : MonoBehaviour
 
     private void gameClick(RaycastHit hit)
     {
-        Debug.Log("prospecting click");
         switch (GameStateManager.Instance.CurrentTurnState)
         {
             case GameStateManager.TurnState.TURN_MOVE:
@@ -117,7 +120,10 @@ public class ClickHandler : MonoBehaviour
                     stakeClickMiningPhase(hit);
                 break;
             case GameStateManager.TurnState.TURN_MINE:
-                mineClick(hit);
+				if (numToMove == 0)
+					mineClick(hit);
+				else
+					moveOpponent(hit);
                 break;
             default: Debug.Log("whoops"); break;
         }
@@ -125,8 +131,6 @@ public class ClickHandler : MonoBehaviour
 
  private void moveClick(RaycastHit hit)
     {
-        Debug.Log("move click");
-
         //current player position in unity coordinates
 		Vector3 lastPos = gM.players[gM.CurrentPlayerIndex].transform.position;
 		
@@ -165,9 +169,51 @@ public class ClickHandler : MonoBehaviour
         }
     }
 
+	 private void moveOpponent(RaycastHit hit)
+	 {
+		 //current player position in unity coordinates
+		Vector3 lastPos = gM.players[gM.CurrentPlayerIndex].transform.position;
+		
+        //loop through possible moves
+		foreach (Vector2 pos in gM.moves)
+		{
+			if (pos.Equals(PositionToVector2(hit.transform.position)))   //check if the card clicked is a valid move
+			{
+				Vector3 moveToLocation = new Vector3(hit.transform.position.x,
+									 hit.transform.position.y + 0.25f,
+									 tempCard.transform.position.z);
+
+				//move the other player
+				gM.players[indexToMove].transform.position = moveToLocation;
+
+                //update the player's grid position
+                gM.players[indexToMove].Position = PositionToVector2(gM.players[indexToMove].transform.position);
+
+                //confirm move - double click
+                if (lastPos == gM.players[indexToMove].transform.position)
+                {
+                    numToMove--;
+
+                    //end the turn if all players are on valid spots now
+                    if (numToMove <= 0)
+                    {
+                        gM.endTurn();
+                    }
+                    else
+                    {
+                        for (int index = 0; index < gM.players.Count; index++)
+                        {
+                            if (gM.players[index].Position == new Vector2(-1, -1))
+                                indexToMove = index;
+                        }
+                    }
+                }
+			}
+		}
+	 }
+
     private void stakeClickProspectingPhase(RaycastHit hit)
     {
-        Debug.Log("stake click");
 		foreach (Vector2 pos in gM.possibleStakes)  // go through all possible stake locations (should be 5 at most)
         {
 			if(pos.Equals(PositionToVector2(hit.transform.position)) && !tempCard.data.staked) //see if card is valid and not already staked
@@ -328,22 +374,54 @@ public class ClickHandler : MonoBehaviour
             //check if that staked card is the one they clicked
             if (gM.players[gM.CurrentPlayerIndex].stakedCards[i] == tempCard)
             {
+                int row = tempCard.data.row;
+                int col = tempCard.data.col;
+
+                //clear the color of the mined card
+                gM.board[row, col].transform.renderer.material.color = new Color(1, 1, 1, 1);
+
+				//add the card to the player's hand
                 gM.players[gM.CurrentPlayerIndex].hand.Add(tempCard);
 
+				//send the board position to null
                 gM.board[tempCard.data.row, tempCard.data.col] = null;
+
+				//do not mark the card as staked any more
                 tempCard.data.staked = false;
 
+				//move the card to the side of the board
                 tempCard.transform.position = new Vector3((0.8f * gM.players[gM.CurrentPlayerIndex].hand.Count) - 2.0f, 0.0f, (gM.CurrentPlayerIndex * -1.1f) - 1.2f);
 
+				//remove the card from the list of staked cards
                 gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(tempCard);
 
                 GameObject stake = gM.players[gM.CurrentPlayerIndex].stakes[i];
 
+				//remove the stake from the list of stakes
                 gM.players[gM.CurrentPlayerIndex].stakes.Remove(gM.players[gM.CurrentPlayerIndex].stakes[i]);
 
+				//get rid of the stake GameObject
                 Destroy(stake);
 
-                gM.endTurn();
+				//check to see if the mined card leaves any players on an empty space
+				for (int n = 0; n < gM.players.Count; n++)
+				{
+					if (gM.players[n].Position == new Vector2(row, col))
+					{
+                        gM.players[n].Position = new Vector2(-1, -1);
+                        numToMove++;
+						if (numToMove == 1)
+						{
+                            indexToMove = n;
+							gM.clearHighlights();
+                            gM.calculateMoveLocations(new Vector2(row, col), 1);
+						}
+					}
+				}
+
+				//move on to the next player's turn
+				if (numToMove == 0)
+					gM.endTurn();
             }
         }
     }
