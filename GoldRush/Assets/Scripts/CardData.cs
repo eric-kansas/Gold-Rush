@@ -32,6 +32,14 @@ public class CardData {
         set { _texCoordinate = value; }
     }
 
+    /* Whether or not this card can be mined... cards are unminable after you bump another stake off it */
+    private bool minable;
+    public bool Minable
+    {
+        get { return minable; }
+        set { minable = value; }
+    }
+
     public CardData(char kind, char suit, int val, Vector2 coordinate)
     {
         _kind = kind;
@@ -39,5 +47,6 @@ public class CardData {
 		_value = val;
         _texCoordinate = coordinate;
 		staked = false;
+        minable = true;
     }
 }
