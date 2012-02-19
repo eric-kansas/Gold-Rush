@@ -372,6 +372,12 @@ public class ClickHandler : MonoBehaviour
             //check if that staked card is the one they clicked
             if (gM.players[gM.CurrentPlayerIndex].stakedCards[i] == tempCard)
             {
+                int row = tempCard.data.row;
+                int col = tempCard.data.col;
+
+                //clear the color of the mined card
+                gM.board[row, col].transform.renderer.material.color = new Color(1, 1, 1, 1);
+
 				//add the card to the player's hand
                 gM.players[gM.CurrentPlayerIndex].hand.Add(tempCard);
 
@@ -380,8 +386,6 @@ public class ClickHandler : MonoBehaviour
 
 				//do not mark the card as staked any more
                 tempCard.data.staked = false;
-
-				Vector2 boardPosition = new Vector2(gM.players[gM.CurrentPlayerIndex].stakedCards[i].data.row, gM.players[gM.CurrentPlayerIndex].stakedCards[i].data.col);
 
 				//move the card to the side of the board
                 tempCard.transform.position = new Vector3((0.8f * gM.players[gM.CurrentPlayerIndex].hand.Count) - 2.0f, 0.0f, (gM.CurrentPlayerIndex * -1.1f) - 1.2f);
@@ -400,14 +404,14 @@ public class ClickHandler : MonoBehaviour
 				//check to see if the mined card leaves any players on an empty space
 				for (int n = 0; n < gM.players.Count; n++)
 				{
-					if (gM.players[n].Position == boardPosition)
+					if (gM.players[n].Position == new Vector2(row, col))
 					{
                         gM.players[n].Position = new Vector2(-1, -1);
                         needToMove++;
 						if (needToMove == 1)
 						{
 							gM.clearHighlights();
-							gM.calculateMoveLocations(boardPosition, 1);
+                            gM.calculateMoveLocations(new Vector2(row, col), 1);
 						}
 					}
 				}
