@@ -34,7 +34,8 @@ public class ClickHandler : MonoBehaviour
 	private Card oldStakedCard;
 
 	/* A list of players that need to be moved to an adjacent card because of mining */
-    private int needToMove = 0;
+    public int numToMove = 0;
+    public int indexToMove = -1;
 
     public GameObject TempStake 
     {
@@ -119,7 +120,7 @@ public class ClickHandler : MonoBehaviour
                     stakeClickMiningPhase(hit);
                 break;
             case GameStateManager.TurnState.TURN_MINE:
-				if (needToMove == 0)
+				if (numToMove == 0)
 					mineClick(hit);
 				else
 					moveOpponent(hit);
@@ -181,30 +182,31 @@ public class ClickHandler : MonoBehaviour
 				Vector3 moveToLocation = new Vector3(hit.transform.position.x,
 									 hit.transform.position.y + 0.25f,
 									 tempCard.transform.position.z);
-				
-				//find index of the player we're moving
-				int index = 0;
-				for (int i = 0; i < gM.players.Count; i++)
-				{
-					if (gM.players[i].Position == new Vector2(-1, -1))
-						index = i;
-				}
-
-				Debug.Log("Moving player " + index + " to " + moveToLocation);
 
 				//move the other player
-				gM.players[index].transform.position = moveToLocation;
+				gM.players[indexToMove].transform.position = moveToLocation;
 
-				//confirm move
-                gM.players[index].Position = PositionToVector2(gM.players[index].transform.position);   //update the player's grid position
-                needToMove--;
-				Debug.Log("Only " + needToMove + " left to move");
+                //update the player's grid position
+                gM.players[indexToMove].Position = PositionToVector2(gM.players[indexToMove].transform.position);
 
-				//end the turn if all players are on valid spots now
-                if (needToMove <= 0)
+                //confirm move - double click
+                if (lastPos == gM.players[indexToMove].transform.position)
                 {
-                    needToMove = 0;
-                    gM.endTurn();
+                    numToMove--;
+
+                    //end the turn if all players are on valid spots now
+                    if (numToMove <= 0)
+                    {
+                        gM.endTurn();
+                    }
+                    else
+                    {
+                        for (int index = 0; index < gM.players.Count; index++)
+                        {
+                            if (gM.players[index].Position == new Vector2(-1, -1))
+                                indexToMove = index;
+                        }
+                    }
                 }
 			}
 		}
@@ -407,9 +409,10 @@ public class ClickHandler : MonoBehaviour
 					if (gM.players[n].Position == new Vector2(row, col))
 					{
                         gM.players[n].Position = new Vector2(-1, -1);
-                        needToMove++;
-						if (needToMove == 1)
+                        numToMove++;
+						if (numToMove == 1)
 						{
+                            indexToMove = n;
 							gM.clearHighlights();
                             gM.calculateMoveLocations(new Vector2(row, col), 1);
 						}
@@ -417,7 +420,7 @@ public class ClickHandler : MonoBehaviour
 				}
 
 				//move on to the next player's turn
-				if (needToMove == 0)
+				if (numToMove == 0)
 					gM.endTurn();
             }
         }

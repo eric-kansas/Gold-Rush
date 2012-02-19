@@ -344,6 +344,8 @@ public class GameManager : MonoBehaviour
 		//reset for this turn - the player hasn't moved or placed a stake
 		pEnabled = sEnabled = false;
         cancelStake = false;
+        clicker.numToMove = 0;
+        clicker.indexToMove = -1;
 
 		currentPlayerIndex++;	// move to next player
 		if (currentPlayerIndex >= players.Count)	//wrap around if necessary

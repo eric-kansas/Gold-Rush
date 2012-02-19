@@ -83,9 +83,17 @@ public class GuiHandler : MonoBehaviour {
                     }
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
-                    actionText = "Mine";
-                    skipText = "Roll";
-                    showSkipButton = true;
+                    if (clicker.numToMove == 0)
+                    {
+                        actionText = "Mine";
+                        skipText = "End Turn";
+                        showSkipButton = true;
+                    }
+                    else
+                    {
+                        showSkipButton = false;
+                        actionText = "Move Player " + clicker.indexToMove;
+                    }
                     break;
             }
         }
@@ -161,6 +169,32 @@ public class GuiHandler : MonoBehaviour {
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
                     Debug.Log("turn state: TURN_MINE");
+
+                    if (clicker.numToMove == 0)
+                    {
+
+                    }
+                    else
+                    {
+                        if (gM.players[clicker.indexToMove].Position != new Vector2(-1, -1))
+                        {
+                            clicker.numToMove--;
+
+                            //end the turn if all players are on valid spots now
+                            if (clicker.numToMove <= 0)
+                            {
+                                gM.endTurn();
+                            }
+                            else
+                            {
+                                for (int index = 0; index < gM.players.Count; index++)
+                                {
+                                    if (gM.players[index].Position == new Vector2(-1, -1))
+                                        clicker.indexToMove = index;
+                                }
+                            }
+                        }
+                    }
 
                     //endTurn();
                     break;
