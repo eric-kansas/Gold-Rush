@@ -49,13 +49,13 @@ def bootstrap(command, conf, vars):
             game.cards.append(card)
 
         #make hand
-	  hand1 = model.Hand()
-	  hand1.game_id = game
-	  hand1.player_id = player1
-	  model.DBSession.add(hand1)
+        hand1 = model.Hand()
+        hand1.game_id = game
+        hand1.player_id = player1
+        model.DBSession.add(hand1)
 
         #make cards in hand
-	  hand1.cards.append(cards[1])
+        hand1.cards.append(cards[1])
 
         game.whose_turn = player1
 
@@ -103,7 +103,7 @@ def buildDeck():
                 is_up = False,
                 suit = i,
                 kind = k
-	        )
+            )
             cards.append(tempCard)
 
     return cards
