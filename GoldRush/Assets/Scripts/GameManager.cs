@@ -544,9 +544,6 @@ public class GameManager : MonoBehaviour
 
     public void CreateMaterial(Vector2 Coordinate, GameObject Card)
     {
-        int aX = (int)Coordinate.x;
-        int aY = (int)Coordinate.y;
-
         Material newMat = new Material(Shader.Find("Diffuse"));
         newMat.mainTexture = CardTexture;
         newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);

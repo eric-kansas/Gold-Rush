@@ -61,7 +61,6 @@ public abstract class ScoringRules : MonoBehaviour {
 			}
 			
 			//check matches
-			bool added = false;
 			if (tests.Count > 4) {
 				for(int j = 4; j < tests.Count; j++) {
 					if (tests[j][0].data.Kind == hand[i].data.Kind) {
