@@ -185,7 +185,8 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < players[currentPlayerIndex].stakes.Count; i++)
         {
-            players[currentPlayerIndex].stakedCards[i].transform.renderer.material.color = new Color(1, 1, 0);
+            if (players[currentPlayerIndex].stakedCards[i].data.Minable) //check if card is minable
+                players[currentPlayerIndex].stakedCards[i].transform.renderer.material.color = new Color(1, 1, 0);
         }
     }
 
@@ -255,8 +256,11 @@ public class GameManager : MonoBehaviour
 
     public void calculateStakeableCards()
     {
+        possibleStakes.Clear();
+
         // color the cards that can be staked as yellow
-        players[currentPlayerIndex].CurrentCard.transform.renderer.material.color = new Color(1, 1, 0);
+        if (!players[currentPlayerIndex].CurrentCard.data.staked)
+            players[currentPlayerIndex].CurrentCard.transform.renderer.material.color = new Color(1, 1, 0);
 
         // add the card the player is currently on
         possibleStakes.Add(players[currentPlayerIndex].Position);
@@ -272,7 +276,7 @@ public class GameManager : MonoBehaviour
             int row = currentCardRow - 1;
             int col = currentCardCol;
 
-            if (board[row, col] != null)
+            if (board[row, col] != null && !board[row, col].GetComponent<Card>().data.staked)
             {
                 Vector2 newV2 = new Vector2(row, col);
 
@@ -288,7 +292,7 @@ public class GameManager : MonoBehaviour
             int row = currentCardRow + 1;
             int col = currentCardCol;
 
-            if (board[row, col] != null)
+            if (board[row, col] != null && !board[row, col].GetComponent<Card>().data.staked)
             {
                 Vector2 newV2 = new Vector2(row, col); ;
 
@@ -304,7 +308,7 @@ public class GameManager : MonoBehaviour
             int row = currentCardRow;
             int col = currentCardCol - 1;
 
-            if (board[row, col] != null)
+            if (board[row, col] != null && !board[row, col].GetComponent<Card>().data.staked)
             {
                 Vector2 newV2 = new Vector2(row, col);
 
@@ -320,7 +324,7 @@ public class GameManager : MonoBehaviour
             int row = currentCardRow;
             int col = currentCardCol + 1;
 
-            if (board[row, col] != null)
+            if (board[row, col] != null && !board[row, col].GetComponent<Card>().data.staked)
             {
                 Vector2 newV2 = new Vector2(row, col);
 
@@ -333,6 +337,8 @@ public class GameManager : MonoBehaviour
 
     public void calculateStakeableCards(Vector2 position)
     {
+        possibleStakes.Clear();
+
         // color the cards that can be staked as yellow
         players[currentPlayerIndex].CurrentCard.transform.renderer.material.color = new Color(1, 1, 0);
 
@@ -350,7 +356,7 @@ public class GameManager : MonoBehaviour
             int row = currentCardRow - 1;
             int col = currentCardCol;
 
-            if (board[row, col] != null)
+            if (board[row, col] != null && !board[row, col].GetComponent<Card>().data.staked) // don't highlight if card is unavailable because it is already staked
             {
                 Vector2 newV2 = new Vector2(row, col);
 
@@ -366,7 +372,7 @@ public class GameManager : MonoBehaviour
             int row = currentCardRow + 1;
             int col = currentCardCol;
 
-            if (board[row, col] != null)
+            if (board[row, col] != null && !board[row, col].GetComponent<Card>().data.staked)
             {
                 Vector2 newV2 = new Vector2(row, col); ;
 
@@ -382,7 +388,7 @@ public class GameManager : MonoBehaviour
             int row = currentCardRow;
             int col = currentCardCol - 1;
 
-            if (board[row, col] != null)
+            if (board[row, col] != null && !board[row, col].GetComponent<Card>().data.staked)
             {
                 Vector2 newV2 = new Vector2(row, col);
 
@@ -398,7 +404,7 @@ public class GameManager : MonoBehaviour
             int row = currentCardRow;
             int col = currentCardCol + 1;
 
-            if (board[row, col] != null)
+            if (board[row, col] != null && !board[row, col].GetComponent<Card>().data.staked)
             {
                 Vector2 newV2 = new Vector2(row, col);
 
@@ -416,6 +422,16 @@ public class GameManager : MonoBehaviour
         //return board to default color, remove hightlighting from highlighted cards
         clearHighlights();
 
+        //mark cards as minable again
+        for (int i = 0; i < BOARD_WIDTH; i++)
+        {
+            for (int j = 0; j < BOARD_HEIGHT; j++)
+            {
+                if (board[i, j] != null)
+                    board[i, j].GetComponent<Card>().data.Minable = true;
+            }
+        }
+
         //reset temporary stake
         clicker.TempStake = null;
         clicker.selectedCard = false;
@@ -425,6 +441,8 @@ public class GameManager : MonoBehaviour
         cancelStake = false;
         clicker.numToMove = 0;
         clicker.indexToMove = -1;
+        clicker.stakeIndex = clicker.stakeOwnerIndex = -1;
+        clicker.movedStake = false;
 
         currentPlayerIndex++;	// move to next player
         if (currentPlayerIndex >= players.Count)	//wrap around if necessary
@@ -526,9 +544,6 @@ public class GameManager : MonoBehaviour
 
     public void CreateMaterial(Vector2 Coordinate, GameObject Card)
     {
-        int aX = (int)Coordinate.x;
-        int aY = (int)Coordinate.y;
-
         Material newMat = new Material(Shader.Find("Diffuse"));
         newMat.mainTexture = CardTexture;
         newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);
