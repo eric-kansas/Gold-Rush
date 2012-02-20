@@ -192,6 +192,7 @@ public class ClickHandler : MonoBehaviour
     public void prepareBump()
     {
         Debug.Log("Staked out already!");
+        gM.possibleStakes.Clear();
 
         gM.clearHighlights();
         movedStake = false;
@@ -238,6 +239,7 @@ public class ClickHandler : MonoBehaviour
 
                 //free old stake
                 gM.players[stakeOwnerIndex].stakedCards[stakeIndex].data.staked = false;
+                gM.players[gM.CurrentPlayerIndex].CurrentCard.data.Minable = false; //don't let the current player pick this card this turn
                 gM.players[stakeOwnerIndex].stakedCards.Remove(gM.players[stakeOwnerIndex].stakedCards[stakeIndex]);
                 gM.players[stakeOwnerIndex].stakes.Remove(gM.players[stakeOwnerIndex].stakes[stakeIndex]);
 
@@ -246,9 +248,11 @@ public class ClickHandler : MonoBehaviour
 
                 //mark new stake
                 tempCard.data.staked = true;
-                tempCard.data.Minable = false;  //mark bumped card as non-minable for this turn
                 gM.players[stakeOwnerIndex].stakedCards.Add(tempCard);
                 gM.players[stakeOwnerIndex].stakes.Add(tempStake);
+
+                //after we remove and re-add, index will change
+                stakeIndex = gM.players[stakeOwnerIndex].stakedCards.Count - 1;
 
                 movedStake = true; //stake has been placed, action button should move on to the next turn phase
 
@@ -356,9 +360,7 @@ public class ClickHandler : MonoBehaviour
                     }
                     else
                     {
-                        clearStakeValues();
-
-
+                        /*
                         for (int i = 0; i < gM.numProspectingTurns; i++)
                         {
                             //check if that staked card is the one they clicked
@@ -367,8 +369,23 @@ public class ClickHandler : MonoBehaviour
                                 tempCardIndex = i;
                             }
                         }
+                         */
+                        tempCardIndex = gM.players[gM.CurrentPlayerIndex].stakedCards.Count - 1;
 
-                        tempStake.transform.position = tempCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f); // move the stake
+                        //free old card
+                        lastCard.data.staked = false;
+                        gM.players[gM.CurrentPlayerIndex].stakedCards[tempCardIndex].data.staked = false;
+                        gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(gM.players[gM.CurrentPlayerIndex].stakedCards[tempCardIndex]);
+                        gM.players[gM.CurrentPlayerIndex].stakes.Remove(gM.players[gM.CurrentPlayerIndex].stakes[tempCardIndex]);
+
+                        // move the stake
+                        tempStake.transform.position = tempCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
+
+                        //mark new card
+                        tempCard.data.staked = true;
+                        gM.players[gM.CurrentPlayerIndex].stakedCards.Add(tempCard);
+                        gM.players[gM.CurrentPlayerIndex].stakes.Add(tempStake);
+
                         lastCard = tempCard;    //sets the last card equal to the current card
                         gM.clearHighlights();
                         gM.calculateStakeableCards();
@@ -387,21 +404,21 @@ public class ClickHandler : MonoBehaviour
                 {
 
                     tempStake = gM.players[gM.CurrentPlayerIndex].stakes[i]; //save stake to move
+                    oldStakedCard = tempCard;
 
                     //free old stake
                     oldStakedCard = tempCard;
                     tempCardIndex = i;
 
-                    lastCard.data.staked = false;
+                    tempCard.data.staked = false;
                     gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(gM.players[gM.CurrentPlayerIndex].stakedCards[i]);
                     gM.players[gM.CurrentPlayerIndex].stakes.Remove(gM.players[gM.CurrentPlayerIndex].stakes[i]);
 
-                    Debug.Log("last card 2: " + lastCard.transform.position);
                     // move the stake
                     tempStake.transform.position = lastCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
 
                     //mark new stake
-                    tempCard.data.staked = true;
+                    lastCard.data.staked = true;
                     gM.players[gM.CurrentPlayerIndex].stakedCards.Add(lastCard);
                     gM.players[gM.CurrentPlayerIndex].stakes.Add(tempStake);
 
@@ -412,45 +429,33 @@ public class ClickHandler : MonoBehaviour
 
                     gM.clearHighlights();
                     gM.calculateStakeableCards();
-                    //gM.endTurn(); //end turn
                 }
             }
         }
     }
 
-    public void clearStakeValues()
-    {
-        //move old stake
-        lastCard.data.staked = false;
-        gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(gM.players[gM.CurrentPlayerIndex].stakedCards[tempCardIndex]);
-        gM.players[gM.CurrentPlayerIndex].stakes.Remove(gM.players[gM.CurrentPlayerIndex].stakes[tempCardIndex]);
-
-        //mark old staked card as free
-        tempCard.data.staked = true;
-        gM.players[gM.CurrentPlayerIndex].stakedCards.Add(tempCard);
-        gM.players[gM.CurrentPlayerIndex].stakes.Add(tempStake);
-    }
-
     public void resetStaking()
     {
         Debug.Log("here in reset");
-        //move old stake
-        lastCard.data.staked = false;
-        gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(gM.players[gM.CurrentPlayerIndex].stakedCards[tempCardIndex]);
-        gM.players[gM.CurrentPlayerIndex].stakes.Remove(gM.players[gM.CurrentPlayerIndex].stakes[tempCardIndex]); ;
 
-        //mark old staked card as free
-        oldStakedCard.data.staked = true;
-        gM.players[gM.CurrentPlayerIndex].stakedCards.Add(oldStakedCard);
-        gM.players[gM.CurrentPlayerIndex].stakes.Add(tempStake);
+        if (tempStake != null) //handle cancelling when the player has already moved the stake
+        {
+            //free newly staked card
+            gM.players[gM.CurrentPlayerIndex].stakedCards[tempCardIndex].data.staked = false;
+            gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(gM.players[gM.CurrentPlayerIndex].stakedCards[tempCardIndex]);
+            gM.players[gM.CurrentPlayerIndex].stakes.Remove(gM.players[gM.CurrentPlayerIndex].stakes[tempCardIndex]); ;
 
+            // move the stake
+            tempStake.transform.position = oldStakedCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
 
-        // move the stake
-        tempStake.transform.position = oldStakedCard.transform.position + new Vector3(0.0f, 0.01f, 0.0f);
+            //mark old staked card as staked once again
+            oldStakedCard.data.staked = true;
+            gM.players[gM.CurrentPlayerIndex].stakedCards.Add(oldStakedCard);
+            gM.players[gM.CurrentPlayerIndex].stakes.Add(tempStake);
+        }
 
         selectedCard = false;
         tempStake = null;
-
         gM.clearHighlights();
         gM.calculateStakeableCards();
     }
@@ -462,7 +467,7 @@ public class ClickHandler : MonoBehaviour
         for (int i = 0; i < gM.players[gM.CurrentPlayerIndex].stakedCards.Count; i++)
         {
             //check if that staked card is the one they clicked
-            if (gM.players[gM.CurrentPlayerIndex].stakedCards[i] == tempCard)
+            if (gM.players[gM.CurrentPlayerIndex].stakedCards[i] == tempCard && tempCard.data.Minable)
             {
                 int row = tempCard.data.row;
                 int col = tempCard.data.col;
