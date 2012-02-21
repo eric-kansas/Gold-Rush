@@ -62,6 +62,8 @@ public class GameManager : MonoBehaviour
     public int numProspectingTurns = 1;
     public bool cancelStake = false;
 
+    private bool lastTurn = false;
+
     #endregion
 
     #region Accessors / Mutators
@@ -137,7 +139,11 @@ public class GameManager : MonoBehaviour
             case GameStateManager.GameState.GAME_MINING_STATE:
                 handleTurn();
                 break;
-            case GameStateManager.GameState.GAME_END: break;
+            case GameStateManager.GameState.GAME_END:
+                Debug.Log("Checking winner");
+                Player winner = findWinner();
+                Debug.Log("Player " + (players.IndexOf(winner) + 1) + " wins!");
+                break;
             default: Debug.Log("whoops"); break;
         }
     }
@@ -419,6 +425,32 @@ public class GameManager : MonoBehaviour
     #region Actions
     public void endTurn()
     {
+
+        //Check if the last turn has been triggered
+        if (lastTurn)
+        {
+            Debug.Log("Last turn check");
+
+            //If the current player is the last player, game ends
+             if (currentPlayerIndex == players.Count - 1)
+                 gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+
+            //If everyone has a full hand, game ends
+            int numFullHands = 0;
+
+            //If any player has 5 cards in their hand, increment numFullHands
+            foreach (Player p in players)
+            {
+                if (p.hand.Count == numProspectingTurns)
+                {
+                    numFullHands++;
+                }
+            }
+
+            if (numFullHands == players.Count)
+                gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+        }
+
         //return board to default color, remove hightlighting from highlighted cards
         clearHighlights();
 
@@ -444,10 +476,6 @@ public class GameManager : MonoBehaviour
         clicker.stakeIndex = clicker.stakeOwnerIndex = -1;
         clicker.movedStake = false;
 
-        currentPlayerIndex++;	// move to next player
-        if (currentPlayerIndex >= players.Count)	//wrap around if necessary
-            currentPlayerIndex = 0;
-
         //increment the turns and check if game state needs to be changed
         phaseTurns++;
 
@@ -458,8 +486,68 @@ public class GameManager : MonoBehaviour
             phaseTurns = 0;
         }
 
+        //Check for last turn of the game
+        //Only check if the current player is the last player
+        if (currentPlayerIndex == players.Count - 1 && !lastTurn)
+        {
+
+            Debug.Log("Checking hands");
+
+            int numFullHands = 0;
+
+            //If any player has 5 cards in their hand, set lastTurn and increment numFullHands
+            foreach (Player p in players)
+            {
+                if (p.hand.Count == numProspectingTurns)
+                {
+                    lastTurn = true;
+
+                    Debug.Log("Last turn");
+
+                    numFullHands++;
+                }
+            }
+
+            //If EVERYONE has a full hand, game ends immediately
+            if (numFullHands == players.Count)
+                gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+        }
+
+
+        currentPlayerIndex++;	// move to next player
+        if (currentPlayerIndex >= players.Count)	//wrap around if necessary
+            currentPlayerIndex = 0;
+
         //move turn state back to the beginning
         gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
+    }
+
+    //Calculate scores and find the winning player
+    private Player findWinner()
+    {
+        Debug.Log("Calculating scores");
+
+        //Get score for player 1
+        Player winner = players[0];
+        int highestScore = scoringSystem.score(players[0].hand);
+
+        Debug.Log("Player 1 score: " + highestScore);
+
+        //Compare scores to get the highest
+        for (int i = 1; i < players.Count; i++)
+        {
+            int tempScore = scoringSystem.score(players[i].hand);
+
+            Debug.Log("Player " + (i + 1) + " score: " + tempScore);
+
+            if (tempScore > highestScore)
+            {
+                highestScore = tempScore;
+                winner = players[i];
+            }
+        }
+
+        return winner;
     }
 
     //return board to default color, remove hightlighting from highlighted cards

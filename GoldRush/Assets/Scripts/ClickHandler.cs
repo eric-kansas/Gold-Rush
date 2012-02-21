@@ -462,7 +462,7 @@ public class ClickHandler : MonoBehaviour
 
     private void mineClick(RaycastHit hit)
     {
-        Debug.Log("mine click");
+        //Debug.Log("mine click");
 
         for (int i = 0; i < gM.players[gM.CurrentPlayerIndex].stakedCards.Count; i++)
         {

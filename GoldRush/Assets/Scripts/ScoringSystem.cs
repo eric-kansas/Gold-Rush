@@ -15,7 +15,8 @@ public class ScoringSystem : MonoBehaviour {
 		_rules = rules;	
 	}
 
-	public int score(Card[] hand) {
+    public int score(List<Card> hand)
+    {
 		return _rules.calculateScore(hand);	
 	}
 
@@ -29,7 +30,7 @@ public class ScoringSystem : MonoBehaviour {
 
 public abstract class ScoringRules : MonoBehaviour {
 
-	public virtual int calculateScore(Card[] hand) {
+	public virtual int calculateScore(List<Card> hand) {
 		//impossible score will indicate there is a problem with an actual rule system for scoring being set
 		return -1;	
 	}
@@ -89,13 +90,13 @@ public abstract class ScoringRules : MonoBehaviour {
         return highestScore;
 	}
 
-	protected int nOfAKind(Card[] hand) {
+	protected int nOfAKind(List<Card> hand) {
 		Card matching = null; // card being matched
 		List<Card> non_matching = new List<Card>();
 		int count = 0, score = 0, highestScore = 0;
 
 		//loop through cards in hand
-		for(int i = 0; i < hand.Length; i++) {
+		for(int i = 0; i < hand.Count; i++) {
 			//make sure values are reset
 			matching = null;
 			non_matching.Clear();
@@ -103,7 +104,7 @@ public abstract class ScoringRules : MonoBehaviour {
 			score = 0;
 			
 			//check against other cards that haven't been checked against this card
-			for(int j = i+1; j < hand.Length; j++) {
+			for(int j = i+1; j < hand.Count; j++) {
 				if (hand[i].data.Kind == hand[j].data.Kind) {
 					matching = hand[i];
 					count++;
@@ -112,7 +113,7 @@ public abstract class ScoringRules : MonoBehaviour {
 				}
 
 				//at the end of the internal loop, score if a match was found
-				if (j == hand.Length && matching != null) {
+				if (j == hand.Count && matching != null) {
 					score = count * matching.data.Value;
 
 					//add value of lowest other card
@@ -133,15 +134,16 @@ public abstract class ScoringRules : MonoBehaviour {
 		return highestScore;
 	}
 
-	
 
-	protected int checkSuits(Card[] hand) {
+
+    protected int checkSuits(List<Card> hand)
+    {
 		int score = 0, highestScore = 0;
 		char[] suits = { 'D', 'H', 'C', 'S' };
 
 		for(int i = 0; i < 4; i++) {	//check all suits
 			score = 0;
-			for (int j = 0; j < hand.Length; j++) { //check all cards in hand
+			for (int j = 0; j < hand.Count; j++) { //check all cards in hand
 				if (hand[j].data.Suit == suits[i]) {
 					score += hand[j].data.Value;	
 				}
@@ -156,14 +158,15 @@ public abstract class ScoringRules : MonoBehaviour {
 }
 
 public class PokerRules : ScoringRules {
-	public override int calculateScore(Card[] hand) {
+    public override int calculateScore(List<Card> hand)
+    {
 		//todo: implement rules
 		return -1;
 	}
 }
 
 public class Grouping : ScoringRules {
-	public override int calculateScore(Card[] hand) {
+	public override int calculateScore(List<Card> hand) {
 		int score1= nOfAKind(hand);
 		int score2 = checkSuits(hand);
 		return (score1 > score2) ? score1 : score2;
