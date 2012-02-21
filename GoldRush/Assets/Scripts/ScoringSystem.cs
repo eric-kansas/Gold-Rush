@@ -73,6 +73,7 @@ public abstract class ScoringRules : MonoBehaviour {
 			}
 		}
 
+        //compare the matches in the hand
 		int highestScore = 0, score = 0;
 		for(i = 0; i < tests.Count; i++) {
 			for(int j = 0; j < tests[i].Count; j++) {

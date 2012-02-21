@@ -3,6 +3,33 @@ using System.Collections;
 
 public class GuiHandler : MonoBehaviour
 {
+    #region properties
+    #region Menu-related
+    /* Possible states of the menu GUI:
+     *       MAIN: Menu is on the default Main Menu.
+     *       OPTIONS: Menu is instead showing the Options Menu.
+     *       RULES: Menu is instead showing the rules.
+     */
+    public enum MenuState { MAIN, OPTIONS, RULES }
+
+    /* The current state of the menu */
+    public MenuState currentMenuState = MenuState.MAIN;
+
+    /* The Rectangle to use for the outer menu box */
+    private Rect menuOuterRect;
+
+    /* The Rectangle to use for the button grouping - slightly smaller */
+    private Rect buttonRect;
+
+    #endregion
+
+    #region In-game
+
+    /* A reference to the GameManager */
+    GameManager gM;
+
+    /* A reference to the ClickHandler */
+    ClickHandler clicker;
 
     /* The position and size of the action button */
     private Rect actionRect;
@@ -16,20 +43,24 @@ public class GuiHandler : MonoBehaviour
     private string actionText, skipText;
 
     /* Whether or not the current action can be skipped or cancelled */
-    private bool showSkipButton;
+    private bool showSkipButton = true;
 
-    /* A reference to the GameManager */
-    GameManager gM;
+    #endregion
+    #endregion
 
-    /* A reference to the ClickHandler */
-    ClickHandler clicker;
 
     // Use this for initialization
     void Start()
     {
         gM = transform.GetComponent<GameManager>();
         clicker = this.GetComponent<ClickHandler>();
-        showSkipButton = true;
+
+        menuOuterRect = new Rect(Screen.width * .4f, Screen.height * .25f, Screen.width * .2f, Screen.height * .5f);
+
+        float change = .03f;
+        float xChange = (menuOuterRect.width * change) / 2;
+        float yChange = (menuOuterRect.height * change) / 2;
+        buttonRect = new Rect(menuOuterRect.x + xChange, menuOuterRect.y + yChange, menuOuterRect.width * (1 - change), menuOuterRect.height * (1 - change));
     }
 
     // Update is called once per frame
@@ -38,6 +69,62 @@ public class GuiHandler : MonoBehaviour
 
     }
 
+    #region Menu
+    public void ShowMenu()
+    {
+        //draw an outer box
+        GUI.Box(menuOuterRect, "");
+
+        if (currentMenuState == MenuState.MAIN)
+            mainMenu();
+        else if (currentMenuState == MenuState.OPTIONS)
+            optionsMenu();
+        else if (currentMenuState == MenuState.RULES)
+            showRules();
+    }
+
+    private void mainMenu()
+    {
+        //contain everything else inside of it
+        GUI.BeginGroup(buttonRect);
+
+        //set the button dimensions
+        float width = buttonRect.width;
+        float height = buttonRect.height * .33f; //multiply by 1 over number of the buttons
+        GUILayoutOption[] options = { GUILayout.Width(width), GUILayout.Height(height) };
+
+        if (GUILayout.Button("Start Game", options)) //start the game
+            gM.setUpBoard();
+        else if (GUILayout.Button("Options (Coming Soon)", options)) //load the options menu instead
+            { /*currentMenuState = MenuState.OPTIONS; */ }
+        else if (GUILayout.Button("How To Play", options)) // show the rules instead
+            currentMenuState = MenuState.RULES;
+
+        GUI.EndGroup();
+    }
+
+    private void optionsMenu()
+    {
+        //contain everything else inside of it
+        GUI.BeginGroup(buttonRect);
+
+        //set the button dimensions
+        float width = buttonRect.width;
+        float height = buttonRect.height * .33f; //multiply by 1 over number of the buttons
+
+        int selectionGrid = 0;
+        string[] selectionStrings = { "Easy", "Normal" };
+
+        GUI.EndGroup();
+    }
+
+    private void showRules()
+    {
+
+    }
+    #endregion
+
+    #region In-game GUI
     public void adjustLocation()
     {
         actionRect = new Rect((Screen.width * .8f), (Screen.height * .82f), 150, 75);
@@ -75,7 +162,7 @@ public class GuiHandler : MonoBehaviour
                         showSkipButton = true;
                         skipText = "Cancel";
                     }
-                    
+
                     break;
                 case GameStateManager.TurnState.TURN_STAKE:
                     actionText = "Stake";
@@ -321,4 +408,5 @@ public class GuiHandler : MonoBehaviour
     {
         playerText += "\n" + text;
     }
+    #endregion
 }
