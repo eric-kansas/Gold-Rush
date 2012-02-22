@@ -106,23 +106,24 @@ public class GameManager : MonoBehaviour
 
         if (!CardPrefab)
             Debug.LogError("No card prefab set.");
-
-        //shuffle cards
-        //build board
-        BuildDeck();
-        ShuffleDeck();
-        BuildBoard();
     }
 
     #region Update() and OnGUI()
     private void OnGUI()
     {
-        gui.adjustLocation();
-        gui.setText();
-        gui.handleAction();
-        gui.handleSkip();
+        if (gameState.CurrentGameState != GameStateManager.GameState.BEFORE_GAME)
+        {
+            gui.adjustLocation();
+            gui.setText();
+            gui.handleAction();
+            gui.handleSkip();
 
-        gui.playerDisplay();
+            gui.playerDisplay();
+        }
+        else
+        {
+            gui.ShowMenu();
+        }
     }
 
     // Update is called once per frame
@@ -130,6 +131,7 @@ public class GameManager : MonoBehaviour
     {
         switch (gameState.CurrentGameState)
         {
+            case GameStateManager.GameState.BEFORE_GAME: break;
             case GameStateManager.GameState.GAME_SETUP:
                 clicker.myUpdate();
                 break;
@@ -423,6 +425,16 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Actions
+    public void setUpBoard()
+    {
+        //shuffle cards
+        //build board
+        BuildDeck();
+        ShuffleDeck();
+        BuildBoard();
+        gameState.CurrentGameState = GameStateManager.GameState.GAME_SETUP;
+    }
+
     public void endTurn()
     {
 
