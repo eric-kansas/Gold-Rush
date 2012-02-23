@@ -146,11 +146,44 @@ public class GameManager : MonoBehaviour
                 handleTurn();
                 break;
             case GameStateManager.GameState.GAME_END:
+                finishHands();
                 Debug.Log("Checking winner");
                 Player winner = findWinner();
                 Debug.Log("Player " + (players.IndexOf(winner) + 1) + " wins!");
                 break;
             default: Debug.Log("whoops"); break;
+        }
+    }
+
+    //If a player does not have a full hand by the end of the game, add their staked cards to their hand
+    private void finishHands()
+    {
+        //Loop through players
+        foreach (Player p in players)
+        {
+            //If their hand is not full
+            if (p.hand.Count != numProspectingTurns)
+            {
+                //Add each staked card
+                foreach (Card c in p.stakedCards)
+                {
+                    p.hand.Add(c);
+
+                    //move the card to the side of the board
+                    c.transform.position = new Vector3((0.8f * p.hand.Count) - 2.0f, 0.0f, (players.IndexOf(p) * -1.1f) - 1.2f);
+
+                    GameObject stake = p.stakes[p.stakedCards.IndexOf(c)];
+
+                    //Remove card from staked cards list
+                    p.stakedCards.Remove(c);
+
+                    //remove the stake from the list of stakes
+                    p.stakes.Remove(stake);
+
+                    //get rid of the stake GameObject
+                    Destroy(stake);
+                }
+            }
         }
     }
     #endregion
@@ -491,24 +524,15 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Last turn check");
 
+            Debug.Log("Player Index: " + currentPlayerIndex);
+            Debug.Log("Last player index: " + (players.Count - 1));
+
             //If the current player is the last player, game ends
-             if (currentPlayerIndex == players.Count - 1)
-                 gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
-
-            //If everyone has a full hand, game ends
-            int numFullHands = 0;
-
-            //If any player has 5 cards in their hand, increment numFullHands
-            foreach (Player p in players)
+            if (currentPlayerIndex == players.Count - 1)
             {
-                if (p.hand.Count == numProspectingTurns)
-                {
-                    numFullHands++;
-                }
-            }
-
-            if (numFullHands == players.Count)
+                Debug.Log("GAME END");
                 gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+            }
         }
 
         //return board to default color, remove hightlighting from highlighted cards
@@ -548,7 +572,7 @@ public class GameManager : MonoBehaviour
 
         //Check for last turn of the game
         //Only check if the current player is the last player
-        if (currentPlayerIndex == players.Count - 1 && !lastTurn)
+        if (!lastTurn)
         {
 
             Debug.Log("Checking hands");
@@ -558,7 +582,7 @@ public class GameManager : MonoBehaviour
             //If any player has 5 cards in their hand, set lastTurn and increment numFullHands
             foreach (Player p in players)
             {
-                if (p.hand.Count == numProspectingTurns)
+                if (p.hand.Count >= numProspectingTurns)
                 {
                     lastTurn = true;
 
@@ -570,6 +594,10 @@ public class GameManager : MonoBehaviour
 
             //If EVERYONE has a full hand, game ends immediately
             if (numFullHands == players.Count)
+                gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+
+            //If we're on the last player, game ends immediately
+            if (currentPlayerIndex == players.Count - 1 && numFullHands > 0)
                 gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
         }
 
