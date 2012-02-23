@@ -7,16 +7,19 @@ public class Player : MonoBehaviour {
     /* Player's board position */
     private Vector2 position = new Vector2();
 
-
     /* List of stake prefabs */
     public List<GameObject> stakes;
 
     /* List of staked cards */
     public List<Card> stakedCards;
 
+    /* List of mined cards */
     public List<Card> hand;
+
+    /* The card the player is currently on */
 	private Card currentCard;
 
+    //grid coordinates
     public Vector2 Position
     {
         get { return position; }
@@ -40,4 +43,9 @@ public class Player : MonoBehaviour {
 	void Update () {
 	
 	}
+
+    public void loadPlayerFromJson()
+    {
+
+    }
 }

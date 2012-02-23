@@ -48,7 +48,6 @@ public class GuiHandler : MonoBehaviour
     #endregion
     #endregion
 
-
     // Use this for initialization
     void Start()
     {
@@ -94,9 +93,12 @@ public class GuiHandler : MonoBehaviour
         GUILayoutOption[] options = { GUILayout.Width(width), GUILayout.Height(height) };
 
         if (GUILayout.Button("Start Game", options)) //start the game
+        {
             gM.setUpBoard();
+            gM.loadGameFromJson();
+        }
         else if (GUILayout.Button("Options (Coming Soon)", options)) //load the options menu instead
-            { /*currentMenuState = MenuState.OPTIONS; */ }
+        { /*currentMenuState = MenuState.OPTIONS; */ }
         else if (GUILayout.Button("How To Play", options)) // show the rules instead
             currentMenuState = MenuState.RULES;
 

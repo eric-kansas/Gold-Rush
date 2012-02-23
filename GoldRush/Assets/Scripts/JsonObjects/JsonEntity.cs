@@ -10,4 +10,7 @@ public class JsonEntity
     public int id;
     public bool is_avatar;
     public bool is_stake;
+    public int player_id;
+    public int game_id;
+    public int in_game_id;
 }

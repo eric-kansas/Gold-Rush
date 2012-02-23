@@ -15,6 +15,9 @@ public class GameManager : MonoBehaviour
     /* GUI */
     private GuiHandler gui;
 
+    /* Reference to JSON objects */
+    JsonFxScript jsonFx;
+
     /* ScoringSystem - Used to count up the score for mined cards */
     public ScoringSystem scoringSystem;
 
@@ -103,6 +106,7 @@ public class GameManager : MonoBehaviour
         scoringSystem.selectSystem(new Grouping());
         clicker = this.GetComponent<ClickHandler>();
         gui = this.GetComponent<GuiHandler>();
+        jsonFx = this.GetComponent<JsonFxScript>();
 
         if (!CardPrefab)
             Debug.LogError("No card prefab set.");
@@ -433,6 +437,50 @@ public class GameManager : MonoBehaviour
         ShuffleDeck();
         BuildBoard();
         gameState.CurrentGameState = GameStateManager.GameState.GAME_SETUP;
+    }
+
+    public void loadGameFromJson()
+    {
+        //Load the board
+        
+
+        //Load the players and stakes
+        foreach (var entity in jsonFx.gameJSON.entities)
+        {
+            Vector3 pos;
+            int playerID = entity.in_game_id;
+            if (entity.is_avatar) //player
+            {
+                //positions
+                Vector2 boardPosition = new Vector2(entity.row, entity.col);    //grid position
+                pos = clicker.Vector2ToPosition(boardPosition, 0.75f);          //Vector3 position, real space
+
+                //create player
+                Player p = (Player)Instantiate(clicker.tempPlayer, pos, Quaternion.identity);
+
+                //set variables
+                p.Position = boardPosition;
+                p.CurrentCard = board[entity.row, entity.col].GetComponent<Card>();
+                p.transform.renderer.material.color = clicker.bodyColor[players.Count];
+
+                //add to list of players
+                players.Add(p);
+                
+            } 
+            else
+            { //stake
+                pos = clicker.Vector2ToPosition(new Vector2(entity.row, entity.col), 0.51f);
+                GameObject tempStake = (GameObject)Instantiate(clicker.stakePrefab, pos, Quaternion.identity);
+                
+                //set to current player's color
+                tempStake.transform.renderer.material.color =  players[playerID].transform.renderer.material.color;
+            }
+        }
+        
+
+
+        //players are placed, go to prospecting phase
+        //gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
     }
 
     public void endTurn()
