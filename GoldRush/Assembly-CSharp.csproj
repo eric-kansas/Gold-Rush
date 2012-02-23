@@ -52,18 +52,18 @@
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\GameStateManager.cs" />
      <Compile Include="Assets\Scripts\GuiHandler.cs" />
-     <Compile Include="Assets\Scripts\JsonCard.cs" />
-     <Compile Include="Assets\Scripts\JsonEntity.cs" />
-     <Compile Include="Assets\Scripts\JsonFriend.cs" />
-     <Compile Include="Assets\Scripts\JsonFxScript.cs" />
-     <Compile Include="Assets\Scripts\JsonGame.cs" />
-     <Compile Include="Assets\Scripts\JsonHand.cs" />
-     <Compile Include="Assets\Scripts\JsonPlayer.cs" />
-     <Compile Include="Assets\Scripts\JsonWhoseTurn.cs" />
+     <Compile Include="Assets\Scripts\JsonObjects\JsonCard.cs" />
+     <Compile Include="Assets\Scripts\JsonObjects\JsonEntity.cs" />
+     <Compile Include="Assets\Scripts\JsonObjects\JsonFriend.cs" />
+     <Compile Include="Assets\Scripts\JsonObjects\JsonFxScript.cs" />
+     <Compile Include="Assets\Scripts\JsonObjects\JsonGame.cs" />
+     <Compile Include="Assets\Scripts\JsonObjects\JsonHand.cs" />
+     <Compile Include="Assets\Scripts\JsonObjects\JsonPlayer.cs" />
+     <Compile Include="Assets\Scripts\JsonObjects\JsonWhoseTurn.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\ScoringSystem.cs" />
  <Reference Include="JsonFx.Json">
- <HintPath>Assets\Scripts\JsonFx.Json.dll</HintPath>
+ <HintPath>Assets\Scripts\JsonObjects\JsonFx.Json.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>

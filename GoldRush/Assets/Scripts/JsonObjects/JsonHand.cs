@@ -7,4 +7,5 @@ public class JsonHand
 {
     public JsonCard[] cards;
     public int id;
+    public int in_game_id;
 }

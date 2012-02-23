@@ -16,7 +16,7 @@ public class ClickHandler : MonoBehaviour
     private GameManager gM;
 
     /* A list of colors that the players can be. */
-    List<Color> bodyColor;
+    public List<Color> bodyColor;
 
     /* Temporary objects */
     public Player tempPlayer;            // A newly created player before it is added to the players list
@@ -564,9 +564,11 @@ public class ClickHandler : MonoBehaviour
 
     public Vector2 PositionToVector2(Vector3 pos)
     {
-        //Debug.Log("huh: " +pos.x);
-
-
         return new Vector2((int)((pos.x + .0001) / .88f), (int)((pos.z + .0001) / 1.1f));
+    }
+
+    public Vector3 Vector2ToPosition(Vector2 v, float yVal)
+    {
+        return new Vector3(((v.x) * 0.88f), yVal, ((v.y) * 1.1f));
     }
 }

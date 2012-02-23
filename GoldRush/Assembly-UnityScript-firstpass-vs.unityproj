@@ -49,7 +49,7 @@
      <Compile Include="Assets\Standard Assets\Scripts\Camera Scripts\SmoothLookAt.js" />
      <Compile Include="Assets\Standard Assets\Scripts\General Scripts\DragRigidbody.js" />
  <Reference Include="JsonFx.Json">
- <HintPath>Assets\Scripts\JsonFx.Json.dll</HintPath>
+ <HintPath>Assets\Scripts\JsonObjects\JsonFx.Json.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
