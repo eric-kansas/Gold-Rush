@@ -95,7 +95,7 @@ public class GuiHandler : MonoBehaviour
         if (GUILayout.Button("Start Game", options)) //start the game
         {
             gM.setUpBoard();
-            gM.loadGameFromJson();
+            //gM.loadGameFromJson();
         }
         else if (GUILayout.Button("Options (Coming Soon)", options)) //load the options menu instead
         { /*currentMenuState = MenuState.OPTIONS; */ }
