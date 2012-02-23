@@ -44,14 +44,27 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Json\DebugConsole.cs" />
+     <Compile Include="Assets\Json\JsonFxDemo.cs" />
      <Compile Include="Assets\Scripts\Card.cs" />
      <Compile Include="Assets\Scripts\CardData.cs" />
      <Compile Include="Assets\Scripts\ClickHandler.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\GameStateManager.cs" />
      <Compile Include="Assets\Scripts\GuiHandler.cs" />
+     <Compile Include="Assets\Scripts\JsonCard.cs" />
+     <Compile Include="Assets\Scripts\JsonEntity.cs" />
+     <Compile Include="Assets\Scripts\JsonFriend.cs" />
+     <Compile Include="Assets\Scripts\JsonFxScript.cs" />
+     <Compile Include="Assets\Scripts\JsonGame.cs" />
+     <Compile Include="Assets\Scripts\JsonHand.cs" />
+     <Compile Include="Assets\Scripts\JsonPlayer.cs" />
+     <Compile Include="Assets\Scripts\JsonWhoseTurn.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\ScoringSystem.cs" />
+ <Reference Include="JsonFx.Json">
+ <HintPath>Assets\Scripts\JsonFx.Json.dll</HintPath>
+ </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
