@@ -48,7 +48,7 @@
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\CombineChildren.cs" />
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\MeshCombineUtility.cs" />
  <Reference Include="JsonFx.Json">
- <HintPath>Assets\Scripts\JsonFx.Json.dll</HintPath>
+ <HintPath>Assets\Scripts\JsonObjects\JsonFx.Json.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
