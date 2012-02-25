@@ -44,8 +44,6 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Json\DebugConsole.cs" />
-     <Compile Include="Assets\Json\JsonFxDemo.cs" />
      <Compile Include="Assets\Scripts\Card.cs" />
      <Compile Include="Assets\Scripts\CardData.cs" />
      <Compile Include="Assets\Scripts\ClickHandler.cs" />
