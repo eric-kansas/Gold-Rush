@@ -48,6 +48,9 @@ public class ClickHandler : MonoBehaviour
     /* Whether the stake has been bumped yet */
     public bool movedStake;
 
+    /*Card the player just moved to, to set facedown if they rolled a one */
+    public Card movedTo = null;
+
     public GameObject TempStake
     {
         get { return tempStake; }
@@ -164,7 +167,11 @@ public class ClickHandler : MonoBehaviour
                 //handle double click
                 if (lastPos == gM.players[gM.CurrentPlayerIndex].transform.position)
                 {
-                    gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard; //set the player's current card
+                    //save to turn this card back over again
+                    if (gM.CurrentRoll == 1)
+                        movedTo = tempCard;
+
+                    gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard;//set the player's current card
 
                     gM.players[gM.CurrentPlayerIndex].Position = PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
 
