@@ -560,6 +560,18 @@ public class GameManager : MonoBehaviour
         clicker.stakeIndex = clicker.stakeOwnerIndex = -1;
         clicker.movedStake = false;
 
+        //turn card back over?
+        if (clicker.movedTo != null)
+        {
+            Material newMat = new Material(Shader.Find("Diffuse"));
+            newMat.mainTexture = CardTexture;
+            newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);
+            newMat.mainTextureOffset = new Vector2(0.138f, 0.0f);
+            clicker.movedTo.renderer.material = newMat;
+            clicker.movedTo = null;
+        }
+
+
         //increment the turns and check if game state needs to be changed
         phaseTurns++;
 
@@ -687,7 +699,6 @@ public class GameManager : MonoBehaviour
 
     private void BuildBoard()
     {
-
         int counter = 0;
 
         for (int i = 0; i < BOARD_WIDTH; i++)

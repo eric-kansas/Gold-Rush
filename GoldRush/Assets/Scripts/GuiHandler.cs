@@ -231,6 +231,10 @@ public class GuiHandler : MonoBehaviour
                     if (gM.pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
                     {			//pEnabled is set to true in clickHandler's moveClick()
 
+                        //save to turn this card back over again
+                        if (gM.CurrentRoll == 1)
+                            clicker.movedTo = clicker.TempCard;
+
                         gM.players[gM.CurrentPlayerIndex].CurrentCard = clicker.TempCard; //set the player's current card
 
                         gM.players[gM.CurrentPlayerIndex].Position = clicker.PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
