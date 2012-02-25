@@ -40,64 +40,6 @@ public abstract class ScoringRules : MonoBehaviour {
 		return -1;	
 	}
 
-    //protected int check(Card[] hand) {
-    //    List<List<Card>> tests = new List<List<Card>>();
-    //    List<List<int>> scores = new List<List<int>>();
-		
-    //    int i;
-    //    for(i = 0; i < 4; i++) //add four lists for suits
-    //        tests.Add(new List<Card>());
-
-    //    for(i = 0; i < hand.Length; i++) {
-			
-    //        //check suits
-    //        switch (hand[i].data.Suit) {
-    //            case 'D':
-    //                tests[0].Add(hand[i]);
-    //                break;
-    //            case 'H':
-    //                tests[1].Add(hand[i]);
-    //                break;
-    //            case 'C':
-    //                tests[2].Add(hand[i]);
-    //                break;
-    //            case 'S':
-    //                tests[3].Add(hand[i]);
-    //                break;
-    //        }
-			
-    //        //check matches
-    //        if (tests.Count > 4) {
-    //            for(int j = 4; j < tests.Count; j++) {
-    //                if (tests[j][0].data.Kind == hand[i].data.Kind) {
-    //                    tests[j].Add(hand[i]);	
-    //                } else if (j == tests.Count) {
-    //                    tests.Add(new List<Card>());
-    //                    tests[tests.Count - 1].Add(hand[i]);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    //compare the matches in the hand
-    //    int highestScore = 0, score = 0;
-    //    for(i = 0; i < tests.Count; i++) {
-    //        for(int j = 0; j < tests[i].Count; j++) {
-    //            if (i < 4) { //suits
-    //                score += tests[i][j].data.Value;
-    //            } else {
-    //                score += tests[i][j].data.Value;
-    //                //todo - add lowest
-					
-    //            }
-    //        }
-    //    }
-
-    //    return highestScore;
-    //}
-
-
-
 	protected int nOfAKind(List<Card> hand) {
 		Card matching = null; // card being matched
 		List<Card> non_matching = new List<Card>();
@@ -123,33 +65,24 @@ public abstract class ScoringRules : MonoBehaviour {
 				} 
                 else 
                 {
-                    Debug.Log("Found a non-matching card");
 					non_matching.Add(hand[j]);	
 				}
 
 				//at the end of the internal loop, score if a match was found
 				if (j == hand.Count - 1 && matching != null) 
                 {
-                    Debug.Log("Count matching: " + count);
 					score = count * matching.data.Value;
-
-                    Debug.Log("Score before kicker: " + score);
-
-                    Debug.Log("Looking for lowest kicker");
 
 					//add value of lowest other card
 					int lowestRemaining = 1000;
 					for(int k = 0; k < non_matching.Count; k++) 
                     {
-                        Debug.Log("non matching cards: " + non_matching.Count);
 
 						if (non_matching[k].data.Value < lowestRemaining)
 							lowestRemaining = non_matching[k].data.Value;
 
-                        Debug.Log("Value of current non-matching card: " + non_matching[k].data.Value);
 					}
 
-                    Debug.Log("Adding lowest kicker: " + lowestRemaining);
 					score += lowestRemaining;
 
 					if (score > highestScore)
