@@ -493,6 +493,10 @@ public class ClickHandler : MonoBehaviour
 
                 //move the card to the side of the board
                 tempCard.transform.position = findHandPosition();
+                if (gM.players.Count > 2 && gM.CurrentPlayerIndex == 1)
+                    gM.players[gM.CurrentPlayerIndex].hand[gM.players[gM.CurrentPlayerIndex].hand.Count - 1].transform.Rotate(new Vector3(0, 1, 0), 90.0f);
+                else if (gM.CurrentPlayerIndex == 3) 
+                    gM.players[gM.CurrentPlayerIndex].hand[gM.players[gM.CurrentPlayerIndex].hand.Count - 1].transform.Rotate(new Vector3(0, 1, 0), -90.0f);
 
                 //remove the card from the list of staked cards
                 gM.players[gM.CurrentPlayerIndex].stakedCards.Remove(tempCard);
@@ -528,7 +532,7 @@ public class ClickHandler : MonoBehaviour
         }
     }
 
-    private Vector3 findHandPosition()
+    public Vector3 findHandPosition()
     {
         if (gM.players.Count == 2)
         {
@@ -541,10 +545,12 @@ public class ClickHandler : MonoBehaviour
         {
             if (gM.CurrentPlayerIndex == 0)
                 return new Vector3((0.8f * gM.players[gM.CurrentPlayerIndex].hand.Count) - 2.0f, 0.0f, (gM.CurrentPlayerIndex * -1.1f) - 1.2f); //old
-            else if (gM.CurrentPlayerIndex == 1) { }
+            else if (gM.CurrentPlayerIndex == 1) 
+                return new Vector3(-1.5f, 0.0f, 4.75f - (gM.players[gM.CurrentPlayerIndex].hand.Count * 0.8f));
             else if (gM.CurrentPlayerIndex == 2)
                 return new Vector3(12.0f - (0.8f * (gM.players[1].hand.Count - 1)), 0.0f, 4.75f);
-            else if (gM.CurrentPlayerIndex == 3) { }
+            else if (gM.CurrentPlayerIndex == 3)
+                return new Vector3(12.0f, 0.0f, -1.2f + (gM.players[gM.CurrentPlayerIndex].hand.Count * 0.8f));
         }
 
         return new Vector3((0.8f * gM.players[gM.CurrentPlayerIndex].hand.Count) - 2.0f, 0.0f, (gM.CurrentPlayerIndex * -1.1f) - 1.2f); //old

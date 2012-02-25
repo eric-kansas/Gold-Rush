@@ -170,7 +170,7 @@ public class GameManager : MonoBehaviour
                     p.hand.Add(c);
 
                     //move the card to the side of the board
-                    c.transform.position = new Vector3((0.8f * p.hand.Count) - 2.0f, 0.0f, (players.IndexOf(p) * -1.1f) - 1.2f);
+                    c.transform.position = clicker.findHandPosition();
 
                     GameObject stake = p.stakes[p.stakedCards.IndexOf(c)];
 
@@ -518,6 +518,18 @@ public class GameManager : MonoBehaviour
 
     public void endTurn()
     {
+        //return board to default color, remove hightlighting from highlighted cards
+        clearHighlights();
+
+        //mark cards as minable again
+        for (int i = 0; i < BOARD_WIDTH; i++)
+        {
+            for (int j = 0; j < BOARD_HEIGHT; j++)
+            {
+                if (board[i, j] != null)
+                    board[i, j].GetComponent<Card>().data.Minable = true;
+            }
+        }
 
         //Check if the last turn has been triggered
         if (lastTurn)
@@ -532,19 +544,7 @@ public class GameManager : MonoBehaviour
             {
                 Debug.Log("GAME END");
                 gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
-            }
-        }
-
-        //return board to default color, remove hightlighting from highlighted cards
-        clearHighlights();
-
-        //mark cards as minable again
-        for (int i = 0; i < BOARD_WIDTH; i++)
-        {
-            for (int j = 0; j < BOARD_HEIGHT; j++)
-            {
-                if (board[i, j] != null)
-                    board[i, j].GetComponent<Card>().data.Minable = true;
+                return;
             }
         }
 
