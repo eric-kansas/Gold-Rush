@@ -7,7 +7,10 @@ public class JsonCard
     public int id;
     public bool is_up;
     public int kind;
-    public int suit;
-    public int player_id;
+    public string suit;
+    public int in_game_id;
     public int game_id;
+    public int row;
+    public int col;
+    public bool minable;
 }
