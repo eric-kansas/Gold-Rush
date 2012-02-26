@@ -426,6 +426,102 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
+    public Vector2 getTexCoordinates(char kind, char suit)
+    {
+        Vector2 result = Vector2.zero;
+        switch (suit)
+        {
+            case 'C':
+                result.y = 1;
+                break;
+            case 'D':
+                result.y = 2;
+                break;
+            case 'H':
+                result.y = 3;
+                break;
+            case 'S':
+                result.y = 4;
+                break;
+            default: Debug.Log("what?" + suit); break;
+        }
+
+        switch (kind)
+        {
+            case 'K':
+                result.x = 1;
+                break;
+            case 'Q':
+                result.x = 2;
+                break;
+            case 'J':
+                result.x = 3;
+                break;
+            case '0':
+                result.x = 4;
+                break;
+            case '9':
+                result.x = 5;
+                break;
+            case '8':
+                result.x = 6;
+                break;
+            case '7':
+                result.x = 7;
+                break;
+            case '6':
+                result.x = 8;
+                break;
+            case '5':
+                result.x = 9;
+                break;
+            case '4':
+                result.x = 10;
+                break;
+            case '3':
+                result.x = 11;
+                break;
+            case '2':
+                result.x = 12;
+                break;
+            case '1':
+            case 'A':
+                result.x = 13;
+                break;
+            default: Debug.Log("what? " + kind); break; 
+        }
+        return result;
+    }
+
+    //Calculate scores and find the winning player
+    private Player findWinner()
+    {
+        Debug.Log("Calculating scores");
+
+        //Get score for player 1
+        Player winner = players[0];
+        int highestScore = scoringSystem.score(players[0].hand);
+
+        Debug.Log("Player 1 score: " + highestScore);
+
+        //Compare scores to get the highest
+        for (int i = 1; i < players.Count; i++)
+        {
+            int tempScore = scoringSystem.score(players[i].hand);
+
+            Debug.Log("Player " + (i + 1) + " score: " + tempScore);
+
+            if (tempScore > highestScore)
+            {
+                highestScore = tempScore;
+                winner = players[i];
+            }
+        }
+
+        return winner;
+    }
+
     #endregion
 
     #region Actions
@@ -491,46 +587,142 @@ public class GameManager : MonoBehaviour
 
     public void loadGameFromJson()
     {
-        //Load the board
-        
-
-        //Load the players and stakes
+        //Load the players
         foreach (var entity in jsonFx.gameJSON.entities)
         {
-            Vector3 pos;
             int playerID = entity.in_game_id;
             if (entity.is_avatar) //player
             {
                 //positions
                 Vector2 boardPosition = new Vector2(entity.row, entity.col);    //grid position
-                pos = clicker.Vector2ToPosition(boardPosition, 0.75f);          //Vector3 position, real space
+                Vector3 pos = clicker.Vector2ToPosition(boardPosition, 0.75f);          //Vector3 position, real space
 
                 //create player
                 Player p = (Player)Instantiate(clicker.tempPlayer, pos, Quaternion.identity);
 
                 //set variables
+                p.in_game_id = entity.in_game_id;
                 p.Position = boardPosition;
-                p.CurrentCard = board[entity.row, entity.col].GetComponent<Card>();
-                p.transform.renderer.material.color = clicker.bodyColor[players.Count];
+                p.transform.renderer.material.color = clicker.bodyColor[p.in_game_id];
 
                 //add to list of players
                 players.Add(p);
-                
-            } 
-            else
-            { //stake
-                pos = clicker.Vector2ToPosition(new Vector2(entity.row, entity.col), 0.51f);
-                GameObject tempStake = (GameObject)Instantiate(clicker.stakePrefab, pos, Quaternion.identity);
-                
-                //set to current player's color
-                tempStake.transform.renderer.material.color =  players[playerID].transform.renderer.material.color;
             }
         }
-        
 
+        //sort the players based on in_game_id - they are read in alphabetically
+        players.Sort(new PlayerSorter());
+        for (int i = 0; i < players.Count; i++)
+        {
+            Debug.Log("Player " + i + ", DB in_game_id: " + players[i].in_game_id);
+        }
+
+        loadBoardFromJson(); //Load the board
+        foreach (Player p in players)
+            p.CurrentCard = board[(int)p.Position.x, (int)p.Position.y].GetComponent<Card>();
+
+        //load the stakes
+        foreach (var entity in jsonFx.gameJSON.entities)
+        {
+            if (!entity.is_avatar) //stake
+            {
+                Debug.Log("Loading a stake");
+                //place the stake
+                Vector3 pos = clicker.Vector2ToPosition(new Vector2(entity.row, entity.col), 0.51f);
+                GameObject tempStake = (GameObject)Instantiate(clicker.stakePrefab, pos, Quaternion.identity);
+                board[entity.row, entity.col].GetComponent<Card>().data.staked = true;
+
+                //set to current player's color
+                tempStake.transform.renderer.material.color = players[entity.in_game_id].transform.renderer.material.color;
+
+                //add to player's stakes
+                players[entity.in_game_id].stakes.Add(tempStake);
+                players[entity.in_game_id].stakedCards.Add(board[entity.row, entity.col].GetComponent<Card>());
+            }
+        }
 
         //players are placed, go to prospecting phase
         //gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+    }
+
+    private void loadBoardFromJson()
+    {
+        int counter = 0;
+        foreach (var card in jsonFx.gameJSON.cards)
+        {
+            //number and suit
+            char suit = card.suit[0];
+            char kind = (card.kind + 1).ToString()[0];
+
+            //value 
+            int value = int.Parse(kind.ToString());
+            if (card.kind == 0) //ace
+            {
+                value = 11;
+                kind = 'A';
+            }
+            else if (card.kind == 9)
+            {
+                value = 10;
+                kind = '0';
+            }
+            else if (card.kind == 10)
+            {
+                kind = 'J';
+                value = 10;
+            }
+            else if (card.kind == 11)
+            {
+                value = 10;
+                kind = 'Q';
+            }
+            else if (card.kind == 12)
+            {
+                value = 10;
+                kind = 'K';
+            }
+
+            //texture coordinates
+            Vector2 texCoordinates = getTexCoordinates(kind, suit);
+
+            deck[counter] = new CardData(kind, suit, value, texCoordinates);//add it to the deck
+
+            //create card
+            if (card.in_game_id == -1) //on the board still
+            {
+                int row = card.col; int col = card.row; //this is bullshit
+                Vector3 pos = new Vector3(.88f * row, .5f, 1.1f * col);
+                board[row, col] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
+
+
+                //set variables
+                deck[counter].Minable = card.minable;
+                board[row, col].GetComponent<Card>().data = deck[counter];
+
+                if (card.is_up) //turn face up if need be
+                    CreateMaterial(texCoordinates, board[row, col]);
+            }
+            else //in a player's hand
+            {
+                Vector3 pos = clicker. findHandPosition(card.in_game_id); //find the hand's position
+                GameObject cardObject = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity); //create the card
+                int handSize =  players[card.in_game_id].hand.Count;
+                players[card.in_game_id].hand.Add(cardObject.GetComponent<Card>()); //add it to the hand
+
+                //rotate it if need be
+                if (players.Count > 2 && card.in_game_id == 1)
+                    players[card.in_game_id].hand[handSize].transform.Rotate(new Vector3(0, 1, 0), 90.0f);
+                else if (CurrentPlayerIndex == 3)
+                    players[card.in_game_id].hand[handSize].transform.Rotate(new Vector3(0, 1, 0), -90.0f);
+
+                players[card.in_game_id].hand[handSize].data = deck[counter]; //set data
+
+                if (card.is_up)  //turn face up if need be
+                    CreateMaterial(texCoordinates, players[card.in_game_id].hand[handSize].gameObject);
+            }
+
+            counter++;
+        }
     }
 
     public void endTurn()
@@ -628,34 +820,6 @@ public class GameManager : MonoBehaviour
         gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
     }
 
-    //Calculate scores and find the winning player
-    private Player findWinner()
-    {
-        Debug.Log("Calculating scores");
-
-        //Get score for player 1
-        Player winner = players[0];
-        int highestScore = scoringSystem.score(players[0].hand);
-
-        Debug.Log("Player 1 score: " + highestScore);
-
-        //Compare scores to get the highest
-        for (int i = 1; i < players.Count; i++)
-        {
-            int tempScore = scoringSystem.score(players[i].hand);
-
-            Debug.Log("Player " + (i + 1) + " score: " + tempScore);
-
-            if (tempScore > highestScore)
-            {
-                highestScore = tempScore;
-                winner = players[i];
-            }
-        }
-
-        return winner;
-    }
-
     private void endGame()
     {
         gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
@@ -744,6 +908,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    #endregion
+
     public void CreateMaterial(Vector2 Coordinate, GameObject Card)
     {
         Material newMat = new Material(Shader.Find("Diffuse"));
@@ -752,7 +918,6 @@ public class GameManager : MonoBehaviour
         newMat.mainTextureOffset = new Vector2(CARD_TEX_X_OFFSET * -Coordinate.x, CARD_TEX_Y_OFFSET * Coordinate.y);
         Card.renderer.material = newMat;
     }
-    #endregion
 
     private void handleTurn()
     {
@@ -775,4 +940,17 @@ public class GameManager : MonoBehaviour
         }
     }
 
+}
+
+public class PlayerSorter : Comparer<Player>
+{
+    public override int Compare(Player one, Player two)
+    {
+        if (one.in_game_id < two.in_game_id)
+            return -1;
+        else if (one.in_game_id > two.in_game_id)
+            return 1;
+        else
+            return 0;
+    }
 }

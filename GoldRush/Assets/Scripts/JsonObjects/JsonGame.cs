@@ -11,5 +11,6 @@ public class JsonGame
     public JsonWhoseTurn whose_turn;
     public JsonCard[] cards;
     public JsonPlayer[] players;
+    public int current_player;
 }
 
