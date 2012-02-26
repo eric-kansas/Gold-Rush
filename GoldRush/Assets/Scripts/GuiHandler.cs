@@ -34,11 +34,6 @@ public class GuiHandler : MonoBehaviour
     /* The position and size of the action button */
     private Rect actionRect;
 
-    /* The position and size of the Player Display */
-    public Rect playerRect = new Rect(10, 10, 100, 15);
-    /* The string for the Player Display */
-    private string playerText = "";
-
     /* What the buttons will say */
     private string actionText, skipText;
 
@@ -145,7 +140,6 @@ public class GuiHandler : MonoBehaviour
         {
             showSkipButton = false;
             actionText = "Please place players.";		// If not enough player objects have been placed, let the players know.
-            playerText = "Player " + gM.CurrentPlayerIndex + 1 + ": pleace place your peice on the board";
         }
         else
         {
@@ -411,21 +405,5 @@ public class GuiHandler : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Shows the Current player in a gui text object
-    /// </summary>
-    public void playerDisplay()
-    {
-        GUI.Box(playerRect, "");
-        GUI.Label(playerRect, playerText);
-    }
-
-    /// <summary>
-    /// Add text to playerText.
-    /// </summary>
-    public void printToGUI(string text)
-    {
-        playerText += "\n" + text;
-    }
     #endregion
 }

@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     /* GUI */
     private GuiHandler gui;
+    private FeedbackGUI f_gui;
 
     /* Reference to JSON objects */
     JsonFxScript jsonFx;
@@ -104,6 +105,7 @@ public class GameManager : MonoBehaviour
         gameState = new GameStateManager();
         scoringSystem = new ScoringSystem();
         scoringSystem.selectSystem(new Grouping());
+        f_gui = gameObject.GetComponent<FeedbackGUI>();
         clicker = this.GetComponent<ClickHandler>();
         gui = this.GetComponent<GuiHandler>();
         jsonFx = this.GetComponent<JsonFxScript>();
@@ -122,7 +124,6 @@ public class GameManager : MonoBehaviour
             gui.handleAction();
             gui.handleSkip();
 
-            gui.playerDisplay();
         }
         else
         {

@@ -47,6 +47,7 @@
      <Compile Include="Assets\Scripts\Card.cs" />
      <Compile Include="Assets\Scripts\CardData.cs" />
      <Compile Include="Assets\Scripts\ClickHandler.cs" />
+     <Compile Include="Assets\Scripts\FeedbackGUI.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\GameStateManager.cs" />
      <Compile Include="Assets\Scripts\GuiHandler.cs" />
