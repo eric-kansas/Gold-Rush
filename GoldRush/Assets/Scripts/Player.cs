@@ -6,6 +6,11 @@ public class Player : MonoBehaviour {
 
     /* Player's board position */
     private Vector2 position = new Vector2();
+    public Vector2 Position
+    {
+        get { return position; }
+        set { position = value; }
+    }
 
     /* List of stake prefabs */
     public List<GameObject> stakes;
@@ -18,19 +23,14 @@ public class Player : MonoBehaviour {
 
     /* The card the player is currently on */
 	private Card currentCard;
-
-    //grid coordinates
-    public Vector2 Position
-    {
-        get { return position; }
-        set { position = value; }
-    }
-
     public Card CurrentCard
     {
         get { return currentCard; }
         set { currentCard = value; }
     }
+
+    //Index in players array
+    public int in_game_id; //(for sorting)
 
 	// Use this for initialization
 	void Start () {
