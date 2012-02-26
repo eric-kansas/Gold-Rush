@@ -641,8 +641,26 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        //players are placed, go to prospecting phase
-        //gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+        //load game state and turn order
+        currentPlayerIndex = jsonFx.gameJSON.current_player;
+        currentRoll = jsonFx.gameJSON.current_roll;
+        gameState.CurrentGameState = (GameStateManager.GameState)jsonFx.gameJSON.game_state;
+        gameState.CurrentTurnState = (GameStateManager.TurnState)jsonFx.gameJSON.game_turn;
+        switch (gameState.CurrentTurnState)
+        {
+            case GameStateManager.TurnState.TURN_ROLL: break;
+            case GameStateManager.TurnState.TURN_MOVE:
+                calculateMoveLocations();
+                break;
+            case GameStateManager.TurnState.TURN_STAKE:
+                calculateStakeableCards();
+                break;
+            case GameStateManager.TurnState.TURN_MINE:
+                calculateMines();
+                break;
+            default: Debug.Log("See what's wrong here."); break;
+        }
+
     }
 
     private void loadBoardFromJson()

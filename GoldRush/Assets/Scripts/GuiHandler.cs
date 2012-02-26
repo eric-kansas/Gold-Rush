@@ -158,7 +158,10 @@ public class GuiHandler : MonoBehaviour
                     break;
                 case GameStateManager.TurnState.TURN_MOVE:
                     if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || clicker.stakeOwnerIndex == -1)
+                    {
                         actionText = "Prospect";
+                        showSkipButton = false;
+                    }
                     else
                     {
                         actionText = "Move Opponent Stake";
