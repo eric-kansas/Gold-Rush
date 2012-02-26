@@ -146,10 +146,6 @@ public class GameManager : MonoBehaviour
                 handleTurn();
                 break;
             case GameStateManager.GameState.GAME_END:
-                finishHands();
-                revealFaceDown();
-                Player winner = findWinner();
-                Debug.Log("Player " + (players.IndexOf(winner) + 1) + " wins!");
                 break;
             default: Debug.Log("whoops"); break;
         }
@@ -440,26 +436,26 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Moving player " + i + "'s cards.");
             //If their hand is not full
-            if (players[i].hand.Count != numProspectingTurns)
+            if (players[i].hand.Count < numProspectingTurns)
             {
                 //Add each staked card
-                foreach (Card c in players[i].stakedCards)
+                for(int j = 0; j < players[i].stakedCards.Count; j++) 
                 {
-                    players[i].hand.Add(c);
+                    players[i].hand.Add(players[i].stakedCards[j]);
 
                     //move the card to the side of the board
-                    c.transform.position = clicker.findHandPosition(i);
+                    players[i].stakedCards[j].transform.position = clicker.findHandPosition(i);
 
                     //rotate if needed
                     if (players.Count > 2 && i == 1)
-                        players[CurrentPlayerIndex].hand[players[i].hand.Count - 1].transform.Rotate(new Vector3(0, 1, 0), 90.0f);
+                        players[i].hand[players[i].hand.Count - 1].transform.Rotate(new Vector3(0, 1, 0), 90.0f);
                     else if (i == 3)
-                        players[CurrentPlayerIndex].hand[players[i].hand.Count - 1].transform.Rotate(new Vector3(0, 1, 0), -90.0f);
+                        players[i].hand[players[i].hand.Count - 1].transform.Rotate(new Vector3(0, 1, 0), -90.0f);
 
-                    GameObject stake = players[i].stakes[players[i].stakedCards.IndexOf(c)];
+                    GameObject stake = players[i].stakes[j];
 
                     //Remove card from staked cards list
-                    players[i].stakedCards.Remove(c);
+                    players[i].stakedCards.Remove(players[i].stakedCards[j]);
 
                     //remove the stake from the list of stakes
                     players[i].stakes.Remove(stake);
@@ -558,7 +554,7 @@ public class GameManager : MonoBehaviour
             //If the current player is the last player, game ends
             if (currentPlayerIndex == players.Count - 1)
             {
-                gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+                endGame();
                 return;
             }
         }
@@ -593,7 +589,6 @@ public class GameManager : MonoBehaviour
         if (phaseTurns >= players.Count * numProspectingTurns)
         {
             gameState.CurrentGameState = GameStateManager.GameState.GAME_MINING_STATE;  //move on to the next game state
-            GameStateManager.Instance.CurrentGameState = GameStateManager.GameState.GAME_MINING_STATE;  //move on to the next game state
             phaseTurns = 0;
         }
 
@@ -617,11 +612,11 @@ public class GameManager : MonoBehaviour
 
             //If EVERYONE has a full hand, game ends immediately
             if (numFullHands == players.Count)
-                gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+                endGame();
 
             //If we're on the last player, game ends immediately
             if (currentPlayerIndex == players.Count - 1 && numFullHands > 0)
-                gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+                endGame();
         }
 
 
@@ -663,7 +658,11 @@ public class GameManager : MonoBehaviour
 
     private void endGame()
     {
-
+        gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
+        finishHands();
+        revealFaceDown();
+        Player winner = findWinner();
+        Debug.Log("Player " + (players.IndexOf(winner) + 1) + " wins!");
     }
 
     //return board to default color, remove hightlighting from highlighted cards

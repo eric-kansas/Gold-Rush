@@ -206,6 +206,10 @@ public class GuiHandler : MonoBehaviour
     {
         if (GUI.Button(actionRect, actionText))
         {
+            if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_END)
+                return;
+            //don't do anythign after game ends
+
             if (gM.players.Count <= 1) //if there aren't enough players, the button should not do anything
                 return;
 
@@ -347,6 +351,11 @@ public class GuiHandler : MonoBehaviour
         {
             if (GUI.Button(new Rect(new Rect((actionRect.x + actionRect.width - width), (actionRect.y + actionRect.height), width, 20)), skipText))
             {
+
+                if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_END)
+                    return;
+                //don't do anythign after game ends
+
                 //start the game if there are enough players and a button is hit
                 if (gM.players.Count > 1 && gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
                     gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
