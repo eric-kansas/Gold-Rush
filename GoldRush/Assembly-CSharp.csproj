@@ -56,9 +56,7 @@
      <Compile Include="Assets\Scripts\JsonObjects\JsonFriend.cs" />
      <Compile Include="Assets\Scripts\JsonObjects\JsonFxScript.cs" />
      <Compile Include="Assets\Scripts\JsonObjects\JsonGame.cs" />
-     <Compile Include="Assets\Scripts\JsonObjects\JsonHand.cs" />
      <Compile Include="Assets\Scripts\JsonObjects\JsonPlayer.cs" />
-     <Compile Include="Assets\Scripts\JsonObjects\JsonWhoseTurn.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\ScoringSystem.cs" />
  <Reference Include="JsonFx.Json">

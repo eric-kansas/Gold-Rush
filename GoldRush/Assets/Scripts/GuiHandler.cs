@@ -220,7 +220,9 @@ public class GuiHandler : MonoBehaviour
                 case GameStateManager.TurnState.TURN_ROLL:		// The player is choosing to roll
 
                     gM.CurrentRoll = gM.Roll();		// roll the dice
+
                     FeedbackGUI.setText("Please click on a space to move to. Double click to confirm, or click on the Action button.");
+
                     gM.calculateMoveLocations();	// calculate where the player can move as a result of the dice roll
 
                     // At the beginning, this bool is true - player can stay where he/she is by choosing not to roll. 
@@ -243,6 +245,10 @@ public class GuiHandler : MonoBehaviour
                         gM.players[gM.CurrentPlayerIndex].CurrentCard = clicker.TempCard; //set the player's current card
 
                         gM.players[gM.CurrentPlayerIndex].Position = clicker.PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
+
+						int JsonIndex = gM.jsonFx.findPlayerJsonIndex(gM.CurrentPlayerIndex);
+						gM.jsonFx.gameJSON.entities[JsonIndex].row = (int)gM.players[gM.CurrentPlayerIndex].Position.x;
+						gM.jsonFx.gameJSON.entities[JsonIndex].col = (int)gM.players[gM.CurrentPlayerIndex].Position.y;
 
                         gM.clearHighlights();
 

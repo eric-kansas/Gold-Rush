@@ -18,6 +18,7 @@ public class GameStateManager
 
     /* Game Difficulty:
      *       EASY: ones show up for player permanently 
+	 *       NORMAL: ones turn facedown
      */
     public enum GameDifficulty { EASY, NORMAL }
 
