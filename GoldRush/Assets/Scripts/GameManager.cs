@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     /* GUI */
     private GuiHandler gui;
+    private FeedbackGUI f_gui;
 
     /* Reference to JSON objects */
     JsonFxScript jsonFx;
@@ -104,6 +105,7 @@ public class GameManager : MonoBehaviour
         gameState = new GameStateManager();
         scoringSystem = new ScoringSystem();
         scoringSystem.selectSystem(new Grouping());
+        f_gui = gameObject.GetComponent<FeedbackGUI>();
         clicker = this.GetComponent<ClickHandler>();
         gui = this.GetComponent<GuiHandler>();
         jsonFx = this.GetComponent<JsonFxScript>();
@@ -122,7 +124,6 @@ public class GameManager : MonoBehaviour
             gui.handleAction();
             gui.handleSkip();
 
-            gui.playerDisplay();
         }
         else
         {
@@ -503,14 +504,14 @@ public class GameManager : MonoBehaviour
         Player winner = players[0];
         int highestScore = scoringSystem.score(players[0].hand);
 
-        Debug.Log("Player 1 score: " + highestScore);
+        FeedbackGUI.setText("Player 1 score: " + highestScore);
 
         //Compare scores to get the highest
         for (int i = 1; i < players.Count; i++)
         {
             int tempScore = scoringSystem.score(players[i].hand);
 
-            Debug.Log("Player " + (i + 1) + " score: " + tempScore);
+            FeedbackGUI.setText("Player " + (i + 1) + " score: " + tempScore);
 
             if (tempScore > highestScore)
             {
@@ -527,10 +528,10 @@ public class GameManager : MonoBehaviour
     #region Actions
     private void finishHands()
     {
+        FeedbackGUI.setText("All player's staked positions will now be mined.");
         //Loop through players
         for(int i = 0; i < players.Count; i++)
         {
-            Debug.Log("Moving player " + i + "'s cards.");
             //If their hand is not full
             if (players[i].hand.Count < numProspectingTurns)
             {
@@ -565,11 +566,21 @@ public class GameManager : MonoBehaviour
 
     private void revealFaceDown()
     {
+        FeedbackGUI.setText("Revealing cards!");
         foreach (Player p in players)
         {
             foreach (Card c in p.hand)
             {
                 CreateMaterial(c.data.TexCoordinate, c.gameObject);
+            }
+        }
+
+        for (int i = 0; i < BOARD_WIDTH; i++)
+        {
+            for (int j = 0; j < BOARD_HEIGHT; j++)
+            {
+                if (board[i, j] != null)
+                    CreateMaterial(board[i, j].GetComponent<Card>().data.TexCoordinate, board[i, j]);
             }
         }
     }
@@ -587,6 +598,7 @@ public class GameManager : MonoBehaviour
 
     public void loadGameFromJson()
     {
+        FeedbackGUI.setText("Loading game. . . ");
         //Load the players
         foreach (var entity in jsonFx.gameJSON.entities)
         {
@@ -648,14 +660,19 @@ public class GameManager : MonoBehaviour
         gameState.CurrentTurnState = (GameStateManager.TurnState)jsonFx.gameJSON.game_turn;
         switch (gameState.CurrentTurnState)
         {
-            case GameStateManager.TurnState.TURN_ROLL: break;
+            case GameStateManager.TurnState.TURN_ROLL:
+                FeedbackGUI.setText("Please roll!");
+                break;
             case GameStateManager.TurnState.TURN_MOVE:
+                FeedbackGUI.setText("Please click on a space to move to. Double click to confirm, or click on the Action button.");
                 calculateMoveLocations();
                 break;
             case GameStateManager.TurnState.TURN_STAKE:
+                FeedbackGUI.setText("Please select a location to stake a claim!");
                 calculateStakeableCards();
                 break;
             case GameStateManager.TurnState.TURN_MINE:
+                FeedbackGUI.setText("You can mine one of your staked locations if you wish.");
                 calculateMines();
                 break;
             default: Debug.Log("See what's wrong here."); break;
@@ -745,6 +762,8 @@ public class GameManager : MonoBehaviour
 
     public void endTurn()
     {
+        FeedbackGUI.setText("Ending turn of Player " + currentPlayerIndex + ".");
+
         //return board to default color, remove hightlighting from highlighted cards
         clearHighlights();
 
@@ -798,6 +817,7 @@ public class GameManager : MonoBehaviour
 
         if (phaseTurns >= players.Count * numProspectingTurns)
         {
+            FeedbackGUI.setText("Moving into the Mining Phase.");
             gameState.CurrentGameState = GameStateManager.GameState.GAME_MINING_STATE;  //move on to the next game state
             phaseTurns = 0;
         }
@@ -829,22 +849,25 @@ public class GameManager : MonoBehaviour
                 endGame();
         }
 
-
         currentPlayerIndex++;	// move to next player
         if (currentPlayerIndex >= players.Count)	//wrap around if necessary
             currentPlayerIndex = 0;
 
+        FeedbackGUI.setText("Player " + currentPlayerIndex + "'s turn.");
+
         //move turn state back to the beginning
         gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
+        FeedbackGUI.setText("Please roll the dice or click the Skip button to remain at your current location.");
     }
 
     private void endGame()
     {
+        FeedbackGUI.setText("Game over.");
         gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
         finishHands();
         revealFaceDown();
         Player winner = findWinner();
-        Debug.Log("Player " + (players.IndexOf(winner) + 1) + " wins!");
+        FeedbackGUI.setText("Player " + (players.IndexOf(winner) + 1) + " wins!");
     }
 
     //return board to default color, remove hightlighting from highlighted cards
@@ -863,6 +886,7 @@ public class GameManager : MonoBehaviour
     public int Roll()
     {
         int currentRoll = Random.Range(1, 6);
+        FeedbackGUI.setText("A " + currentRoll + " was rolled.");
         return currentRoll;
     }
     #endregion
@@ -870,6 +894,7 @@ public class GameManager : MonoBehaviour
     #region setup
     private void BuildDeck()
     {
+        FeedbackGUI.setText("Setting up game. . .");
         int counter = 0;
         for (int i = 0; i < kinds.Length; i++)
         {
@@ -892,7 +917,6 @@ public class GameManager : MonoBehaviour
             deck[randomCard] = temp;
         }
     }
-
 
     private void BuildBoard()
     {
