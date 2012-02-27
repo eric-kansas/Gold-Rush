@@ -1,7 +1,9 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using JsonFx.Json;
+
 
 
 public class JsonGame
@@ -15,5 +17,9 @@ public class JsonGame
     public int current_roll;
     public int game_state;
     public int game_turn;
+
+	public DateTime gameStarted;
+	public DateTime lastPlay;
+	public bool isGameActive;
 }
 
