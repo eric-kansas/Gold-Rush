@@ -36,7 +36,7 @@ public class FeedbackGUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        screenPos = new Rect(10, 10, Screen.width / 2, 175);
     }
 
     public static void setText(string str)

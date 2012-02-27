@@ -220,6 +220,7 @@ public class GuiHandler : MonoBehaviour
                 case GameStateManager.TurnState.TURN_ROLL:		// The player is choosing to roll
 
                     gM.CurrentRoll = gM.Roll();		// roll the dice
+                    FeedbackGUI.setText("Please click on a space to move to. Double click to confirm, or click on the Action button.");
                     gM.calculateMoveLocations();	// calculate where the player can move as a result of the dice roll
 
                     // At the beginning, this bool is true - player can stay where he/she is by choosing not to roll. 
@@ -232,6 +233,8 @@ public class GuiHandler : MonoBehaviour
 
                     if (gM.pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
                     {			//pEnabled is set to true in clickHandler's moveClick()
+
+                        FeedbackGUI.setText("Moving player.");
 
                         //save to turn this card back over again
                         if (gM.CurrentRoll == 1)
@@ -249,6 +252,7 @@ public class GuiHandler : MonoBehaviour
 
                         if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || !clicker.TempCard.data.staked)
                         {
+                            FeedbackGUI.setText("Please press a location to stake a claim on.");
                             gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
                             gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
@@ -256,11 +260,15 @@ public class GuiHandler : MonoBehaviour
                         else
                         {
                             if (clicker.stakeOwnerIndex == -1)
+                            {
+                                FeedbackGUI.setText("You have landed on an opponent's stake. You may move it if you so choose.");
                                 clicker.prepareBump();
+                            }
 
                             if (clicker.movedStake)
                             {
-                                Debug.Log("Confirm bump!");
+                                FeedbackGUI.setText("Opponent's stake was moved.");
+                                FeedbackGUI.setText("You may stake this position but you will not be able to mine it this turn.");
                                 clicker.stakeOwnerIndex = clicker.stakeIndex = -1;
                                 clicker.movedStake = false;
                                 clicker.TempStake = null; //set to null for normal staking
@@ -275,7 +283,7 @@ public class GuiHandler : MonoBehaviour
                         }
                     }
                     else
-                        Debug.Log("Player rolled, they need to actually move");
+                        FeedbackGUI.setText("Once you roll you must move.");
 
                     break;
                 case GameStateManager.TurnState.TURN_STAKE: //player is staking a claim after placing a marker
@@ -299,7 +307,12 @@ public class GuiHandler : MonoBehaviour
                             gM.endTurn();
                     }
                     else
-                        Debug.Log("Pressed with no stake placed");
+                    {
+                        if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
+                            FeedbackGUI.setText("Please stake a claim or press skip.");
+                        else if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_PROSPECTING_STATE)
+                            FeedbackGUI.setText("In the prospecting phase you must stake a claim.");
+                    }
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
                     Debug.Log("turn state: TURN_MINE");
@@ -310,6 +323,7 @@ public class GuiHandler : MonoBehaviour
                     }
                     else
                     {
+                        FeedbackGUI.setText("A player is in a dangerous mine! Please move them to solid ground.");
                         if (gM.players[clicker.indexToMove].Position != new Vector2(-1, -1))
                         {
                             clicker.numToMove--; //one less that needs to be looked at
@@ -317,6 +331,7 @@ public class GuiHandler : MonoBehaviour
                             //end the turn if all players are on valid spots now
                             if (clicker.numToMove <= 0)
                             {
+                                FeedbackGUI.setText("Good thing. It's safe now.");
                                 gM.endTurn();
                             }
                             else
@@ -361,7 +376,7 @@ public class GuiHandler : MonoBehaviour
                 switch (gM.gameState.CurrentTurnState)
                 {
                     case GameStateManager.TurnState.TURN_ROLL:		// the player is choosing to stay where they are and not roll the dice this turn
-                        Debug.Log("Skipped movement");
+                        FeedbackGUI.setText("You must like your current location.");
 
                         gM.pEnabled = true; //player is skipping rolling, meaning they can prospect without moving
                         gM.sEnabled = false; //reset stake boolean, player still needs to do this
@@ -372,7 +387,7 @@ public class GuiHandler : MonoBehaviour
                         gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
                         break;
                     case GameStateManager.TurnState.TURN_MOVE:
-                        Debug.Log("Canceling bump");
+                        FeedbackGUI.setText("Wouldn't be nice to interfere, would it?");
 
                         gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].transform.position = gM.players[gM.CurrentPlayerIndex].Position;
                         clicker.stakeOwnerIndex = clicker.stakeIndex = -1;
@@ -384,6 +399,7 @@ public class GuiHandler : MonoBehaviour
 
                         break;
                     case GameStateManager.TurnState.TURN_STAKE: //player is not moving his stakes his turn (option is available in mining phase only)
+                        FeedbackGUI.setText("The claims you have are better anyway.");
                         if (gM.cancelStake)
                         {
                             gM.clicker.resetStaking();
@@ -398,6 +414,7 @@ public class GuiHandler : MonoBehaviour
                         }
                         break;
                     case GameStateManager.TurnState.TURN_MINE:
+                        FeedbackGUI.setText("You'll find something better. No worries.");
                         gM.endTurn(); //after the player takes a card, the turn ends
                         break;
                 }

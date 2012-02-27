@@ -167,6 +167,7 @@ public class ClickHandler : MonoBehaviour
                 //handle double click
                 if (lastPos == gM.players[gM.CurrentPlayerIndex].transform.position)
                 {
+                    FeedbackGUI.setText("Moving player.");
                     //save to turn this card back over again
                     if (gM.CurrentRoll == 1)
                         movedTo = tempCard;
@@ -183,6 +184,7 @@ public class ClickHandler : MonoBehaviour
                     //if the card is staked by another player, the current player can bump it
                     if (tempCard.data.staked)
                     {
+                        FeedbackGUI.setText("You have landed on an opponent's stake. You may move it if you so choose.");
                         prepareBump();
                     }
                     else //otherwise move on to staking
@@ -292,6 +294,7 @@ public class ClickHandler : MonoBehaviour
                 //confirm move - double click
                 if (lastPos == gM.players[indexToMove].transform.position)
                 {
+                    FeedbackGUI.setText("Opponent was pushed away!");
                     numToMove--; //one less that needs to be looked at
 
                     //end the turn if all players are on valid spots now
@@ -315,6 +318,7 @@ public class ClickHandler : MonoBehaviour
 
     private void stakeClickProspectingPhase(RaycastHit hit)
     {
+        FeedbackGUI.setText("Staking a claim! Press the Action button to confirm.");
         foreach (Vector2 pos in gM.possibleStakes)  // go through all possible stake locations (should be 5 at most)
         {
             if (pos.Equals(PositionToVector2(hit.transform.position)) && !tempCard.data.staked) //see if card is valid and not already staked
@@ -349,6 +353,7 @@ public class ClickHandler : MonoBehaviour
 
     private void stakeClickMiningPhase(RaycastHit hit)
     {
+        FeedbackGUI.setText("Staking a claim! Press the Action button to confirm.");
         if (!selectedCard)
         {
             //selecting where to place a stake
@@ -367,18 +372,8 @@ public class ClickHandler : MonoBehaviour
                     }
                     else
                     {
-                        /*
-                        for (int i = 0; i < gM.numProspectingTurns; i++)
-                        {
-                            //check if that staked card is the one they clicked
-                            if (gM.players[gM.CurrentPlayerIndex].stakedCards[i] == tempCard)
-                            {
-                                tempCardIndex = i;
-                            }
-                        }
-                         */
                         tempCardIndex = gM.players[gM.CurrentPlayerIndex].stakedCards.Count - 1;
-
+                        
                         //free old card
                         lastCard.data.staked = false;
                         gM.players[gM.CurrentPlayerIndex].stakedCards[tempCardIndex].data.staked = false;
@@ -530,6 +525,8 @@ public class ClickHandler : MonoBehaviour
                     gM.endTurn();
             }
         }
+
+        FeedbackGUI.setText("You have mined one of your staked claims.");
     }
 
     //Index should be
@@ -559,6 +556,7 @@ public class ClickHandler : MonoBehaviour
 
     private void setupClick(RaycastHit hit)
     {
+        FeedbackGUI.setText("Player avatar placed.");
         Player holderPlayer = new Player();
 
         // continue to add players while we are smaller than max players
