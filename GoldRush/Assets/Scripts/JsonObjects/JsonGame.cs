@@ -20,6 +20,7 @@ public class JsonGame
 
 	public DateTime gameStarted;
 	public DateTime lastPlay;
-	public bool isGameActive;
+	public JsonPlayer winner;
+	public Dictionary<Player, int> scores;
 }
 
