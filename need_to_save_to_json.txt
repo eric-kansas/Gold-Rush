@@ -1,0 +1,13 @@
+
+Rolling - currentRoll, turn phase change
+
+Not Rolling - card turn face up, turn phase change
+
+Moved player - player position change, stake position change, card turn face up, turn phase change
+
+Staked a claim - stake position, turn phase change
+
+Mined a card - card position change, card in hand, player position change, turn phase change
+
+Turn ends - currentPlayerIndex, turn phase change
+

@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     private FeedbackGUI f_gui;
 
     /* Reference to JSON objects */
-    JsonFxScript jsonFx;
+    public JsonFxScript jsonFx;
 
     /* ScoringSystem - Used to count up the score for mined cards */
     public ScoringSystem scoringSystem;
@@ -760,7 +760,30 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void endTurn()
+	public void saveWholeGameToJson()
+	{
+		jsonFx.gameJSON.current_player = currentPlayerIndex;
+		jsonFx.gameJSON.current_roll = currentRoll;
+
+		for (int i = 0; i < players.Count; i++)
+		{
+			int jsonPlayerIndex = jsonFx.findPlayerJsonIndex(i);
+			jsonFx.gameJSON.entities[jsonPlayerIndex].row = (int)players[i].Position.x;
+			jsonFx.gameJSON.entities[jsonPlayerIndex].col = (int)players[i].Position.y;
+
+			for (int n = 0; n < players[i].stakedCards.Count; n++)
+			{
+				//how do we know the index within entity?
+			}
+
+			for (int n = 0; n < players[i].hand.Count; n++)
+			{
+				//how do we know the index within cards?
+			}
+		}
+	}
+
+	public void endTurn()
     {
         FeedbackGUI.setText("Ending turn of Player " + currentPlayerIndex + ".");
 
