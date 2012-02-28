@@ -475,7 +475,7 @@ public class ClickHandler : MonoBehaviour
                 int col = tempCard.data.col;
 
                 //clear the color of the mined card
-                gM.board[row, col].transform.renderer.material.color = new Color(1, 1, 1, 1);
+                tempCard.transform.renderer.material.color = new Color(1, 1, 1, 1);
 
                 //add the card to the player's hand
                 gM.players[gM.CurrentPlayerIndex].hand.Add(tempCard);
