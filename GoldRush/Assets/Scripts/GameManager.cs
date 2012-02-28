@@ -496,15 +496,18 @@ public class GameManager : MonoBehaviour
     }
 
     //Calculate scores and find the winning player
-    private Player findWinner()
+    private List<Player> findWinners()
     {
         Debug.Log("Calculating scores");
 
         //Get score for player 1
-        Player winner = players[0];
         int highestScore = scoringSystem.score(players[0].hand);
 
         FeedbackGUI.setText("Player 1 score: " + highestScore);
+
+        List<Player> winners = new List<Player>();
+
+        winners.Add(players[0]);
 
         //Compare scores to get the highest
         for (int i = 1; i < players.Count; i++)
@@ -516,11 +519,17 @@ public class GameManager : MonoBehaviour
             if (tempScore > highestScore)
             {
                 highestScore = tempScore;
-                winner = players[i];
+                winners.Clear();
+                winners.Add(players[i]);
             }
+            else if (tempScore == highestScore)
+            {
+                winners.Add(players[i]);
+            }
+
         }
 
-        return winner;
+        return winners;
     }
 
     #endregion
@@ -532,7 +541,6 @@ public class GameManager : MonoBehaviour
         //Loop through players
         for(int i = 0; i < players.Count; i++)
         {
-            //If their hand is not full
             if (players[i].hand.Count < numProspectingTurns)
             {
                 //Add each staked card
@@ -889,8 +897,22 @@ public class GameManager : MonoBehaviour
         gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
         finishHands();
         revealFaceDown();
-        Player winner = findWinner();
-        FeedbackGUI.setText("Player " + (players.IndexOf(winner) + 1) + " wins!");
+        List<Player> winners = findWinners();
+
+        if (winners.Count == 1)
+        {
+            FeedbackGUI.setText("Player " + (players.IndexOf(winners[0]) + 1) + " wins!");
+        }
+        else
+        {
+            string winningPlayers = "Tie! Winning players: ";
+            foreach (Player p in winners)
+            {
+                winningPlayers += (players.IndexOf(p) + 1) + ", ";
+            }
+            FeedbackGUI.setText(winningPlayers);
+        }
+
     }
 
     //return board to default color, remove hightlighting from highlighted cards
