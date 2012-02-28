@@ -39,3 +39,4 @@ P:\Users\emh5567\Gold-Rush\GoldRush\obj\Debug\ResolveAssemblyReference.cache
 P:\Users\emh5567\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp.dll
 P:\Users\emh5567\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp.pdb
 P:\Users\gjl6931\Gold-Rush\GoldRush\Temp\bin\Debug\JsonFx.Json.dll
+C:\Users\Gary\Gold-Rush\GoldRush\Temp\bin\Debug\JsonFx.Json.dll

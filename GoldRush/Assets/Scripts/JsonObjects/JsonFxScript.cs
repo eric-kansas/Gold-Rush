@@ -73,6 +73,16 @@ public class JsonFxScript : MonoBehaviour {
          */
     }
 
+	public int findPlayerJsonIndex(int in_game_index)
+	{
+		for( int i = 0; i < gameJSON.entities.Length; i++)
+		{
+			if (gameJSON.entities[i].in_game_id == in_game_index)
+				return i;
+		}
+		return gameJSON.entities.Length;
+	}
+
     void createGame()
     {
 
