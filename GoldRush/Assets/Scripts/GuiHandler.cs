@@ -9,11 +9,21 @@ public class GuiHandler : MonoBehaviour
      *       MAIN: Menu is on the default Main Menu.
      *       OPTIONS: Menu is instead showing the Options Menu.
      *       RULES: Menu is instead showing the rules.
+     *       ABOUT: Tell the fans more about ourselves.
      */
-    public enum MenuState { MAIN, OPTIONS, RULES }
+    private enum MenuState { MAIN, OPTIONS, RULES, ABOUT }
 
     /* The current state of the menu */
-    public MenuState currentMenuState = MenuState.MAIN;
+    private MenuState currentMenuState = MenuState.MAIN;
+
+    /* Possible tabs of the rules menu */
+    private enum RulesTab { PROSPECTING, MINING, SCORING }
+
+    /* Current tab in the rules menu */
+    private RulesTab currentTab = RulesTab.PROSPECTING;
+
+    /* Contains the strings to show on each tab */
+    private string[] rulesText = new string[3];
 
     /* The Rectangle to use for the outer menu box */
     private Rect menuOuterRect;
@@ -55,6 +65,10 @@ public class GuiHandler : MonoBehaviour
         float xChange = (menuOuterRect.width * change) / 2;
         float yChange = (menuOuterRect.height * change) / 2;
         buttonRect = new Rect(menuOuterRect.x + xChange, menuOuterRect.y + yChange, menuOuterRect.width * (1 - change), menuOuterRect.height * (1 - change));
+
+        rulesText[0] = "The first stage of the game is the prospecting stage.";
+        rulesText[1] = "The second stage of the game is the mining stage.";
+        rulesText[2] = "This is how the game is scored.";
     }
 
     // Update is called once per frame
@@ -75,6 +89,8 @@ public class GuiHandler : MonoBehaviour
             optionsMenu();
         else if (currentMenuState == MenuState.RULES)
             showRules();
+        else if (currentMenuState == MenuState.ABOUT)
+            showAboutUs();
     }
 
     private void mainMenu()
@@ -84,7 +100,7 @@ public class GuiHandler : MonoBehaviour
 
         //set the button dimensions
         float width = buttonRect.width;
-        float height = buttonRect.height * .33f; //multiply by 1 over number of the buttons
+        float height = buttonRect.height * .25f; //multiply by 1 over number of the buttons
         GUILayoutOption[] options = { GUILayout.Width(width), GUILayout.Height(height) };
 
         if (GUILayout.Button("Start Game", options)) //start the game
@@ -93,10 +109,12 @@ public class GuiHandler : MonoBehaviour
             gM.setUpBoard();
             //gM.loadGameFromJson();
         }
-        else if (GUILayout.Button("Options (Coming Soon)", options)) //load the options menu instead
-        { /*currentMenuState = MenuState.OPTIONS; */ }
+        else if (GUILayout.Button("Options", options)) //load the options menu instead
+            currentMenuState = MenuState.OPTIONS;
         else if (GUILayout.Button("How To Play", options)) // show the rules instead
             currentMenuState = MenuState.RULES;
+        else if (GUILayout.Button("About the Developers", options))
+            currentMenuState = MenuState.ABOUT;
 
         GUI.EndGroup();
     }
@@ -111,15 +129,45 @@ public class GuiHandler : MonoBehaviour
         float height = buttonRect.height * .33f; //multiply by 1 over number of the buttons
 
         int selectionGrid = 0;
-        string[] selectionStrings = { "Easy", "Normal" };
+        string[] selectionStrings = { "2D", "3D" };
 
         GUI.EndGroup();
     }
 
     private void showRules()
     {
+        //contain everything else inside of it
+        GUI.BeginGroup(buttonRect);
+
+        //tabs
+        GUILayout.BeginHorizontal(GUILayout.Height(buttonRect.height * 0.1f));
+
+        if (GUILayout.Button("Prospecting")) //start the game
+        {
+            currentTab = RulesTab.PROSPECTING;
+        }
+        else if (GUILayout.Button("Mining")) //load the options menu instead
+            currentTab = RulesTab.MINING;
+        else if (GUILayout.Button("Scoring")) // show the rules instead
+            currentTab = RulesTab.SCORING;
+        else if (GUILayout.Button("Back"))
+        {
+            currentTab = RulesTab.PROSPECTING;
+            currentMenuState = MenuState.MAIN;
+        }
+        GUILayout.EndHorizontal();
+
+        GUILayoutOption[] options = { GUILayout.Width(buttonRect.width), GUILayout.Height(buttonRect.height * 0.9f) };
+        GUILayout.Box(rulesText[(int)currentTab], options);
+
+        GUI.EndGroup();
+    }
+
+    private void showAboutUs()
+    {
 
     }
+
     #endregion
 
     #region In-game GUI
