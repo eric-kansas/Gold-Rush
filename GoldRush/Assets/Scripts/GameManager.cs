@@ -778,6 +778,7 @@ public class GameManager : MonoBehaviour
         ShuffleDeck();
         BuildBoard();
         gameState.CurrentGameState = GameStateManager.GameState.GAME_SETUP;
+        setupMiscElements();//Start the Camera and show the table
     }
 
     public void loadGameFromJson()
@@ -791,7 +792,7 @@ public class GameManager : MonoBehaviour
             {
                 //positions
                 Vector2 boardPosition = new Vector2(entity.row, entity.col);    //grid position
-                Vector3 pos = clicker.Vector2ToPosition(boardPosition, 0.75f);          //Vector3 position, real space
+                Vector3 pos = clicker.Vector2ToPosition(boardPosition, 0.025f);          //Vector3 position, real space
 
                 //create player
                 Player p = (Player)Instantiate(clicker.tempPlayer, pos, Quaternion.identity);
@@ -814,6 +815,7 @@ public class GameManager : MonoBehaviour
         }
 
         loadBoardFromJson(); //Load the board
+        setupMiscElements(); //Start the Camera and show the table
         foreach (Player p in players)
             p.CurrentCard = board[(int)p.Position.x, (int)p.Position.y].GetComponent<Card>();
 
@@ -868,7 +870,8 @@ public class GameManager : MonoBehaviour
     {
         MeshRenderer tempRenderer = GameObject.Find("Table").GetComponent<MeshRenderer>();
         tempRenderer.enabled = true;
-
+        RotateCamera tempRotate = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
+        tempRotate.enabled = true;
     }
 
     private void loadBoardFromJson()
@@ -1286,12 +1289,6 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
-
-    private void BarControl()
-    {
-
-    }
-
 }
 
 public class PlayerSorter : Comparer<Player>
