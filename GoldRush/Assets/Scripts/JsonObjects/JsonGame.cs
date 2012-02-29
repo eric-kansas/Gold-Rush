@@ -8,6 +8,7 @@ using JsonFx.Json;
 
 public class JsonGame
 {
+	public int id;
     public JsonEntity[] entities;
     public JsonCard[] cards;
     public JsonPlayer[] players;
@@ -19,6 +20,6 @@ public class JsonGame
 	public DateTime gameStarted;
 	public DateTime lastPlay;
 	public JsonPlayer winner;
-	public Dictionary<Player, int> scores;
+	public Dictionary<JsonPlayer, int> scores;
 }
 

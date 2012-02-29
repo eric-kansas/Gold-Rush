@@ -60,6 +60,7 @@
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\RotateCamera.cs" />
      <Compile Include="Assets\Scripts\ScoringSystem.cs" />
+     <Compile Include="Assets\Scripts\Stake.cs" />
  <Reference Include="JsonFx.Json">
  <HintPath>Assets\Scripts\JsonObjects\JsonFx.Json.dll</HintPath>
  </Reference>

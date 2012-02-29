@@ -176,9 +176,20 @@ public class GuiHandler : MonoBehaviour
 
         if (GUILayout.Button("Start Game", options)) //start the game
         {
-            gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_SETUP;
-            gM.setUpBoard();
-            //gM.loadGameFromJson();
+            			Debug.Log("loadgame: " + gM.loadGame);
+			if (!gM.loadGame)
+			{
+				gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_SETUP;
+				gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
+				gM.setUpBoard();
+			}
+			else
+			{
+				int id = gM.jsonFx.PerformUpdate("init_game");
+				Debug.Log("Game ID: " + id);
+				gM.loadGameFromJson();
+			}
+
         }
         else if (GUILayout.Button("Options", options)) //load the options menu instead
             currentMenuState = MenuState.OPTIONS;
@@ -370,9 +381,13 @@ public class GuiHandler : MonoBehaviour
             if (gM.players.Count <= 1) //if there aren't enough players, the button should not do anything
                 return;
 
-            //start the game if there are enough players and a button is hit
-            if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
-                gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+            	            //start the game if there are enough players and a button is hit
+			if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
+		{
+				gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+				gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
+			}
+
 
             switch (gM.gameState.CurrentTurnState)
             {
@@ -389,7 +404,8 @@ public class GuiHandler : MonoBehaviour
                     showSkipButton = false;
 
                     gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE; //move on to the next turn state
-                    break;
+                    gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+			break;
                 case GameStateManager.TurnState.TURN_MOVE:	// the player is moving after rolling the dice
 
                     if (gM.pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
@@ -401,13 +417,13 @@ public class GuiHandler : MonoBehaviour
                         if (gM.CurrentRoll == 1)
                             clicker.movedTo = clicker.TempCard;
 
-                        gM.players[gM.CurrentPlayerIndex].CurrentCard = clicker.TempCard; //set the player's current card
-
                         gM.players[gM.CurrentPlayerIndex].Position = clicker.PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
 
-						int JsonIndex = gM.jsonFx.findPlayerJsonIndex(gM.CurrentPlayerIndex);
-						gM.jsonFx.gameJSON.entities[JsonIndex].row = (int)gM.players[gM.CurrentPlayerIndex].Position.x;
-						gM.jsonFx.gameJSON.entities[JsonIndex].col = (int)gM.players[gM.CurrentPlayerIndex].Position.y;
+										Vector2 position = gM.players[gM.CurrentPlayerIndex].Position;
+						gM.players[gM.CurrentPlayerIndex].CurrentCard = gM.board[(int)position.x, (int)position.y].GetComponent<Card>();
+
+						gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[gM.CurrentPlayerIndex].Position.x + "/" + gM.players[gM.CurrentPlayerIndex].Position.y + "/1");
+
 
                         gM.clearHighlights();
 
@@ -415,8 +431,13 @@ public class GuiHandler : MonoBehaviour
                         gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
                                                                     (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
 
-                        this.clicker.TempCard.data.isUp = true;
+						gM.players[gM.CurrentPlayerIndex].CurrentCard.data.isUp = true;
+
                         gM.UpdateBars();
+
+						gM.jsonFx.PerformUpdate("update_card_up/" + gM.CurrentPlayerIndex + "/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
+
+
 
                         if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || !clicker.TempCard.data.staked)
                         {
@@ -424,6 +445,8 @@ public class GuiHandler : MonoBehaviour
                             gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
                             gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
+							gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+
                         }
                         else
                         {
@@ -436,7 +459,19 @@ public class GuiHandler : MonoBehaviour
                             if (clicker.movedStake)
                             {
                                 FeedbackGUI.setText("Opponent's stake was moved.");
+
+								gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].data.row +
+									"/" + gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].data.row + "/" +
+									gM.players[clicker.stakeOwnerIndex].stakes[clicker.stakeIndex].GetComponent<Stake>().ID);
+
+
+
                                 FeedbackGUI.setText("You may stake this position but you will not be able to mine it this turn.");
+
+								gM.jsonFx.PerformUpdate("update_card_minable/0/" + gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].data.serverID);
+
+
+
                                 clicker.stakeOwnerIndex = clicker.stakeIndex = -1;
                                 clicker.movedStake = false;
                                 clicker.TempStake = null; //set to null for normal staking
@@ -447,6 +482,8 @@ public class GuiHandler : MonoBehaviour
                                 gM.clearHighlights();
                                 gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
                                 gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
+								gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+
                             }
                         }
                     }
@@ -465,6 +502,8 @@ public class GuiHandler : MonoBehaviour
                         if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
                         {
                             gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
+							gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+
                             showSkipButton = true;		//the player can choose not to pick up a card this turn if he/she wants
 
                             //clear board and show new highlights
@@ -494,6 +533,9 @@ public class GuiHandler : MonoBehaviour
                         FeedbackGUI.setText("A player is in a dangerous mine! Please move them to solid ground.");
                         if (gM.players[clicker.indexToMove].Position != new Vector2(-1, -1))
                         {
+							Vector2 pos = gM.players[clicker.indexToMove].Position;
+							gM.jsonFx.PerformUpdate("update_entity_pos/" + pos.x + "/" + pos.y + "/" + gM.players[clicker.indexToMove].ID);
+
                             clicker.numToMove--; //one less that needs to be looked at
 
                             //end the turn if all players are on valid spots now
@@ -538,8 +580,12 @@ public class GuiHandler : MonoBehaviour
                 //don't do anythign after game ends
 
                 //start the game if there are enough players and a button is hit
-                if (gM.players.Count > 1 && gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
-                    gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+		if (gM.players.Count > 1 && gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
+		{
+			gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+			gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
+		}
+
 
                 switch (gM.gameState.CurrentTurnState)
                 {
@@ -553,6 +599,8 @@ public class GuiHandler : MonoBehaviour
                         gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
                         gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
+						gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+
                         break;
                     case GameStateManager.TurnState.TURN_MOVE:
                         FeedbackGUI.setText("Wouldn't be nice to interfere, would it?");
@@ -564,6 +612,8 @@ public class GuiHandler : MonoBehaviour
                         gM.clearHighlights();
                         gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
                         gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
+						gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+
 
                         break;
                     case GameStateManager.TurnState.TURN_STAKE: //player is not moving his stakes his turn (option is available in mining phase only)
@@ -577,6 +627,8 @@ public class GuiHandler : MonoBehaviour
                         else
                         {
                             gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
+							gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+
                             gM.clearHighlights();
                             gM.calculateMines();
                         }
