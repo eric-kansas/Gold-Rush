@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\JsonObjects\JsonGame.cs" />
      <Compile Include="Assets\Scripts\JsonObjects\JsonPlayer.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
+     <Compile Include="Assets\Scripts\RotateCamera.cs" />
      <Compile Include="Assets\Scripts\ScoringSystem.cs" />
  <Reference Include="Assembly-UnityScript-firstpass">
  <HintPath>Library\ScriptAssemblies\Assembly-UnityScript-firstpass.dll</HintPath>
