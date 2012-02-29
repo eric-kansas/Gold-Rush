@@ -25,8 +25,12 @@ public class GuiHandler : MonoBehaviour
     /* Current tab in the rules menu */
     private RulesTab currentTab = RulesTab.PROSPECTING;
 
+	private enum TextSize { BULLET, FULL }
+	private TextSize textSize = TextSize.BULLET;
+
     /* Contains the strings to show on each tab */
     private string[] rulesText = new string[3];
+	private string[] fullText = new string[3];
 
     /* The Rectangle to use for the outer menu box */
     private Rect menuOuterRect;
@@ -61,6 +65,7 @@ public class GuiHandler : MonoBehaviour
     {
 		GuiStyle.wordWrap = true;
 		GuiStyle.normal.textColor = Color.white;
+		GuiStyle.active.textColor = Color.red;
 
         gM = transform.GetComponent<GameManager>();
         clicker = this.GetComponent<ClickHandler>();
@@ -72,16 +77,45 @@ public class GuiHandler : MonoBehaviour
         float yChange = (menuOuterRect.height * change) / 2;
         buttonRect = new Rect(menuOuterRect.x + xChange, menuOuterRect.y + yChange, menuOuterRect.width * (1 - change), menuOuterRect.height * (1 - change));
 
-        rulesText[0] = 
+		#region Text
+		rulesText[0] = "\n\n" +
+			"A. Choose to roll the die or not.\n\n" +
+			"	A1- Rolled: Move the player and flip card.\n\n" +
+			"	A2- Did Not Roll: Flip card.\n\n" +
+			"C. Stake adjacent card.";
+        fullText[0] = 
 			"The first stage of the game is the prospecting stage.\n\n"+
-			"You may roll the dice to move, or skip rolling to stay where you are. "+
+			"You may roll the die to move, or skip rolling to stay where you are. "+
 			"Either way the card underneath the player will be revealed if it is not already.\n\n"+
 			"Then you will be able to stake a claim on a card. In the prospecting phase you must stake a claim. "+
 			"You may only stake the card under your avatar or on an adjacent card, not including diagonals.";
 
-        rulesText[1] = "The second stage of the game is the mining stage.";
-        rulesText[2] = "This is how the game is scored.";
-    }
+		rulesText[1] = "\n" +
+			"A. Moving: Same as in Prospecting Phase.\n" +
+			"	Except: Bumping opponent's stakes is allowed. That card can't be mined for one turn.\n\n" +
+			"B. Choose to stake or not stake.\n" +
+			"	B1- Staked: Move previously placed stake.\n\n" +
+			"C. Choose to mine a staked card or not.\n" +
+			"	C1- Mined: Take card into your hand. Move players from empty space to valid card if necessary.";
+		fullText[1] =
+			"The second stage of the game is the mining stage.\n\n" +
+			"Moving works the same, but if you land on an opponent's stake you can bump it to an adjacent space. The card that was staked will be un-minable.\n\n" +
+			"You may also mine staked cards, which involves locking them in by removing them from the board. They will be moved to your hand. Any players on the empty space must be moved to a valid card.";
+
+		rulesText[2] =
+			"The purpose is to get the highest score.\n\n" +
+			"A. Card values:\n\n" +
+			"	A1- Face Cards = 10 points.\n" +
+			"	A2- Aces = 11 points.\n" +
+			"	A3- Numbered cards = Face value.\n\n" +
+			"B. Add up the values of the cards in your highest scoring grouping. Types of groups:\n\n" +
+			"	Flushes: 2+ cards of the same suit.\n" +
+			"	N of a Kind: 2+ cards of the same kind.\n";
+		fullText[2] = "After the game ends, each player's score will be calculated. A player wins by having the highest score.\n\n"+
+			"Each card has a value. Face cards (Jack, Queen, and King) are worth 10. Aces are worth 11 points. Numbered cards are worth their face value.\n\n"+
+			"To calculate a player's score, different groupings of cards in the player's hand are compared. A grouping can be a flush or an N-of-a-kind. The highest scoring group will yield the player's score.";
+		#endregion
+	}
 
     // Update is called once per frame
     void Update()
@@ -154,23 +188,41 @@ public class GuiHandler : MonoBehaviour
         //tabs
         GUILayout.BeginHorizontal(GUILayout.Height(buttonRect.height * 0.1f));
 
-        if (GUILayout.Button("Prospecting")) //start the game
+        if (GUILayout.Button("Prospecting"))
         {
             currentTab = RulesTab.PROSPECTING;
         }
-        else if (GUILayout.Button("Mining")) //load the options menu instead
+		else if (GUILayout.Button("Mining"))
             currentTab = RulesTab.MINING;
-        else if (GUILayout.Button("Scoring")) // show the rules instead
+		else if (GUILayout.Button("Scoring"))
             currentTab = RulesTab.SCORING;
-        else if (GUILayout.Button("Back"))
+		else if (GUILayout.Button("Back"))
         {
+			//return rules to default
             currentTab = RulesTab.PROSPECTING;
+			textSize = TextSize.BULLET;
+
             currentMenuState = MenuState.MAIN;
         }
         GUILayout.EndHorizontal();
 
-        GUILayoutOption[] options = { GUILayout.Width(buttonRect.width), GUILayout.Height(buttonRect.height * 0.9f) };
-		GUILayout.Box(rulesText[(int)currentTab], GuiStyle, options);
+        GUILayoutOption[] options = { GUILayout.Width(buttonRect.width), GUILayout.Height(buttonRect.height * 0.75f) };
+		if (textSize == TextSize.BULLET)
+			GUILayout.Box(rulesText[(int)currentTab], GuiStyle, options);
+		else
+			GUILayout.Box(fullText[(int)currentTab], GuiStyle, options);
+
+		string title = "Bullet Form";
+		if (textSize == TextSize.BULLET)
+			title = "More Info";
+
+		if (GUILayout.Button(title))
+		{
+			if (textSize == TextSize.BULLET)
+				textSize = TextSize.FULL;
+			else
+				textSize = TextSize.BULLET;
+		}
 
         GUI.EndGroup();
     }
