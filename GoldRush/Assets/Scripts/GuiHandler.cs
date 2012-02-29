@@ -156,12 +156,12 @@ public class GuiHandler : MonoBehaviour
 
         if (currentMenuState == MenuState.MAIN)
             mainMenu();
-        else if (currentMenuState == MenuState.OPTIONS)
-            optionsMenu();
-        else if (currentMenuState == MenuState.RULES)
-            showRules();
-        else if (currentMenuState == MenuState.ABOUT)
-            showAboutUs();
+		else if (currentMenuState == MenuState.OPTIONS)
+			optionsMenu(); 
+		else if (currentMenuState == MenuState.RULES)
+			showRules();
+		else if (currentMenuState == MenuState.ABOUT)
+			showAboutUs();
     }
 
     private void mainMenu()
@@ -191,12 +191,12 @@ public class GuiHandler : MonoBehaviour
 			}
 
         }
-        else if (GUILayout.Button("Options", options)) //load the options menu instead
-            currentMenuState = MenuState.OPTIONS;
-        else if (GUILayout.Button("How To Play", options)) // show the rules instead
-            currentMenuState = MenuState.RULES;
-        else if (GUILayout.Button("About the Developers", options))
-            currentMenuState = MenuState.ABOUT;
+		else if (GUILayout.Button("Options - Coming Soon", options)) //load the options menu instead
+		{ /*currentMenuState = MenuState.OPTIONS; */ }
+		else if (GUILayout.Button("How To Play", options)) // show the rules instead
+			currentMenuState = MenuState.RULES;
+		else if (GUILayout.Button("About the Developers", options))
+			currentMenuState = MenuState.ABOUT;
 
         GUI.EndGroup();
     }
