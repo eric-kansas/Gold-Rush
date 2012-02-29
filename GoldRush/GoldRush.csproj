@@ -65,7 +65,6 @@
      <Compile Include="Assets\Scripts\GuiHandler.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\RotateCamera.cs" />
-     <None Include="Assets\Scripts\RotateCamera.js" />
      <Compile Include="Assets\Scripts\ScoringSystem.cs" />
      <None Include="Assets\Standard Assets\Scripts\Camera Scripts\MouseOrbit.js" />
      <None Include="Assets\Standard Assets\Scripts\Camera Scripts\SmoothFollow.js" />

@@ -481,7 +481,7 @@ public class ClickHandler : MonoBehaviour
 
                 //add the card to the player's hand
                 gM.players[gM.CurrentPlayerIndex].hand.Add(tempCard);
-
+                gM.UpdateBars();
                 //send the board position to null
                 gM.board[tempCard.data.row, tempCard.data.col] = null;
 
