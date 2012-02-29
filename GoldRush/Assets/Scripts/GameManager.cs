@@ -69,6 +69,11 @@ public class GameManager : MonoBehaviour
 
     private bool lastTurn = false;
 
+    private bool spadeToggle = false;
+    private bool clubToggle = false;
+    private bool heartToggle = false;
+    private bool diamondToggle = false;
+
     #endregion
 
     #region Accessors / Mutators
@@ -125,6 +130,28 @@ public class GameManager : MonoBehaviour
             gui.handleAction();
             gui.handleSkip();
 
+            GUILayout.BeginArea(new Rect(Screen.width - 100, 0f, 100f, 150f));
+            if (GUILayout.Button("Spades"))
+            {
+                spadeToggle = !spadeToggle;
+                UpdateBars();
+            }
+            if (GUILayout.Button("Clubs"))
+            {
+                clubToggle = !clubToggle;
+                UpdateBars();
+            }
+            if (GUILayout.Button("Hearts"))
+            {
+                heartToggle = !heartToggle;
+                UpdateBars();
+            }
+            if (GUILayout.Button("Diamonds"))
+            {
+                diamondToggle = !diamondToggle;
+                UpdateBars();
+            }
+            GUILayout.EndArea();
         }
         else
         {
@@ -996,6 +1023,7 @@ public class GameManager : MonoBehaviour
             newMat.mainTextureOffset = new Vector2(0.138f, 0.0f);
             clicker.movedTo.renderer.material = newMat;
             clicker.movedTo = null;
+            //clicker.TempCard.data.isUp = false; --------------------------broken line of code
         }
 
 
@@ -1147,16 +1175,80 @@ public class GameManager : MonoBehaviour
                 deck[counter].col = j;
                 board[i, j].GetComponent<Card>().data = deck[counter];
 
-                
+
 
                 foreach (Transform child in board[i, j].transform)
                 {
-                Debug.Log("------------------------------Scale" + child.name);
-                child.localPosition = new Vector3(0f, (2 * board[i, j].GetComponent<Card>().data.Value), 0f);
-                child.localScale = new Vector3(0f, (4 * board[i, j].GetComponent<Card>().data.Value), 0f);
+                    child.localPosition = new Vector3(0f, ((1.5f * board[i, j].GetComponent<Card>().data.Value)), 0f);
+                    child.localScale = new Vector3(.72f, ((3f * board[i, j].GetComponent<Card>().data.Value)), .77f);
+                    switch (board[i, j].GetComponent<Card>().data.Suit)
+                    {
+                        case 'S':
+                            child.GetComponent<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
+                            break;
+                        case 'C':
+                            child.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.4f, 0.4f, 0.8f);
+                            break;
+                        case 'H':
+                            child.GetComponent<MeshRenderer>().material.color = new Color(.75f, 0.25f, 0.5f, 0.8f);
+                            break;
+                        case 'D':
+                            child.GetComponent<MeshRenderer>().material.color = new Color(1.0f, 0.0f, 0.0f, 0.8f);
+                            break;
+                    }
                 }
 
                 counter++;
+            }
+        }
+    }
+
+    public void UpdateBars()
+    {
+        for (int i = 0; i < kinds.Length; i++)
+        {
+            for (int j = 0; j < suits.Length; j++)
+            {
+                CardData cardData = board[i, j].GetComponent<Card>().data;
+                switch (cardData.Suit)
+                {
+                    case 'S':
+                        if (cardData.isUp)
+                        {
+                            foreach (Transform child in board[i, j].transform)
+                            {
+                                child.GetComponent<MeshRenderer>().enabled = spadeToggle;
+                            }
+                        }
+                        break;
+                    case 'C':
+                        if (cardData.isUp)
+                        {
+                            foreach (Transform child in board[i, j].transform)
+                            {
+                                child.GetComponent<MeshRenderer>().enabled = clubToggle;
+                            }
+                        }
+                        break;
+                    case 'H':
+                        if (cardData.isUp)
+                        {
+                            foreach (Transform child in board[i, j].transform)
+                            {
+                                child.GetComponent<MeshRenderer>().enabled = heartToggle;
+                            }
+                        }
+                        break;
+                    case 'D':
+                        if (cardData.isUp)
+                        {
+                            foreach (Transform child in board[i, j].transform)
+                            {
+                                child.GetComponent<MeshRenderer>().enabled = diamondToggle;
+                            }
+                        }
+                        break;
+                }
             }
         }
     }

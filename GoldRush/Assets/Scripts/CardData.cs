@@ -6,6 +6,8 @@ public class CardData {
 	public int row;
 	public int col;
 	public bool staked;
+    public bool isUp;
+    public int serverID;
 	
     private char _suit;
     public char Suit{
