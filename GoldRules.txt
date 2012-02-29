@@ -1,0 +1,39 @@
+Phases:
+	1. Prospecting
+		a. Roll die or not roll die
+			i. Move and flip card
+		b. Stake card
+			i. Can only stake cards that are adjacent to your avatar
+	2. Mining
+		a. Roll die or not roll die
+			i. Move and flip over card
+		b. Stake a card or not stake a card
+			i. Can only stake cards that are adjecent to your avatar
+			ii. Players can only use stakes that are already in play
+		c. Mine a card
+			i. Can only mine cards that currently you have staked
+			ii. When you mine your remove stake and card from game board
+		d. Special rules
+			i. Bumping
+			ii. Islands
+Scoring
+	1. Card values
+		a. Black Jack card values
+		b. Face cards are worth 10
+		c. Aces are 11
+		d. all other cards face value
+	2. Flushes
+		a. The largest sum of all similar cards
+			i. Examples
+				1. King of Diamonds
+				2. 8 of Diamonds
+				3. 5 of Clubs
+				4. 9 of Spades
+				5. Queen of Spades
+			ii. Possible scores
+				King + 8 = 18
+				Queen + 9 = 19
+				5 = 5
+			iii. Best score
+				1. 19
+	3. Kinds

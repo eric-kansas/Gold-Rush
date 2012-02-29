@@ -883,7 +883,7 @@ public class GameManager : MonoBehaviour
             if (card.in_game_id == -1) //on the board still
             {
                 int row = card.col; int col = card.row; //this is bullshit
-                Vector3 pos = new Vector3(.88f * row, .5f, 1.1f * col);
+                Vector3 pos = new Vector3(.88f * row, .025f, 1.1f * col);
                 board[row, col] = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity);
 
 
@@ -1120,7 +1120,7 @@ public class GameManager : MonoBehaviour
         {
             for (int j = 0; j < BOARD_HEIGHT; j++)
             {
-                Vector3 pos = new Vector3(.88f * i, .5f, 1.1f * j);
+                Vector3 pos = new Vector3(.88f * i, .025f, 1.1f * j);
                 switch (deck[counter].Suit)
                 {
                     case 'H':
@@ -1139,6 +1139,16 @@ public class GameManager : MonoBehaviour
                 deck[counter].row = i;
                 deck[counter].col = j;
                 board[i, j].GetComponent<Card>().data = deck[counter];
+
+                
+
+                foreach (Transform child in board[i, j].transform)
+                {
+                Debug.Log("------------------------------Scale" + child.name);
+                child.localPosition = new Vector3(0f, (2 * board[i, j].GetComponent<Card>().data.Value), 0f);
+                child.localScale = new Vector3(0f, (4 * board[i, j].GetComponent<Card>().data.Value), 0f);
+                }
+
                 counter++;
             }
         }
@@ -1174,6 +1184,11 @@ public class GameManager : MonoBehaviour
                 Debug.Log("whoops");
                 break;
         }
+    }
+
+    private void BarControl()
+    {
+
     }
 
 }

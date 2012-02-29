@@ -7,6 +7,8 @@ Project("{7157F4BB-40A9-6D31-0632-223935AB84AD}") = "GoldRush", "Assembly-CSharp
 EndProject
 Project("{7157F4BB-40A9-6D31-0632-223935AB84AD}") = "GoldRush", "Assembly-UnityScript-firstpass.unityproj", "{1EC49710-057F-9F80-A517-2A3DE90D407A}"
 EndProject
+Project("{7157F4BB-40A9-6D31-0632-223935AB84AD}") = "GoldRush", "Assembly-UnityScript.unityproj", "{371BAB30-1216-DD5A-8421-2160613A8C75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{1EC49710-057F-9F80-A517-2A3DE90D407A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EC49710-057F-9F80-A517-2A3DE90D407A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EC49710-057F-9F80-A517-2A3DE90D407A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{371BAB30-1216-DD5A-8421-2160613A8C75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{371BAB30-1216-DD5A-8421-2160613A8C75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{371BAB30-1216-DD5A-8421-2160613A8C75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{371BAB30-1216-DD5A-8421-2160613A8C75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
