@@ -74,7 +74,7 @@ public class GuiHandler : MonoBehaviour
         gM = transform.GetComponent<GameManager>();
         clicker = this.GetComponent<ClickHandler>();
 
-        menuOuterRect = new Rect(Screen.width * .4f, Screen.height * .25f, Screen.width * .2f, Screen.height * .5f);
+        menuOuterRect = new Rect(Screen.width * .3f, Screen.height * .25f, Screen.width * .4f, Screen.height * .5f);
 
         float change = .03f;
         float xChange = (menuOuterRect.width * change) / 2;
@@ -88,7 +88,7 @@ public class GuiHandler : MonoBehaviour
 			"	A1- Rolled: Move the player and flip card.\n\n" +
 			"	A2- Did Not Roll: Flip card.\n\n" +
 			"C. Stake adjacent card.";
-        fullText[0] = 
+        fullText[0] = "\n"+
 			"The first stage of the game is the prospecting stage.\n\n"+
 			"You may roll the die to move, or skip rolling to stay where you are. "+
 			"Either way the card underneath the player will be revealed if it is not already.\n\n"+
@@ -102,7 +102,7 @@ public class GuiHandler : MonoBehaviour
 			"	B1- Staked: Move previously placed stake.\n\n" +
 			"C. Choose to mine a staked card or not.\n" +
 			"	C1- Mined: Take card into your hand. Move players from empty space to valid card if necessary.";
-		fullText[1] =
+		fullText[1] = "\n"+
 			"The second stage of the game is the mining stage.\n\n" +
 			"Moving works the same, but if you land on an opponent's stake you can bump it to an adjacent space. The card that was staked will be un-minable.\n\n" +
 			"You may also mine staked cards, which involves locking them in by removing them from the board. They will be moved to your hand. Any players on the empty space must be moved to a valid card.";
@@ -116,9 +116,9 @@ public class GuiHandler : MonoBehaviour
 			"B. Add up the values of the cards in your highest scoring grouping. Types of groups:\n\n" +
 			"	Flushes: 2+ cards of the same suit.\n" +
 			"	N of a Kind: 2+ cards of the same kind.\n";
-		fullText[2] = "After the game ends, each player's score will be calculated. A player wins by having the highest score.\n\n"+
+		fullText[2] = "\nAfter the game ends, each player's score will be calculated. A player wins by having the highest score.\n\n"+
 			"Each card has a value. Face cards (Jack, Queen, and King) are worth 10. Aces are worth 11 points. Numbered cards are worth their face value.\n\n"+
-			"To calculate a player's score, different groupings of cards in the player's hand are compared. A grouping can be a flush or an N-of-a-kind. The highest scoring group will yield the player's score.";
+			"To calculate a player's score, different groupings of cards in the player's hand are compared. A grouping can be a flush or an N-of-a-kind. A grouping is scored by adding up all the values of the cards included in the grouping. The highest scoring group will yield the player's score.";
 		#endregion
 
 		#region About Us
