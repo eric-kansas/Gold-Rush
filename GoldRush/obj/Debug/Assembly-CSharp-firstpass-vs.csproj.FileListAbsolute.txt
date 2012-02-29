@@ -32,3 +32,12 @@ P:\Users\emh5567\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp-firstpass.dll
 P:\Users\emh5567\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp-firstpass.pdb
 P:\Users\gjl6931\Gold-Rush\GoldRush\Temp\bin\Debug\JsonFx.Json.dll
 C:\Users\Gary\Gold-Rush\GoldRush\Temp\bin\Debug\JsonFx.Json.dll
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-CSharp-firstpass.dll
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\Temp\bin\Debug\JsonFx.Json.dll
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\Temp\bin\Debug\UnityEditor.dll
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\Temp\bin\Debug\UnityEngine.dll
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\Temp\bin\Debug\nunit.framework.dll
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp-firstpass.dll
+C:\Users\Gary\Desktop\Gold-Rush\GoldRush\obj\Debug\Assembly-CSharp-firstpass.pdb
