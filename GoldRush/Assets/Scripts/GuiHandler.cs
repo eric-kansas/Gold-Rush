@@ -28,9 +28,13 @@ public class GuiHandler : MonoBehaviour
 	private enum TextSize { BULLET, FULL }
 	private TextSize textSize = TextSize.BULLET;
 
+	private enum Developer { KANSAS, GARY, JON, PHIL }
+	private Developer dev = Developer.KANSAS;
+
     /* Contains the strings to show on each tab */
     private string[] rulesText = new string[3];
 	private string[] fullText = new string[3];
+	private string[] aboutText = new string[4];
 
     /* The Rectangle to use for the outer menu box */
     private Rect menuOuterRect;
@@ -78,6 +82,7 @@ public class GuiHandler : MonoBehaviour
         buttonRect = new Rect(menuOuterRect.x + xChange, menuOuterRect.y + yChange, menuOuterRect.width * (1 - change), menuOuterRect.height * (1 - change));
 
 		#region Text
+		#region Rules
 		rulesText[0] = "\n\n" +
 			"A. Choose to roll the die or not.\n\n" +
 			"	A1- Rolled: Move the player and flip card.\n\n" +
@@ -114,6 +119,26 @@ public class GuiHandler : MonoBehaviour
 		fullText[2] = "After the game ends, each player's score will be calculated. A player wins by having the highest score.\n\n"+
 			"Each card has a value. Face cards (Jack, Queen, and King) are worth 10. Aces are worth 11 points. Numbered cards are worth their face value.\n\n"+
 			"To calculate a player's score, different groupings of cards in the player's hand are compared. A grouping can be a flush or an N-of-a-kind. The highest scoring group will yield the player's score.";
+		#endregion
+
+		#region About Us
+		aboutText[0] = "Eric Heaney, a.k.a. Kansas\n\n"+
+			"Currently a 4th year Game Design & Development student at RIT.\n\n"+
+			"Role: Gold Rush designer and programmer, focusing on database and server code.";
+
+		aboutText[1] = "Name: Gary Lake\n\n"+
+			"Currently a 4th year Game Design & Development student at RIT set to graduate in May 2012.\n\n"+
+			"Role: Gold Rush programmer, focusing on game code.";
+
+		aboutText[2] = "Name: Jonathan Hughes\n\n" +
+			"Currently a 3rd year New Media Interactive Development student at RIT.\n\n" +
+			"Role: Gold Rush programmer and user interface designer.";
+		
+		aboutText[3] = "Name: Philip Moccio\n\n"+
+			"Currently a [Placeholder text]\n\n"+
+			"Role: Gold Rush programmer.";
+
+		#endregion
 		#endregion
 	}
 
@@ -175,7 +200,7 @@ public class GuiHandler : MonoBehaviour
         float height = buttonRect.height * .33f; //multiply by 1 over number of the buttons
 
         int selectionGrid = 0;
-        string[] selectionStrings = { "2D", "3D" };
+        string[] selectionStrings = { "Normal", "Easy" };
 
         GUI.EndGroup();
     }
@@ -189,9 +214,7 @@ public class GuiHandler : MonoBehaviour
         GUILayout.BeginHorizontal(GUILayout.Height(buttonRect.height * 0.1f));
 
         if (GUILayout.Button("Prospecting"))
-        {
             currentTab = RulesTab.PROSPECTING;
-        }
 		else if (GUILayout.Button("Mining"))
             currentTab = RulesTab.MINING;
 		else if (GUILayout.Button("Scoring"))
@@ -229,7 +252,31 @@ public class GuiHandler : MonoBehaviour
 
     private void showAboutUs()
     {
+		//contain everything else inside of it
+		GUI.BeginGroup(buttonRect);
 
+		//tabs
+		GUILayout.BeginHorizontal(GUILayout.Height(buttonRect.height * 0.1f));
+
+		if (GUILayout.Button("Kansas"))
+			dev = Developer.KANSAS;
+		else if (GUILayout.Button("Gary"))
+			dev = Developer.GARY;
+		else if (GUILayout.Button("Jon"))
+			dev = Developer.JON;
+		else if (GUILayout.Button("Phil"))
+			dev = Developer.PHIL;
+		else if (GUILayout.Button("Back"))
+		{
+			dev = Developer.KANSAS;
+			currentMenuState = MenuState.MAIN;
+		}
+		GUILayout.EndHorizontal();
+
+		GUILayoutOption[] options = { GUILayout.Width(buttonRect.width), GUILayout.Height(buttonRect.height * 0.75f) };
+		GUILayout.Box(aboutText[(int)dev], GuiStyle, options);
+
+		GUI.EndGroup();
     }
 
     #endregion
