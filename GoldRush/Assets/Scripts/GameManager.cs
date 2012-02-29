@@ -61,6 +61,7 @@ public class GameManager : MonoBehaviour
     public bool sEnabled = false;
 
     public bool[,] checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
+    public bool[,] islandList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
 
     /* Number of turns the player will have in the first round. Also used as the number of stakes the player will have. */
     public int numProspectingTurns = 1;
@@ -205,10 +206,121 @@ public class GameManager : MonoBehaviour
 
     private List<Vector2> findMoves(Vector2 position)
     {
+
+        islandList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
         checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
+
+        checkIsland(position, checkedList);
+
         List<Vector2> holder = new List<Vector2>();
 
+        holder = addIslandMoves(position, holder);
+        checkedList = new bool[BOARD_WIDTH, BOARD_HEIGHT];
         return findMovesAccumlative(position, 0, checkedList, holder);
+    }
+
+    private List<Vector2> addIslandMoves(Vector2 currentPos, List<Vector2> holder)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            switch (i)
+            {
+                //up
+                case 0:
+                    holder = addIslandMove(new Vector2(currentPos.x, currentPos.y + 1), holder, i);
+                    break;
+                case 1://right
+                    holder = addIslandMove(new Vector2(currentPos.x + 1, currentPos.y), holder, i);
+                    break;
+                case 2://left
+                    holder = addIslandMove(new Vector2(currentPos.x - 1, currentPos.y), holder, i);
+                    break;
+                case 3://down
+                    holder = addIslandMove(new Vector2(currentPos.x, currentPos.y - 1), holder, i);
+                    break;
+            }
+        }
+
+            Debug.Log(holder.Count);
+        
+        
+        return holder;
+    }
+
+    private List<Vector2> addIslandMove(Vector2 currentPos, List<Vector2> holder, int direction)
+    {
+        //out of bounds
+        if (currentPos.x < 0 || currentPos.x > 12 ||
+            currentPos.y < 0 || currentPos.y > 3)
+        {
+            return holder;
+        }
+        //which direction are we looking
+        switch(direction)
+        {
+            //up
+            case 0:
+                if (board[(int)currentPos.x, (int)currentPos.y] == null)
+                {//if we are still in the ocean
+                    addIslandMove(new Vector2(currentPos.x, currentPos.y + 1), holder, direction);
+                }
+                else
+                {//hit land
+                    if (!islandList[(int)currentPos.x, (int)currentPos.y])
+                    {//if this is not the same island as we are on add it
+                        Debug.Log("HJHERHERHEHREH: added a island spot");
+                        holder.Add(new Vector2((int)currentPos.x, (int)currentPos.y));
+                        board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(1, 1, 0);
+                    }
+                }
+                break;
+            case 1://right
+                if (board[(int)currentPos.x, (int)currentPos.y] == null)
+                {//if we are still in the ocean
+                    addIslandMove(new Vector2(currentPos.x + 1, currentPos.y), holder, direction);
+                }
+                else
+                {//hit land
+                    if (!islandList[(int)currentPos.x, (int)currentPos.y])
+                    {//if this is not the same island as we are on add it
+                        Debug.Log("HJHERHERHEHREH: added a island spot");
+                        holder.Add(new Vector2((int)currentPos.x, (int)currentPos.y));
+                        board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(1, 1, 0);
+                    }
+                }
+                break;
+            case 2://left
+                if (board[(int)currentPos.x, (int)currentPos.y] == null)
+                {//if we are still in the ocean
+                    addIslandMove(new Vector2(currentPos.x - 1, currentPos.y), holder, direction);
+                }
+                else
+                {//hit land
+                    if (!islandList[(int)currentPos.x, (int)currentPos.y])
+                    {//if this is not the same island as we are on add it
+                        Debug.Log("HJHERHERHEHREH: added a island spot");
+                        holder.Add(new Vector2((int)currentPos.x, (int)currentPos.y));
+                        board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(1, 1, 0);
+                    }
+                }
+                break;
+            case 3://down
+                if (board[(int)currentPos.x, (int)currentPos.y] == null)
+                {//if we are still in the ocean
+                    addIslandMove(new Vector2(currentPos.x, currentPos.y - 1), holder, direction);
+                }
+                else
+                {//hit land
+                    if (!islandList[(int)currentPos.x, (int)currentPos.y])
+                    {//if this is not the same island as we are on add it
+                        Debug.Log("HJHERHERHEHREH: added a island spot");
+                        holder.Add(new Vector2((int)currentPos.x, (int)currentPos.y));
+                        board[(int)currentPos.x, (int)currentPos.y].transform.renderer.material.color = new Color(1, 1, 0);
+                    }
+                }
+                break;
+        }
+        return holder;
     }
 
     /// <summary>
@@ -265,6 +377,43 @@ public class GameManager : MonoBehaviour
                 return holder;
             }
         }
+    }
+
+    private void checkIsland(Vector2 currentPos, bool[,] looked)
+    {
+        //out of bounds
+        if (currentPos.x < 0 || currentPos.x > 12 ||
+            currentPos.y < 0 || currentPos.y > 3)
+        {
+            return;
+        }
+        //if we have been here
+        if (looked[(int)currentPos.x, (int)currentPos.y])
+        {
+            return;
+        }
+
+        if (board[(int)currentPos.x, (int)currentPos.y] == null) //currentcount != 0 allows us to look for moves FROM empty spaces, but will ignore moves TO empty spaces
+        {
+            looked[(int)currentPos.x, (int)currentPos.y] = true;
+            Debug.Log("x: " + currentPos.x + " y: " + currentPos.y + ", " +islandList[(int)currentPos.x, (int)currentPos.y]);
+            return;
+        }
+        else
+        {
+            islandList[(int)currentPos.x, (int)currentPos.y] = true;
+            looked[(int)currentPos.x, (int)currentPos.y] = true;
+        }
+
+        //look up
+        checkIsland(new Vector2(currentPos.x, currentPos.y + 1), looked);
+        //look right
+        checkIsland(new Vector2(currentPos.x+1, currentPos.y), looked);
+        //look left
+        checkIsland(new Vector2(currentPos.x - 1, currentPos.y), looked);
+        //look down
+        checkIsland(new Vector2(currentPos.x, currentPos.y - 1), looked);
+               
     }
 
     public void calculateStakeableCards()
