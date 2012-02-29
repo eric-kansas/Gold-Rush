@@ -837,6 +837,13 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private void setupMiscElements()
+    {
+        MeshRenderer tempRenderer = GameObject.Find("Table").GetComponent<MeshRenderer>();
+        tempRenderer.enabled = true;
+
+    }
+
     private void loadBoardFromJson()
     {
         int counter = 0;
