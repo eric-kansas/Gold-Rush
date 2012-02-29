@@ -723,7 +723,7 @@ public class GameManager : MonoBehaviour
                 for(int j = 0; j < players[i].stakedCards.Count; j++) 
                 {
                     players[i].hand.Add(players[i].stakedCards[j]);
-
+                    UpdateBars();
                     //move the card to the side of the board
                     players[i].stakedCards[j].transform.position = clicker.findHandPosition(i);
 
@@ -1025,6 +1025,8 @@ public class GameManager : MonoBehaviour
             newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);
             newMat.mainTextureOffset = new Vector2(0.138f, 0.0f);
             clicker.movedTo.renderer.material = newMat;
+            clicker.movedTo.data.isUp = false;
+            UpdateBars();
             clicker.movedTo = null;
         }
 
@@ -1217,43 +1219,82 @@ public class GameManager : MonoBehaviour
                     switch (cardData.Suit)
                     {
                         case 'S':
-                            if (cardData.isUp)
+                            if (spadeToggle)
                             {
                                 foreach (Transform child in board[i, j].transform)
                                 {
-                                    child.GetComponent<MeshRenderer>().enabled = spadeToggle;
+                                    child.GetComponent<MeshRenderer>().enabled = cardData.isUp;
+                                }
+                            }
+                            else
+                            {
+                                foreach (Transform child in board[i, j].transform)
+                                {
+                                    child.GetComponent<MeshRenderer>().enabled = false;
                                 }
                             }
                             break;
                         case 'C':
-                            if (cardData.isUp)
+                            if (clubToggle)
                             {
                                 foreach (Transform child in board[i, j].transform)
                                 {
-                                    child.GetComponent<MeshRenderer>().enabled = clubToggle;
+                                    child.GetComponent<MeshRenderer>().enabled = cardData.isUp;
+                                }
+                            }
+                            else
+                            {
+                                foreach (Transform child in board[i, j].transform)
+                                {
+                                    child.GetComponent<MeshRenderer>().enabled = false;
                                 }
                             }
                             break;
                         case 'H':
-                            if (cardData.isUp)
+                            if (heartToggle)
                             {
                                 foreach (Transform child in board[i, j].transform)
                                 {
-                                    child.GetComponent<MeshRenderer>().enabled = heartToggle;
+                                    child.GetComponent<MeshRenderer>().enabled = cardData.isUp;
+                                }
+                            }
+                            else
+                            {
+                                foreach (Transform child in board[i, j].transform)
+                                {
+                                    child.GetComponent<MeshRenderer>().enabled = false;
                                 }
                             }
                             break;
                         case 'D':
-                            if (cardData.isUp)
+                            if (diamondToggle)
                             {
                                 foreach (Transform child in board[i, j].transform)
                                 {
-                                    child.GetComponent<MeshRenderer>().enabled = diamondToggle;
+                                    child.GetComponent<MeshRenderer>().enabled = cardData.isUp;
+                                }
+                            }
+                            else
+                            {
+                                foreach (Transform child in board[i, j].transform)
+                                {
+                                    child.GetComponent<MeshRenderer>().enabled = false;
                                 }
                             }
                             break;
                     }
                 }
+            }
+        }
+        for (int i = 0; i < players.Count; i++)
+        {
+            for (int j = 0; j < players[i].hand.Count; j++)
+            {
+                foreach (Transform child in players[i].hand[j].transform)
+                {
+                    child.GetComponent<MeshRenderer>().enabled = false;
+                }
+                
             }
         }
     }
