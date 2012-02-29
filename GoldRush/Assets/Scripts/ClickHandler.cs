@@ -181,6 +181,8 @@ public class ClickHandler : MonoBehaviour
                     //prospect
                     gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
                                                                 (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
+                    tempCard.data.isUp = true;
+                    gM.UpdateBars();
                     //if the card is staked by another player, the current player can bump it
                     if (tempCard.data.staked)
                     {
