@@ -71,10 +71,10 @@ public class ClickHandler : MonoBehaviour
     {
         gM = transform.GetComponent<GameManager>();
         bodyColor = new List<Color>();
-        bodyColor.Add(new Color(1.0f, 0.0f, 0.0f, 0.5f));
-        bodyColor.Add(new Color(0.0f, 1.0f, 0.0f, 0.5f));
-        bodyColor.Add(new Color(0.0f, 0.0f, 1.0f, 0.5f));
-        bodyColor.Add(new Color(0.75f, 0.75f, 0.0f, 0.5f));
+        bodyColor.Add(new Color(1.0f, 0.0f, 0.0f));
+        bodyColor.Add(new Color(0.0f, 1.0f, 0.0f));
+        bodyColor.Add(new Color(0.0f, 0.0f, 1.0f));
+        bodyColor.Add(new Color(0.75f, 0.75f, 0.0f));
     }
 
     // Update is called once per frame
@@ -158,7 +158,7 @@ public class ClickHandler : MonoBehaviour
             {
                 //move player to position
                 Vector3 moveToLocation = new Vector3(hit.transform.position.x,
-                                     hit.transform.position.y + 0.25f,
+                                     hit.transform.position.y + 0.025f,
                                      tempCard.transform.position.z);
                 gM.players[gM.CurrentPlayerIndex].transform.position = moveToLocation;
 
@@ -282,7 +282,7 @@ public class ClickHandler : MonoBehaviour
             if (pos.Equals(PositionToVector2(hit.transform.position)))   //check if the card clicked is a valid move
             {
                 Vector3 moveToLocation = new Vector3(hit.transform.position.x,
-                                     hit.transform.position.y + 0.25f,
+                                     hit.transform.position.y + 0.025f,
                                      tempCard.transform.position.z);
 
                 //move the other player
@@ -563,7 +563,7 @@ public class ClickHandler : MonoBehaviour
         if (gM.players.Count < gM.maxPlayers)
         {
             Vector3 pos = new Vector3(gM.board[6, 0].transform.position.x,
-                                      hit.transform.position.y + 0.25f,
+                                      hit.transform.position.y + 0.025f,
                                       tempCard.transform.position.z);
             //first time was don't have to check is that space is avalible
             if (gM.players.Count <= 0)
