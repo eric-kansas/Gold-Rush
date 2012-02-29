@@ -1,0 +1,17 @@
+D:\Git_repos\Gold-Rush\GoldRush\obj\Debug\ResolveAssemblyReference.cache
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\Irrelvant.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\Irrelvant.pdb
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\Boo.Lang.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\JsonFx.Json.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\UnityEditor.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\UnityEngine.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\UnityScript.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\Boo.Lang.Compiler.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\nunit.framework.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\Boo.Lang.PatternMatching.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\Mono.Security.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\Boo.Lang.Useful.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\UnityScript.Lang.dll
+D:\Git_repos\Gold-Rush\GoldRush\Temp\bin\Debug\Boo.Lang.Parser.dll
+D:\Git_repos\Gold-Rush\GoldRush\obj\Debug\Irrelvant.dll
+D:\Git_repos\Gold-Rush\GoldRush\obj\Debug\Irrelvant.pdb
