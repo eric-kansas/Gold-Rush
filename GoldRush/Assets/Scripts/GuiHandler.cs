@@ -4,6 +4,9 @@ using System.Collections;
 public class GuiHandler : MonoBehaviour
 {
     #region properties
+
+	private GUIStyle GuiStyle = new GUIStyle();
+
     #region Menu-related
     /* Possible states of the menu GUI:
      *       MAIN: Menu is on the default Main Menu.
@@ -56,6 +59,9 @@ public class GuiHandler : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+		GuiStyle.wordWrap = true;
+		GuiStyle.normal.textColor = Color.white;
+
         gM = transform.GetComponent<GameManager>();
         clicker = this.GetComponent<ClickHandler>();
 
@@ -66,7 +72,13 @@ public class GuiHandler : MonoBehaviour
         float yChange = (menuOuterRect.height * change) / 2;
         buttonRect = new Rect(menuOuterRect.x + xChange, menuOuterRect.y + yChange, menuOuterRect.width * (1 - change), menuOuterRect.height * (1 - change));
 
-        rulesText[0] = "The first stage of the game is the prospecting stage.";
+        rulesText[0] = 
+			"The first stage of the game is the prospecting stage.\n\n"+
+			"You may roll the dice to move, or skip rolling to stay where you are. "+
+			"Either way the card underneath the player will be revealed if it is not already.\n\n"+
+			"Then you will be able to stake a claim on a card. In the prospecting phase you must stake a claim. "+
+			"You may only stake the card under your avatar or on an adjacent card, not including diagonals.";
+
         rulesText[1] = "The second stage of the game is the mining stage.";
         rulesText[2] = "This is how the game is scored.";
     }
@@ -158,7 +170,7 @@ public class GuiHandler : MonoBehaviour
         GUILayout.EndHorizontal();
 
         GUILayoutOption[] options = { GUILayout.Width(buttonRect.width), GUILayout.Height(buttonRect.height * 0.9f) };
-        GUILayout.Box(rulesText[(int)currentTab], options);
+		GUILayout.Box(rulesText[(int)currentTab], GuiStyle, options);
 
         GUI.EndGroup();
     }
