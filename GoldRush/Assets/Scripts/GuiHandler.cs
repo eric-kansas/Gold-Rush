@@ -415,6 +415,9 @@ public class GuiHandler : MonoBehaviour
                         gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
                                                                     (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
 
+                        this.clicker.TempCard.data.isUp = true;
+                        gM.UpdateBars();
+
                         if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || !clicker.TempCard.data.staked)
                         {
                             FeedbackGUI.setText("Please press a location to stake a claim on.");
