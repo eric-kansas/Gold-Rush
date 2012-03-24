@@ -27,9 +27,11 @@ public class GameManager : MonoBehaviour
 		set { id = value; }
 	}
 
+    /* Whether the game should be able to connect to a server and should try to send updates */
+    public bool isOnline = false;
+
+    /* Whether starting a new game or loading from the server database */
 	public bool loadGame = false;
-
-
 
     /* ScoringSystem - Used to count up the score for mined cards */
     public ScoringSystem scoringSystem;
@@ -859,7 +861,7 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Loading a stake");
                 //place the stake
                 Vector3 pos = clicker.Vector2ToPosition(new Vector2(entity.row, entity.col), 0.51f);
-                GameObject tempStake = (GameObject)Instantiate(clicker.StakePrefab, pos, Quaternion.identity);
+                GameObject tempStake = (GameObject)Instantiate(clicker.stakePrefab, pos, Quaternion.identity);
                 board[entity.row, entity.col].GetComponent<Card>().data.staked = true;
 
                 //set to current player's color

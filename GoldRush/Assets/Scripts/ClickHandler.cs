@@ -70,11 +70,7 @@ public class ClickHandler : MonoBehaviour
     #region Staking
 
     /* Stake asset */
-    private GameObject stakePrefab;
-    public GameObject StakePrefab
-    {
-        get { return stakePrefab; }
-    }
+    public GameObject stakePrefab;
 
     /* Whether or not the player has selected a card to stake (in mining phase) */
     private bool selectedCard = false;
@@ -247,29 +243,7 @@ public class ClickHandler : MonoBehaviour
 				//handle double click
 				if (lastPos == gM.players[gM.CurrentPlayerIndex].transform.position)
 				{
-					FeedbackGUI.setText("Moving player.");
-					//save to turn this card back over again
-					if (gM.CurrentRoll == 1)
-						movedTo = tempCard;
-
-					gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard;//set the player's current card
-
-					gM.players[gM.CurrentPlayerIndex].Position = PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
-
-					gM.clearHighlights();   //clear the board
-
-					//prospect
-					gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
-																(int)gM.players[gM.CurrentPlayerIndex].Position.y]);
-
-					gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[gM.CurrentPlayerIndex].Position.x + "/" + gM.players[gM.CurrentPlayerIndex].Position.y + "/1");
-
-
-					tempCard.data.isUp = true;
-					gM.UpdateBars();
-
-					gM.jsonFx.PerformUpdate("update_card_up/1/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
-
+                    movePlayer();
 
 					//if the card is staked by another player, the current player can bump it
 					if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE && tempCard.data.staked)
@@ -293,7 +267,7 @@ public class ClickHandler : MonoBehaviour
     /// <summary>
     /// Helper function - Actually moves the player
     /// </summary>
-    private void movePlayer()
+    public void movePlayer()
     {
         if (gM.pEnabled)
         {
@@ -302,10 +276,30 @@ public class ClickHandler : MonoBehaviour
             if (gM.CurrentRoll == 1)     //save to turn this card back over again
                 movedTo = tempCard;
 
-            gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard;//set the player's current card
+            //update the player's grid position
+            Vector2 position = PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);
+            gM.players[gM.CurrentPlayerIndex].Position = position;
 
-            gM.players[gM.CurrentPlayerIndex].Position = PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
+            //set the player's current card
+            gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard;
+            gM.players[gM.CurrentPlayerIndex].CurrentCard = gM.board[(int)position.x, (int)position.y].GetComponent<Card>();
 
+            //send changes to server
+            if (gM.isOnline)
+            {
+                gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[gM.CurrentPlayerIndex].Position.x + "/" + gM.players[gM.CurrentPlayerIndex].Position.y + "/1");
+                gM.jsonFx.PerformUpdate("update_card_up/1/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
+                //gM.jsonFx.PerformUpdate("update_card_up/" + gM.CurrentPlayerIndex + "/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
+            }
+
+            gM.clearHighlights();   //clear the board
+
+            //prospect
+            gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
+                                                        (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
+            gM.players[gM.CurrentPlayerIndex].CurrentCard.data.isUp = true;
+
+            gM.UpdateBars();
         }
     }
 

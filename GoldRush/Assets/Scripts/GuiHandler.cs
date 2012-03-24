@@ -408,38 +408,12 @@ public class GuiHandler : MonoBehaviour
 			break;
                 case GameStateManager.TurnState.TURN_MOVE:	// the player is moving after rolling the dice
 
+                    clicker.movePlayer();
+
                     if (gM.pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
                     {			//pEnabled is set to true in clickHandler's moveClick()
 
-                        FeedbackGUI.setText("Moving player.");
-
-                        //save to turn this card back over again
-                        if (gM.CurrentRoll == 1)
-                            clicker.MovedTo = clicker.TempCard;
-
-                        gM.players[gM.CurrentPlayerIndex].Position = clicker.PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
-
-										Vector2 position = gM.players[gM.CurrentPlayerIndex].Position;
-						gM.players[gM.CurrentPlayerIndex].CurrentCard = gM.board[(int)position.x, (int)position.y].GetComponent<Card>();
-
-						gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[gM.CurrentPlayerIndex].Position.x + "/" + gM.players[gM.CurrentPlayerIndex].Position.y + "/1");
-
-
-                        gM.clearHighlights();
-
-                        //prospect
-                        gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
-                                                                    (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
-
-						gM.players[gM.CurrentPlayerIndex].CurrentCard.data.isUp = true;
-
-                        gM.UpdateBars();
-
-						gM.jsonFx.PerformUpdate("update_card_up/" + gM.CurrentPlayerIndex + "/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
-
-
-
-                        if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || !clicker.TempCard.data.staked)
+                        if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || !gM.players[gM.CurrentPlayerIndex].CurrentCard.data.staked)
                         {
                             FeedbackGUI.setText("Please press a location to stake a claim on.");
                             gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
