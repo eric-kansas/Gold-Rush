@@ -5,7 +5,7 @@ public class GuiHandler : MonoBehaviour
 {
     #region properties
 
-	private GUIStyle GuiStyle = new GUIStyle();
+    private GUIStyle GuiStyle = new GUIStyle();
 
     #region Menu-related
     /* Possible states of the menu GUI:
@@ -25,16 +25,16 @@ public class GuiHandler : MonoBehaviour
     /* Current tab in the rules menu */
     private RulesTab currentTab = RulesTab.PROSPECTING;
 
-	private enum TextSize { BULLET, FULL }
-	private TextSize textSize = TextSize.BULLET;
+    private enum TextSize { BULLET, FULL }
+    private TextSize textSize = TextSize.BULLET;
 
-	private enum Developer { KANSAS, GARY, JON, PHIL }
-	private Developer dev = Developer.KANSAS;
+    private enum Developer { KANSAS, GARY, JON, PHIL }
+    private Developer dev = Developer.KANSAS;
 
     /* Contains the strings to show on each tab */
     private string[] rulesText = new string[3];
-	private string[] fullText = new string[3];
-	private string[] aboutText = new string[4];
+    private string[] fullText = new string[3];
+    private string[] aboutText = new string[4];
 
     /* The Rectangle to use for the outer menu box */
     private Rect menuOuterRect;
@@ -67,9 +67,9 @@ public class GuiHandler : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-		GuiStyle.wordWrap = true;
-		GuiStyle.normal.textColor = Color.white;
-		GuiStyle.active.textColor = Color.red;
+        GuiStyle.wordWrap = true;
+        GuiStyle.normal.textColor = Color.white;
+        GuiStyle.active.textColor = Color.red;
 
         gM = transform.GetComponent<GameManager>();
         clicker = this.GetComponent<ClickHandler>();
@@ -81,66 +81,66 @@ public class GuiHandler : MonoBehaviour
         float yChange = (menuOuterRect.height * change) / 2;
         buttonRect = new Rect(menuOuterRect.x + xChange, menuOuterRect.y + yChange, menuOuterRect.width * (1 - change), menuOuterRect.height * (1 - change));
 
-		#region Text
-		#region Rules
-		rulesText[0] = "\n\n" +
-			"A. Choose to roll the die or not.\n\n" +
-			"	A1- Rolled: Move the player and flip card.\n\n" +
-			"	A2- Did Not Roll: Flip card.\n\n" +
-			"C. Stake adjacent card.";
-        fullText[0] = "\n"+
-			"The first stage of the game is the prospecting stage.\n\n"+
-			"You may roll the die to move, or skip rolling to stay where you are. "+
-			"Either way the card underneath the player will be revealed if it is not already.\n\n"+
-			"Then you will be able to stake a claim on a card. In the prospecting phase you must stake a claim. "+
-			"You may only stake the card under your avatar or on an adjacent card, not including diagonals.";
+        #region Text
+        #region Rules
+        rulesText[0] = "\n\n" +
+            "A. Choose to roll the die or not.\n\n" +
+            "	A1- Rolled: Move the player and flip card.\n\n" +
+            "	A2- Did Not Roll: Flip card.\n\n" +
+            "C. Stake adjacent card.";
+        fullText[0] = "\n" +
+            "The first stage of the game is the prospecting stage.\n\n" +
+            "You may roll the die to move, or skip rolling to stay where you are. " +
+            "Either way the card underneath the player will be revealed if it is not already.\n\n" +
+            "Then you will be able to stake a claim on a card. In the prospecting phase you must stake a claim. " +
+            "You may only stake the card under your avatar or on an adjacent card, not including diagonals.";
 
-		rulesText[1] = "\n" +
-			"A. Moving: Same as in Prospecting Phase.\n" +
-			"	Except: Bumping opponent's stakes is allowed. That card can't be mined for one turn.\n\n" +
-			"B. Choose to stake or not stake.\n" +
-			"	B1- Staked: Move previously placed stake.\n\n" +
-			"C. Choose to mine a staked card or not.\n" +
-			"	C1- Mined: Take card into your hand. Move players from empty space to valid card if necessary.";
-		fullText[1] = "\n"+
-			"The second stage of the game is the mining stage.\n\n" +
-			"Moving works the same, but if you land on an opponent's stake you can bump it to an adjacent space. The card that was staked will be un-minable.\n\n" +
-			"You may also mine staked cards, which involves locking them in by removing them from the board. They will be moved to your hand. Any players on the empty space must be moved to a valid card.";
+        rulesText[1] = "\n" +
+            "A. Moving: Same as in Prospecting Phase.\n" +
+            "	Except: Bumping opponent's stakes is allowed. That card can't be mined for one turn.\n\n" +
+            "B. Choose to stake or not stake.\n" +
+            "	B1- Staked: Move previously placed stake.\n\n" +
+            "C. Choose to mine a staked card or not.\n" +
+            "	C1- Mined: Take card into your hand. Move players from empty space to valid card if necessary.";
+        fullText[1] = "\n" +
+            "The second stage of the game is the mining stage.\n\n" +
+            "Moving works the same, but if you land on an opponent's stake you can bump it to an adjacent space. The card that was staked will be un-minable.\n\n" +
+            "You may also mine staked cards, which involves locking them in by removing them from the board. They will be moved to your hand. Any players on the empty space must be moved to a valid card.";
 
-		rulesText[2] =
-			"The purpose is to get the highest score.\n\n" +
-			"A. Card values:\n\n" +
-			"	A1- Face Cards = 10 points.\n" +
-			"	A2- Aces = 11 points.\n" +
-			"	A3- Numbered cards = Face value.\n\n" +
-			"B. Add up the values of the cards in your highest scoring grouping. Types of groups:\n\n" +
-			"	Flushes: 2+ cards of the same suit.\n" +
-			"	N of a Kind: 2+ cards of the same kind.\n";
-		fullText[2] = "\nAfter the game ends, each player's score will be calculated. A player wins by having the highest score.\n\n"+
-			"Each card has a value. Face cards (Jack, Queen, and King) are worth 10. Aces are worth 11 points. Numbered cards are worth their face value.\n\n"+
-			"To calculate a player's score, different groupings of cards in the player's hand are compared. A grouping can be a flush or an N-of-a-kind. A grouping is scored by adding up all the values of the cards included in the grouping. The highest scoring group will yield the player's score.";
-		#endregion
+        rulesText[2] =
+            "The purpose is to get the highest score.\n\n" +
+            "A. Card values:\n\n" +
+            "	A1- Face Cards = 10 points.\n" +
+            "	A2- Aces = 11 points.\n" +
+            "	A3- Numbered cards = Face value.\n\n" +
+            "B. Add up the values of the cards in your highest scoring grouping. Types of groups:\n\n" +
+            "	Flushes: 2+ cards of the same suit.\n" +
+            "	N of a Kind: 2+ cards of the same kind.\n";
+        fullText[2] = "\nAfter the game ends, each player's score will be calculated. A player wins by having the highest score.\n\n" +
+            "Each card has a value. Face cards (Jack, Queen, and King) are worth 10. Aces are worth 11 points. Numbered cards are worth their face value.\n\n" +
+            "To calculate a player's score, different groupings of cards in the player's hand are compared. A grouping can be a flush or an N-of-a-kind. A grouping is scored by adding up all the values of the cards included in the grouping. The highest scoring group will yield the player's score.";
+        #endregion
 
-		#region About Us
-		aboutText[0] = "Eric Heaney, a.k.a. Kansas\n\n"+
-			"Currently a 4th year Game Design & Development student at RIT.\n\n"+
-			"Role: Gold Rush designer and programmer, focusing on database and server code.";
+        #region About Us
+        aboutText[0] = "Eric Heaney, a.k.a. Kansas\n\n" +
+            "Currently a 4th year Game Design & Development student at RIT.\n\n" +
+            "Role: Gold Rush designer and programmer, focusing on database and server code.";
 
-		aboutText[1] = "Name: Gary Lake\n\n"+
-			"Currently a 4th year Game Design & Development student at RIT set to graduate in May 2012.\n\n"+
-			"Role: Gold Rush programmer, focusing on game code.";
+        aboutText[1] = "Name: Gary Lake\n\n" +
+            "Currently a 4th year Game Design & Development student at RIT set to graduate in May 2012.\n\n" +
+            "Role: Gold Rush programmer, focusing on game code.";
 
-		aboutText[2] = "Name: Jonathan Hughes\n\n" +
-			"Currently a 3rd year New Media Interactive Development student at RIT.\n\n" +
-			"Role: Gold Rush programmer and user interface designer.";
-		
-		aboutText[3] = "Name: Philip Moccio\n\n"+
-			"Currently a [Placeholder text]\n\n"+
-			"Role: Gold Rush programmer.";
+        aboutText[2] = "Name: Jonathan Hughes\n\n" +
+            "Currently a 3rd year New Media Interactive Development student at RIT.\n\n" +
+            "Role: Gold Rush programmer and user interface designer.";
 
-		#endregion
-		#endregion
-	}
+        aboutText[3] = "Name: Philip Moccio\n\n" +
+            "Currently a [Placeholder text]\n\n" +
+            "Role: Gold Rush programmer.";
+
+        #endregion
+        #endregion
+    }
 
     // Update is called once per frame
     void Update()
@@ -156,12 +156,12 @@ public class GuiHandler : MonoBehaviour
 
         if (currentMenuState == MenuState.MAIN)
             mainMenu();
-		else if (currentMenuState == MenuState.OPTIONS)
-			optionsMenu(); 
-		else if (currentMenuState == MenuState.RULES)
-			showRules();
-		else if (currentMenuState == MenuState.ABOUT)
-			showAboutUs();
+        else if (currentMenuState == MenuState.OPTIONS)
+            optionsMenu();
+        else if (currentMenuState == MenuState.RULES)
+            showRules();
+        else if (currentMenuState == MenuState.ABOUT)
+            showAboutUs();
     }
 
     private void mainMenu()
@@ -176,27 +176,28 @@ public class GuiHandler : MonoBehaviour
 
         if (GUILayout.Button("Start Game", options)) //start the game
         {
-            			Debug.Log("loadgame: " + gM.loadGame);
-			if (!gM.loadGame)
-			{
-				gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_SETUP;
-				gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
-				gM.setUpBoard();
-			}
-			else
-			{
-				int id = gM.jsonFx.PerformUpdate("init_game");
-				Debug.Log("Game ID: " + id);
-				gM.loadGameFromJson();
-			}
+            Debug.Log("loadgame: " + gM.loadGame);
+            if (!gM.loadGame)
+            {
+                gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_SETUP;
+                if (gM.isOnline)
+                    gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
+                gM.setUpBoard();
+            }
+            else
+            {
+                int id = gM.jsonFx.PerformUpdate("init_game");
+                Debug.Log("Game ID: " + id);
+                gM.loadGameFromJson();
+            }
 
         }
-		else if (GUILayout.Button("Options - Coming Soon", options)) //load the options menu instead
-		{ /*currentMenuState = MenuState.OPTIONS; */ }
-		else if (GUILayout.Button("How To Play", options)) // show the rules instead
-			currentMenuState = MenuState.RULES;
-		else if (GUILayout.Button("About the Developers", options))
-			currentMenuState = MenuState.ABOUT;
+        else if (GUILayout.Button("Options - Coming Soon", options)) //load the options menu instead
+        { /*currentMenuState = MenuState.OPTIONS; */ }
+        else if (GUILayout.Button("How To Play", options)) // show the rules instead
+            currentMenuState = MenuState.RULES;
+        else if (GUILayout.Button("About the Developers", options))
+            currentMenuState = MenuState.ABOUT;
 
         GUI.EndGroup();
     }
@@ -226,68 +227,68 @@ public class GuiHandler : MonoBehaviour
 
         if (GUILayout.Button("Prospecting"))
             currentTab = RulesTab.PROSPECTING;
-		else if (GUILayout.Button("Mining"))
+        else if (GUILayout.Button("Mining"))
             currentTab = RulesTab.MINING;
-		else if (GUILayout.Button("Scoring"))
+        else if (GUILayout.Button("Scoring"))
             currentTab = RulesTab.SCORING;
-		else if (GUILayout.Button("Back"))
+        else if (GUILayout.Button("Back"))
         {
-			//return rules to default
+            //return rules to default
             currentTab = RulesTab.PROSPECTING;
-			textSize = TextSize.BULLET;
+            textSize = TextSize.BULLET;
 
             currentMenuState = MenuState.MAIN;
         }
         GUILayout.EndHorizontal();
 
         GUILayoutOption[] options = { GUILayout.Width(buttonRect.width), GUILayout.Height(buttonRect.height * 0.75f) };
-		if (textSize == TextSize.BULLET)
-			GUILayout.Box(rulesText[(int)currentTab], GuiStyle, options);
-		else
-			GUILayout.Box(fullText[(int)currentTab], GuiStyle, options);
+        if (textSize == TextSize.BULLET)
+            GUILayout.Box(rulesText[(int)currentTab], GuiStyle, options);
+        else
+            GUILayout.Box(fullText[(int)currentTab], GuiStyle, options);
 
-		string title = "Bullet Form";
-		if (textSize == TextSize.BULLET)
-			title = "More Info";
+        string title = "Bullet Form";
+        if (textSize == TextSize.BULLET)
+            title = "More Info";
 
-		if (GUILayout.Button(title))
-		{
-			if (textSize == TextSize.BULLET)
-				textSize = TextSize.FULL;
-			else
-				textSize = TextSize.BULLET;
-		}
+        if (GUILayout.Button(title))
+        {
+            if (textSize == TextSize.BULLET)
+                textSize = TextSize.FULL;
+            else
+                textSize = TextSize.BULLET;
+        }
 
         GUI.EndGroup();
     }
 
     private void showAboutUs()
     {
-		//contain everything else inside of it
-		GUI.BeginGroup(buttonRect);
+        //contain everything else inside of it
+        GUI.BeginGroup(buttonRect);
 
-		//tabs
-		GUILayout.BeginHorizontal(GUILayout.Height(buttonRect.height * 0.1f));
+        //tabs
+        GUILayout.BeginHorizontal(GUILayout.Height(buttonRect.height * 0.1f));
 
-		if (GUILayout.Button("Kansas"))
-			dev = Developer.KANSAS;
-		else if (GUILayout.Button("Gary"))
-			dev = Developer.GARY;
-		else if (GUILayout.Button("Jon"))
-			dev = Developer.JON;
-		else if (GUILayout.Button("Phil"))
-			dev = Developer.PHIL;
-		else if (GUILayout.Button("Back"))
-		{
-			dev = Developer.KANSAS;
-			currentMenuState = MenuState.MAIN;
-		}
-		GUILayout.EndHorizontal();
+        if (GUILayout.Button("Kansas"))
+            dev = Developer.KANSAS;
+        else if (GUILayout.Button("Gary"))
+            dev = Developer.GARY;
+        else if (GUILayout.Button("Jon"))
+            dev = Developer.JON;
+        else if (GUILayout.Button("Phil"))
+            dev = Developer.PHIL;
+        else if (GUILayout.Button("Back"))
+        {
+            dev = Developer.KANSAS;
+            currentMenuState = MenuState.MAIN;
+        }
+        GUILayout.EndHorizontal();
 
-		GUILayoutOption[] options = { GUILayout.Width(buttonRect.width), GUILayout.Height(buttonRect.height * 0.75f) };
-		GUILayout.Box(aboutText[(int)dev], GuiStyle, options);
+        GUILayoutOption[] options = { GUILayout.Width(buttonRect.width), GUILayout.Height(buttonRect.height * 0.75f) };
+        GUILayout.Box(aboutText[(int)dev], GuiStyle, options);
 
-		GUI.EndGroup();
+        GUI.EndGroup();
     }
 
     #endregion
@@ -381,12 +382,13 @@ public class GuiHandler : MonoBehaviour
             if (gM.players.Count <= 1) //if there aren't enough players, the button should not do anything
                 return;
 
-            	            //start the game if there are enough players and a button is hit
-			if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
-		{
-				gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
-				gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
-			}
+            //start the game if there are enough players and a button is hit
+            if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
+            {
+                gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+                if (gM.isOnline)
+                    gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
+            }
 
 
             switch (gM.gameState.CurrentTurnState)
@@ -404,8 +406,9 @@ public class GuiHandler : MonoBehaviour
                     showSkipButton = false;
 
                     gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE; //move on to the next turn state
-                    gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
-			        break;
+                    if (gM.isOnline)
+                        gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+                    break;
                 case GameStateManager.TurnState.TURN_MOVE:	// the player is moving after rolling the dice
                     if (gM.pEnabled)
                     {
@@ -451,7 +454,8 @@ public class GuiHandler : MonoBehaviour
                         if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
                         {
                             gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
-							gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+                            if (gM.isOnline)
+                                gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
 
                             showSkipButton = true;		//the player can choose not to pick up a card this turn if he/she wants
 
@@ -482,8 +486,9 @@ public class GuiHandler : MonoBehaviour
                         FeedbackGUI.setText("A player is in a dangerous mine! Please move them to solid ground.");
                         if (gM.players[clicker.indexToMove].Position != new Vector2(-1, -1))
                         {
-							Vector2 pos = gM.players[clicker.indexToMove].Position;
-							gM.jsonFx.PerformUpdate("update_entity_pos/" + pos.x + "/" + pos.y + "/" + gM.players[clicker.indexToMove].ID);
+                            Vector2 pos = gM.players[clicker.indexToMove].Position;
+                            if (gM.isOnline)
+                                gM.jsonFx.PerformUpdate("update_entity_pos/" + pos.x + "/" + pos.y + "/" + gM.players[clicker.indexToMove].ID);
 
                             clicker.NumToMove--; //one less that needs to be looked at
 
@@ -529,11 +534,12 @@ public class GuiHandler : MonoBehaviour
                 //don't do anythign after game ends
 
                 //start the game if there are enough players and a button is hit
-		if (gM.players.Count > 1 && gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
-		{
-			gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
-			gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
-		}
+                if (gM.players.Count > 1 && gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_SETUP)
+                {
+                    gM.gameState.CurrentGameState = GameStateManager.GameState.GAME_PROSPECTING_STATE;
+                    if (gM.isOnline)
+                        gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentGameState + "/" + gM.ID);
+                }
 
 
                 switch (gM.gameState.CurrentTurnState)
@@ -548,7 +554,8 @@ public class GuiHandler : MonoBehaviour
                         gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
                         gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; // move on to the next turn state
-						gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+                        if (gM.isOnline)
+                            gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
 
                         break;
                     case GameStateManager.TurnState.TURN_MOVE:
@@ -561,7 +568,8 @@ public class GuiHandler : MonoBehaviour
                         gM.clearHighlights();
                         gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
                         gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
-						gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+                        if (gM.isOnline)
+                            gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
 
 
                         break;
@@ -576,7 +584,8 @@ public class GuiHandler : MonoBehaviour
                         else
                         {
                             gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MINE;
-							gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+                            if (gM.isOnline)
+                                gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
 
                             gM.clearHighlights();
                             gM.calculateMines();
