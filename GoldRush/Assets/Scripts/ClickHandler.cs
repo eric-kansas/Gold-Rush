@@ -16,55 +16,111 @@ public class ClickHandler : MonoBehaviour
 	private GameManager gM;
 
 	/* A list of colors that the players can be. */
-	public List<Color> bodyColor;
+    public List<Color> bodyColor;
 
-	/* Temporary objects */
-	public Player tempPlayer;            // A newly created player before it is added to the players list
-	GameObject tempStake;                // Temporary stake that can be moved around the board before the player locks it in
-	private Card lastCard;              // The last card the player staked, which isn't yet locked in (previous click)
-	private Card tempCard;              //Current clicked card
-	private int tempCardIndex;
+    /*  A temporary player object before it is added to the players list */
+    private Player tempPlayer;
+    public Player TempPlayer
+    {
+        get { return tempPlayer; }
+    }
 
-	/* Stake asset */
-	public GameObject stakePrefab;
+    private Card tempCard;              //Current clicked card
+    public Card TempCard
+    {
+        get { return tempCard; }
+        set { tempCard = value; }
+    }
 
-	/* Whether or not the player has selected a card to stake (in mining phase) */
-	public bool selectedCard = false;
+    private Card lastCard;              // The last card the player staked, which isn't yet locked in (previous click)
+    private int tempCardIndex;  /* Temporary objects */
 
-	private Card oldStakedCard;
+    #region Prospecting
 
-	/* How many players will need to be moved to an adjacent space because a card was mined */
-	public int numToMove = 0;
+    /*Card the player just moved to, to set facedown if they rolled a one */
+    private Card movedTo = null;
+    public Card MovedTo
+    {
+        get { return movedTo; }
+        set { movedTo = value; }
+    }
 
-	/* The index of the first player that will need to be moved */
-	public int indexToMove = -1;
+    /* The index of the stake that will be bumped */
+    private int stakeIndex = -1;
+    public int StakeIndex
+    {
+        get { return stakeIndex; }
+        set { stakeIndex = value; }
+    }
 
-	/* The index of the player owning the stake that will be bumped */
-	public int stakeOwnerIndex = -1;
+    /* The index of the player owning the stake that will be bumped */
+    private int stakeOwnerIndex = -1;
+    public int StakeOwnerIndex
+    {
+        get { return stakeOwnerIndex; }
+        set { stakeOwnerIndex = value; }
+    }
 
-	/* The index of that stake */
-	public int stakeIndex = -1;
+    /* Whether the stake has been bumped yet */
+    private bool movedStake;
+    public bool MovedStake
+    {
+        get { return movedStake; }
+        set { movedStake = value; }
+    }
 
-	/* Whether the stake has been bumped yet */
-	public bool movedStake;
+    #endregion
 
-	/*Card the player just moved to, to set facedown if they rolled a one */
-	public Card movedTo = null;
+    #region Staking
 
-	public GameObject TempStake
-	{
-		get { return tempStake; }
-		set { tempStake = value; }
-	}
+    /* Stake asset */
+    private GameObject stakePrefab;
+    public GameObject StakePrefab
+    {
+        get { return stakePrefab; }
+    }
 
-	public Card TempCard
-	{
-		get { return tempCard; }
-		set { tempCard = value; }
-	}
+    /* Whether or not the player has selected a card to stake (in mining phase) */
+    private bool selectedCard = false;
+    public bool SelectedCard
+    {
+        get { return selectedCard; }
+        set { selectedCard = value; }
+    }
+
+    /* Temporary stake that can be moved around the board before the player locks it in */
+    private GameObject tempStake;
+    public GameObject TempStake
+    {
+        get { return tempStake; }
+        set { tempStake = value; }
+    }
+
+    /* Card the player staked but hasn't locked in yet */
+    private Card tempStakedCard;
+
+    /* Card the player moved an existing stake from */
+    private Card oldStakedCard;
+
+    #endregion
+
+    #region Mining
+
+    /* How many players will need to be moved to an adjacent space because a card was mined */
+    private int numToMove = 0;
+    public int NumToMove
+    {
+        get { return numToMove; }
+        set { numToMove = value; }
+    }
+
+    /* The index of the first player that will need to be moved */
+    public int indexToMove = -1;
+
+    #endregion
+
 
 	#endregion
-
 
 	// Use this for initialization
 	void Start()

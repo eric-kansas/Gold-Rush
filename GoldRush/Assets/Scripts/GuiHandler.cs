@@ -321,7 +321,7 @@ public class GuiHandler : MonoBehaviour
                     showSkipButton = true;
                     break;
                 case GameStateManager.TurnState.TURN_MOVE:
-                    if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || clicker.stakeOwnerIndex == -1)
+                    if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || clicker.StakeOwnerIndex == -1)
                     {
                         actionText = "Prospect";
                         showSkipButton = false;
@@ -351,7 +351,7 @@ public class GuiHandler : MonoBehaviour
                     }
                     break;
                 case GameStateManager.TurnState.TURN_MINE:
-                    if (clicker.numToMove == 0)
+                    if (clicker.NumToMove == 0)
                     {
                         actionText = "Mine";
                         skipText = "End Turn";
@@ -415,7 +415,7 @@ public class GuiHandler : MonoBehaviour
 
                         //save to turn this card back over again
                         if (gM.CurrentRoll == 1)
-                            clicker.movedTo = clicker.TempCard;
+                            clicker.MovedTo = clicker.TempCard;
 
                         gM.players[gM.CurrentPlayerIndex].Position = clicker.PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
 
@@ -450,30 +450,30 @@ public class GuiHandler : MonoBehaviour
                         }
                         else
                         {
-                            if (clicker.stakeOwnerIndex == -1)
+                            if (clicker.StakeOwnerIndex == -1)
                             {
                                 FeedbackGUI.setText("You have landed on an opponent's stake. You may move it if you so choose.");
                                 clicker.prepareBump();
                             }
 
-                            if (clicker.movedStake)
+                            if (clicker.MovedStake)
                             {
                                 FeedbackGUI.setText("Opponent's stake was moved.");
 
-								gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].data.row +
-									"/" + gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].data.row + "/" +
-									gM.players[clicker.stakeOwnerIndex].stakes[clicker.stakeIndex].GetComponent<Stake>().ID);
+                                gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[clicker.StakeOwnerIndex].stakedCards[clicker.StakeIndex].data.row +
+                                    "/" + gM.players[clicker.StakeOwnerIndex].stakedCards[clicker.StakeIndex].data.row + "/" +
+                                    gM.players[clicker.StakeOwnerIndex].stakes[clicker.StakeIndex].GetComponent<Stake>().ID);
 
 
 
                                 FeedbackGUI.setText("You may stake this position but you will not be able to mine it this turn.");
 
-								gM.jsonFx.PerformUpdate("update_card_minable/0/" + gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].data.serverID);
+                                gM.jsonFx.PerformUpdate("update_card_minable/0/" + gM.players[clicker.StakeOwnerIndex].stakedCards[clicker.StakeIndex].data.serverID);
 
 
 
-                                clicker.stakeOwnerIndex = clicker.stakeIndex = -1;
-                                clicker.movedStake = false;
+                                clicker.StakeOwnerIndex = clicker.StakeIndex = -1;
+                                clicker.MovedStake = false;
                                 clicker.TempStake = null; //set to null for normal staking
                                 Vector2 pos = gM.players[gM.CurrentPlayerIndex].Position;
                                 clicker.TempCard = gM.board[(int)pos.x, (int)pos.y].GetComponent<Card>(); //reset to player's card
@@ -524,7 +524,7 @@ public class GuiHandler : MonoBehaviour
                 case GameStateManager.TurnState.TURN_MINE:
                     Debug.Log("turn state: TURN_MINE");
 
-                    if (clicker.numToMove == 0)
+                    if (clicker.NumToMove == 0)
                     {
 
                     }
@@ -536,10 +536,10 @@ public class GuiHandler : MonoBehaviour
 							Vector2 pos = gM.players[clicker.indexToMove].Position;
 							gM.jsonFx.PerformUpdate("update_entity_pos/" + pos.x + "/" + pos.y + "/" + gM.players[clicker.indexToMove].ID);
 
-                            clicker.numToMove--; //one less that needs to be looked at
+                            clicker.NumToMove--; //one less that needs to be looked at
 
                             //end the turn if all players are on valid spots now
-                            if (clicker.numToMove <= 0)
+                            if (clicker.NumToMove <= 0)
                             {
                                 FeedbackGUI.setText("Good thing. It's safe now.");
                                 gM.endTurn();
@@ -605,9 +605,9 @@ public class GuiHandler : MonoBehaviour
                     case GameStateManager.TurnState.TURN_MOVE:
                         FeedbackGUI.setText("Wouldn't be nice to interfere, would it?");
 
-                        gM.players[clicker.stakeOwnerIndex].stakedCards[clicker.stakeIndex].transform.position = gM.players[gM.CurrentPlayerIndex].Position;
-                        clicker.stakeOwnerIndex = clicker.stakeIndex = -1;
-                        clicker.movedStake = false;
+                        gM.players[clicker.StakeOwnerIndex].stakedCards[clicker.StakeIndex].transform.position = gM.players[gM.CurrentPlayerIndex].Position;
+                        clicker.StakeOwnerIndex = clicker.StakeIndex = -1;
+                        clicker.MovedStake = false;
 
                         gM.clearHighlights();
                         gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim

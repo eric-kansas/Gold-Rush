@@ -825,7 +825,7 @@ public class GameManager : MonoBehaviour
                 Vector3 pos = clicker.Vector2ToPosition(boardPosition, 0.025f);          //Vector3 position, real space
 
                 //create player
-                Player p = (Player)Instantiate(clicker.tempPlayer, pos, Quaternion.identity);
+                Player p = (Player)Instantiate(clicker.TempPlayer, pos, Quaternion.identity);
 
                 //set variables
 				p.ID = entity.id;
@@ -859,7 +859,7 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Loading a stake");
                 //place the stake
                 Vector3 pos = clicker.Vector2ToPosition(new Vector2(entity.row, entity.col), 0.51f);
-                GameObject tempStake = (GameObject)Instantiate(clicker.stakePrefab, pos, Quaternion.identity);
+                GameObject tempStake = (GameObject)Instantiate(clicker.StakePrefab, pos, Quaternion.identity);
                 board[entity.row, entity.col].GetComponent<Card>().data.staked = true;
 
                 //set to current player's color
@@ -1063,28 +1063,28 @@ public class GameManager : MonoBehaviour
 
         //reset temporary stake
         clicker.TempStake = null;
-        clicker.selectedCard = false;
+        clicker.SelectedCard = false;
 
         //reset for this turn - the player hasn't moved or placed a stake
         pEnabled = sEnabled = false;
         cancelStake = false;
-        clicker.numToMove = 0;
+        clicker.NumToMove = 0;
         clicker.indexToMove = -1;
-        clicker.stakeIndex = clicker.stakeOwnerIndex = -1;
-        clicker.movedStake = false;
+        clicker.StakeIndex = clicker.StakeOwnerIndex = -1;
+        clicker.MovedStake = false;
 
         //turn card back over?
-        if (clicker.movedTo != null)
+        if (clicker.MovedTo != null)
         {
             Material newMat = new Material(Shader.Find("Diffuse"));
             newMat.mainTexture = CardTexture;
             newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);
             newMat.mainTextureOffset = new Vector2(0.138f, 0.0f);
-            clicker.movedTo.renderer.material = newMat;
-            clicker.movedTo.data.isUp = false;
+            clicker.MovedTo.renderer.material = newMat;
+            clicker.MovedTo.data.isUp = false;
             UpdateBars();
-            clicker.movedTo = null;
-			jsonFx.PerformUpdate("update_card_up/" + currentPlayerIndex + "/" + clicker.movedTo.data.serverID);
+            clicker.MovedTo = null;
+            jsonFx.PerformUpdate("update_card_up/" + currentPlayerIndex + "/" + clicker.MovedTo.data.serverID);
             //clicker.TempCard.data.isUp = false; --------------------------broken line of code
 
         }
