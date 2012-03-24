@@ -6,8 +6,8 @@ public class ClickHandler : MonoBehaviour
 {
 
 	#region Properties
-	/* The card the player clicked on */
-	private GameObject targetCard;
+	/* The game object the player clicked on */
+	private GameObject target;
 
 	/* An imaginary line coming out of the card */
 	private Vector3 normal;
@@ -19,11 +19,7 @@ public class ClickHandler : MonoBehaviour
     public List<Color> bodyColor;
 
     /*  A temporary player object before it is added to the players list */
-    private Player tempPlayer;
-    public Player TempPlayer
-    {
-        get { return tempPlayer; }
-    }
+    public Player tempPlayer;
 
     private Card tempCard;              //Current clicked card
     public Card TempCard
@@ -106,6 +102,22 @@ public class ClickHandler : MonoBehaviour
 
     #region Mining
 
+    /* A staked card the player has marked for mining but hasn't locked in yet */
+    private Card minedCard;
+    public Card MinedCard
+    {
+        get { return minedCard; }
+        set { minedCard = value; }
+    }
+
+    /* Whether or not the player has selected a card to mine */
+    private bool hasChosenMine;
+    public bool HasChosenMine
+    {
+        get { return hasChosenMine; }
+        set { hasChosenMine = value; }
+    }
+
     /* How many players will need to be moved to an adjacent space because a card was mined */
     private int numToMove = 0;
     public int NumToMove
@@ -147,9 +159,9 @@ public class ClickHandler : MonoBehaviour
 				return;
 
 			//our target is where we clicked
-			targetCard = hit.transform.gameObject;
+			target = hit.transform.gameObject;
 
-			tempCard = (Card)targetCard.GetComponent<Card>();
+			tempCard = (Card)target.GetComponent<Card>();
 
 			switch (GameStateManager.Instance.CurrentGameState)
 			{
@@ -177,6 +189,10 @@ public class ClickHandler : MonoBehaviour
 		}
 	}
 
+    /// <summary>
+    ///  Calls helper function based on curent game state and turn
+    /// </summary>
+    /// <param name="hit">The click</param>
 	private void gameClick(RaycastHit hit)
 	{
 		switch (GameStateManager.Instance.CurrentTurnState)
@@ -206,6 +222,10 @@ public class ClickHandler : MonoBehaviour
 		}
 	}
 
+    /// <summary>
+    ///  Checks if the click is valid, then calls the MovePlayer helper function
+    /// </summary>
+    /// <param name="hit"></param>
 	private void moveClick(RaycastHit hit)
 	{
 		//current player position in unity coordinates
@@ -269,6 +289,25 @@ public class ClickHandler : MonoBehaviour
 			}
 		}
 	}
+
+    /// <summary>
+    /// Helper function - Actually moves the player
+    /// </summary>
+    private void movePlayer()
+    {
+        if (gM.pEnabled)
+        {
+            FeedbackGUI.setText("Moving player.");
+
+            if (gM.CurrentRoll == 1)     //save to turn this card back over again
+                movedTo = tempCard;
+
+            gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard;//set the player's current card
+
+            gM.players[gM.CurrentPlayerIndex].Position = PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);   //update the player's grid position
+
+        }
+    }
 
 	public void prepareBump()
 	{

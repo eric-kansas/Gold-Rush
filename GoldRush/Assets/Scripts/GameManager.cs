@@ -825,7 +825,7 @@ public class GameManager : MonoBehaviour
                 Vector3 pos = clicker.Vector2ToPosition(boardPosition, 0.025f);          //Vector3 position, real space
 
                 //create player
-                Player p = (Player)Instantiate(clicker.TempPlayer, pos, Quaternion.identity);
+                Player p = (Player)Instantiate(clicker.tempPlayer, pos, Quaternion.identity);
 
                 //set variables
 				p.ID = entity.id;
