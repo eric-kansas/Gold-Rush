@@ -244,21 +244,6 @@ public class ClickHandler : MonoBehaviour
 				if (lastPos == gM.players[gM.CurrentPlayerIndex].transform.position)
 				{
                     movePlayer();
-
-					//if the card is staked by another player, the current player can bump it
-					if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE && tempCard.data.staked)
-					{
-						FeedbackGUI.setText("You have landed on an opponent's stake. You may move it if you so choose.");
-						prepareBump();
-					}
-					else //otherwise move on to staking
-					{
-						gM.calculateStakeableCards(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
-
-						GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; //go to next turn state
-						gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
-
-					}
 				}
 			}
 		}
@@ -269,43 +254,57 @@ public class ClickHandler : MonoBehaviour
     /// </summary>
     public void movePlayer()
     {
-        if (gM.pEnabled)
+        FeedbackGUI.setText("Moving player.");
+
+        if (gM.CurrentRoll == 1)     //save to turn this card back over again
+            movedTo = tempCard;
+
+        //update the player's grid position
+        Vector2 position = PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);
+        gM.players[gM.CurrentPlayerIndex].Position = position;
+
+        //set the player's current card
+        gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard;
+        gM.players[gM.CurrentPlayerIndex].CurrentCard = gM.board[(int)position.x, (int)position.y].GetComponent<Card>();
+
+        //send changes to server
+        if (gM.isOnline)
         {
-            FeedbackGUI.setText("Moving player.");
+            gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[gM.CurrentPlayerIndex].Position.x + "/" + gM.players[gM.CurrentPlayerIndex].Position.y + "/1");
+            gM.jsonFx.PerformUpdate("update_card_up/1/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
+            //gM.jsonFx.PerformUpdate("update_card_up/" + gM.CurrentPlayerIndex + "/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
+        }
 
-            if (gM.CurrentRoll == 1)     //save to turn this card back over again
-                movedTo = tempCard;
+        gM.clearHighlights();   //clear the board
 
-            //update the player's grid position
-            Vector2 position = PositionToVector2(gM.players[gM.CurrentPlayerIndex].transform.position);
-            gM.players[gM.CurrentPlayerIndex].Position = position;
+        //prospect
+        gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
+                                                    (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
+        gM.players[gM.CurrentPlayerIndex].CurrentCard.data.isUp = true;
 
-            //set the player's current card
-            gM.players[gM.CurrentPlayerIndex].CurrentCard = tempCard;
-            gM.players[gM.CurrentPlayerIndex].CurrentCard = gM.board[(int)position.x, (int)position.y].GetComponent<Card>();
+        gM.UpdateBars();
 
-            //send changes to server
+        //clear moves
+        gM.moves.Clear();
+
+        //if the card is staked by another player, the current player can bump it
+        if (gM.gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE && gM.players[gM.CurrentPlayerIndex].CurrentCard.data.staked)
+        {
+            FeedbackGUI.setText("This card has been staked out by somebody.");
+            prepareBump();
+        }
+        else //otherwise move on to staking
+        {
+            gM.calculateStakeableCards(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
+
+            GameStateManager.Instance.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE; //go to next turn state
             if (gM.isOnline)
-            {
-                gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[gM.CurrentPlayerIndex].Position.x + "/" + gM.players[gM.CurrentPlayerIndex].Position.y + "/1");
-                gM.jsonFx.PerformUpdate("update_card_up/1/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
-                //gM.jsonFx.PerformUpdate("update_card_up/" + gM.CurrentPlayerIndex + "/" + gM.players[gM.CurrentPlayerIndex].CurrentCard.data.serverID);
-            }
-
-            gM.clearHighlights();   //clear the board
-
-            //prospect
-            gM.CreateMaterial(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.TexCoordinate, gM.board[(int)gM.players[gM.CurrentPlayerIndex].Position.x,
-                                                        (int)gM.players[gM.CurrentPlayerIndex].Position.y]);
-            gM.players[gM.CurrentPlayerIndex].CurrentCard.data.isUp = true;
-
-            gM.UpdateBars();
+                gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
         }
     }
 
 	public void prepareBump()
 	{
-		Debug.Log("Staked out already!");
 		gM.possibleStakes.Clear();
 
 		gM.clearHighlights();
@@ -324,7 +323,8 @@ public class ClickHandler : MonoBehaviour
 					gM.clearHighlights();
 					gM.calculateStakeableCards();
 					gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;
-					gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+					if (gM.isOnline)
+                        gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
 
 					stakeOwnerIndex = stakeIndex = -1;
 					movedStake = false;
@@ -339,7 +339,8 @@ public class ClickHandler : MonoBehaviour
 			}
 		}
 
-		gM.calculateStakeableCards(new Vector2(tempCard.data.row, tempCard.data.col));
+        FeedbackGUI.setText("You have landed on an opponent's stake. You may move it if you so choose.");
+        gM.calculateStakeableCards(new Vector2(gM.players[gM.CurrentPlayerIndex].CurrentCard.data.row, gM.players[gM.CurrentPlayerIndex].CurrentCard.data.col));
 		Debug.Log("Should see stakable cards");
 	}
 
@@ -373,6 +374,7 @@ public class ClickHandler : MonoBehaviour
 				movedStake = true; //stake has been placed, action button should move on to the next turn phase
 
 				lastCard = tempCard;    //sets the last card equal to the current card
+                tempStake = null;
 				Debug.Log("Moving stake?");
 			}
 		}

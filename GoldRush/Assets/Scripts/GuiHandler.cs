@@ -405,61 +405,36 @@ public class GuiHandler : MonoBehaviour
 
                     gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_MOVE; //move on to the next turn state
                     gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
-			break;
+			        break;
                 case GameStateManager.TurnState.TURN_MOVE:	// the player is moving after rolling the dice
+                    if (gM.pEnabled)
+                    {
+                        if (gM.moves.Count > 1)
+                        {
+                            //after the player gets moved this is cleared, so if a stake is getting bumped and they click on the button again
+                            //it won't try to move the player
+                            clicker.movePlayer();
+                        }
 
-                    clicker.movePlayer();
-
-                    if (gM.pEnabled) //make sure the player has actually moved - he/she cannot sit on the same spot after rolling the dice
-                    {			//pEnabled is set to true in clickHandler's moveClick()
-
-                        if (gM.gameState.CurrentGameState != GameStateManager.GameState.GAME_MINING_STATE || !gM.players[gM.CurrentPlayerIndex].CurrentCard.data.staked)
+                        //if a stake doesn't need to be moved at all, or it it's already been taken care of
+                        if (clicker.StakeOwnerIndex == -1 || clicker.MovedStake)
                         {
                             FeedbackGUI.setText("Please press a location to stake a claim on.");
                             gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
 
                             gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
-							gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+                            if (gM.isOnline)
+                                gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
+
+                            clicker.StakeOwnerIndex = clicker.StakeIndex = -1;
+                            clicker.MovedStake = false;
+
+                            Vector2 pos = gM.players[gM.CurrentPlayerIndex].Position;
+                            clicker.TempCard = gM.board[(int)pos.x, (int)pos.y].GetComponent<Card>(); //reset to player's card
 
                         }
                         else
-                        {
-                            if (clicker.StakeOwnerIndex == -1)
-                            {
-                                FeedbackGUI.setText("You have landed on an opponent's stake. You may move it if you so choose.");
-                                clicker.prepareBump();
-                            }
-
-                            if (clicker.MovedStake)
-                            {
-                                FeedbackGUI.setText("Opponent's stake was moved.");
-
-                                gM.jsonFx.PerformUpdate("update_entity_pos/" + gM.players[clicker.StakeOwnerIndex].stakedCards[clicker.StakeIndex].data.row +
-                                    "/" + gM.players[clicker.StakeOwnerIndex].stakedCards[clicker.StakeIndex].data.row + "/" +
-                                    gM.players[clicker.StakeOwnerIndex].stakes[clicker.StakeIndex].GetComponent<Stake>().ID);
-
-
-
-                                FeedbackGUI.setText("You may stake this position but you will not be able to mine it this turn.");
-
-                                gM.jsonFx.PerformUpdate("update_card_minable/0/" + gM.players[clicker.StakeOwnerIndex].stakedCards[clicker.StakeIndex].data.serverID);
-
-
-
-                                clicker.StakeOwnerIndex = clicker.StakeIndex = -1;
-                                clicker.MovedStake = false;
-                                clicker.TempStake = null; //set to null for normal staking
-                                Vector2 pos = gM.players[gM.CurrentPlayerIndex].Position;
-                                clicker.TempCard = gM.board[(int)pos.x, (int)pos.y].GetComponent<Card>(); //reset to player's card
-
-
-                                gM.clearHighlights();
-                                gM.calculateStakes(); // based on where the player has moved to, find the adjacent positions he/she can stake a claim
-                                gM.gameState.CurrentTurnState = GameStateManager.TurnState.TURN_STAKE;  //move on to the next turn state
-								gM.jsonFx.PerformUpdate("update_game_state/" + (int)gM.gameState.CurrentTurnState + "/" + gM.ID);
-
-                            }
-                        }
+                            FeedbackGUI.setText("Please move your opponent's stake.");
                     }
                     else
                         FeedbackGUI.setText("Once you roll you must move.");
