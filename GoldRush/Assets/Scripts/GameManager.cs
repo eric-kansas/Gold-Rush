@@ -19,17 +19,19 @@ public class GameManager : MonoBehaviour
     /* Reference to JSON objects */
     public JsonFxScript jsonFx;
 
-	//database id
-	private int id = 1;
-	public int ID
-	{
-		get { return id; }
-		set { id = value; }
-	}
+    //database id
+    private int id = 1;
+    public int ID
+    {
+        get { return id; }
+        set { id = value; }
+    }
 
-	public bool loadGame = false;
+    /* Whether the game should be able to connect to a server and should try to send updates */
+    public bool isOnline = false;
 
-
+    /* Whether starting a new game or loading from the server database */
+    public bool loadGame = false;
 
     /* ScoringSystem - Used to count up the score for mined cards */
     public ScoringSystem scoringSystem;
@@ -193,7 +195,7 @@ public class GameManager : MonoBehaviour
     }
 
     //If a player does not have a full hand by the end of the game, add their staked cards to their hand
-    
+
     #endregion
 
     # region Calculations
@@ -280,9 +282,9 @@ public class GameManager : MonoBehaviour
             }
         }
 
-            Debug.Log(holder.Count);
-        
-        
+        Debug.Log(holder.Count);
+
+
         return holder;
     }
 
@@ -295,7 +297,7 @@ public class GameManager : MonoBehaviour
             return holder;
         }
         //which direction are we looking
-        switch(direction)
+        switch (direction)
         {
             //up
             case 0:
@@ -435,7 +437,7 @@ public class GameManager : MonoBehaviour
         if (board[(int)currentPos.x, (int)currentPos.y] == null) //currentcount != 0 allows us to look for moves FROM empty spaces, but will ignore moves TO empty spaces
         {
             looked[(int)currentPos.x, (int)currentPos.y] = true;
-            Debug.Log("x: " + currentPos.x + " y: " + currentPos.y + ", " +islandList[(int)currentPos.x, (int)currentPos.y]);
+            Debug.Log("x: " + currentPos.x + " y: " + currentPos.y + ", " + islandList[(int)currentPos.x, (int)currentPos.y]);
             return;
         }
         else
@@ -447,12 +449,12 @@ public class GameManager : MonoBehaviour
         //look up
         checkIsland(new Vector2(currentPos.x, currentPos.y + 1), looked);
         //look right
-        checkIsland(new Vector2(currentPos.x+1, currentPos.y), looked);
+        checkIsland(new Vector2(currentPos.x + 1, currentPos.y), looked);
         //look left
         checkIsland(new Vector2(currentPos.x - 1, currentPos.y), looked);
         //look down
         checkIsland(new Vector2(currentPos.x, currentPos.y - 1), looked);
-               
+
     }
 
     public void calculateStakeableCards()
@@ -678,7 +680,7 @@ public class GameManager : MonoBehaviour
             case 'A':
                 result.x = 13;
                 break;
-            default: Debug.Log("what? " + kind); break; 
+            default: Debug.Log("what? " + kind); break;
         }
         return result;
     }
@@ -727,14 +729,14 @@ public class GameManager : MonoBehaviour
     {
         FeedbackGUI.setText("All player's staked positions will now be mined.");
         //Loop through players
-        for(int i = 0; i < players.Count; i++)
+        for (int i = 0; i < players.Count; i++)
         {
             if (players[i].hand.Count < numProspectingTurns)
             {
                 //Add each staked card
-                for(int j = 0; j < players[i].stakedCards.Count; j++) 
+                for (int j = 0; j < players[i].stakedCards.Count; j++)
                 {
-		players[i].stakedCards[j].data.row = players[i].stakedCards[j].data.col = -1;
+                    players[i].stakedCards[j].data.row = players[i].stakedCards[j].data.col = -1;
 
                     players[i].hand.Add(players[i].stakedCards[j]);
                     UpdateBars();
@@ -759,7 +761,8 @@ public class GameManager : MonoBehaviour
                     //get rid of the stake GameObject
                     Destroy(stake);
 
-		jsonFx.PerformUpdate("update_card_mine/" + i + "/" + players[i].hand[players[i].hand.Count - 1].data.serverID);
+                    if (isOnline)
+                        jsonFx.PerformUpdate("update_card_mine/" + i + "/" + players[i].hand[players[i].hand.Count - 1].data.serverID);
 
                 }
             }
@@ -774,7 +777,8 @@ public class GameManager : MonoBehaviour
             foreach (Card c in p.hand)
             {
                 CreateMaterial(c.data.TexCoordinate, c.gameObject);
-		jsonFx.PerformUpdate("update_face_up/1/" + c.data.serverID);
+                if (isOnline)
+                    jsonFx.PerformUpdate("update_face_up/1/" + c.data.serverID);
 
             }
         }
@@ -784,10 +788,11 @@ public class GameManager : MonoBehaviour
             for (int j = 0; j < BOARD_HEIGHT; j++)
             {
                 if (board[i, j] != null)
-         	{
-			CreateMaterial(board[i, j].GetComponent<Card>().data.TexCoordinate, board[i, j]);
-			jsonFx.PerformUpdate("update_face_up/1/" + board[i,j].GetComponent<Card>().data.serverID);
-		}
+                {
+                    CreateMaterial(board[i, j].GetComponent<Card>().data.TexCoordinate, board[i, j]);
+                    if (isOnline)
+                        jsonFx.PerformUpdate("update_face_up/1/" + board[i, j].GetComponent<Card>().data.serverID);
+                }
 
             }
         }
@@ -802,15 +807,16 @@ public class GameManager : MonoBehaviour
         ShuffleDeck();
         BuildBoard();
         gameState.CurrentGameState = GameStateManager.GameState.GAME_SETUP;
-		jsonFx.PerformUpdate("update_game_state/" + (int)gameState.CurrentGameState + "/" + ID);
+        if (isOnline)
+            jsonFx.PerformUpdate("update_game_state/" + (int)gameState.CurrentGameState + "/" + ID);
 
         setupMiscElements();//Start the Camera and show the table
     }
 
     public void loadGameFromJson()
-    {		
+    {
 
-	id = jsonFx.gameJSON.id;
+        id = jsonFx.gameJSON.id;
 
 
         FeedbackGUI.setText("Loading game. . . ");
@@ -828,7 +834,7 @@ public class GameManager : MonoBehaviour
                 Player p = (Player)Instantiate(clicker.tempPlayer, pos, Quaternion.identity);
 
                 //set variables
-				p.ID = entity.id;
+                p.ID = entity.id;
 
                 p.in_game_id = entity.in_game_id;
                 p.Position = boardPosition;
@@ -865,8 +871,8 @@ public class GameManager : MonoBehaviour
                 //set to current player's color
                 tempStake.transform.renderer.material.color = players[entity.in_game_id].transform.renderer.material.color;
 
-				//save id
-				tempStake.GetComponent<Stake>().ID = entity.id;
+                //save id
+                tempStake.GetComponent<Stake>().ID = entity.id;
 
 
 
@@ -952,8 +958,8 @@ public class GameManager : MonoBehaviour
             Vector2 texCoordinates = getTexCoordinates(kind, suit);
 
             deck[counter] = new CardData(kind, suit, value, texCoordinates);//add it to the deck
-			deck[counter].isUp = card.is_up;
-			deck[counter].serverID = card.id;
+            deck[counter].isUp = card.is_up;
+            deck[counter].serverID = card.id;
 
 
             //create card
@@ -968,7 +974,7 @@ public class GameManager : MonoBehaviour
                 deck[counter].Minable = card.minable;
                 board[row, col].GetComponent<Card>().data = deck[counter];
 
-				BuildBar(row, col);
+                BuildBar(row, col);
 
 
 
@@ -977,9 +983,9 @@ public class GameManager : MonoBehaviour
             }
             else //in a player's hand
             {
-                Vector3 pos = clicker. findHandPosition(card.in_game_id); //find the hand's position
+                Vector3 pos = clicker.findHandPosition(card.in_game_id); //find the hand's position
                 GameObject cardObject = (GameObject)Instantiate(CardPrefab, pos, Quaternion.identity); //create the card
-                int handSize =  players[card.in_game_id].hand.Count;
+                int handSize = players[card.in_game_id].hand.Count;
                 players[card.in_game_id].hand.Add(cardObject.GetComponent<Card>()); //add it to the hand
 
                 //rotate it if need be
@@ -996,34 +1002,34 @@ public class GameManager : MonoBehaviour
 
             counter++;
         }
-		UpdateBars();
+        UpdateBars();
 
     }
 
-	public void saveWholeGameToJson()
-	{
-		jsonFx.gameJSON.current_player = currentPlayerIndex;
-		jsonFx.gameJSON.current_roll = currentRoll;
+    public void saveWholeGameToJson()
+    {
+        jsonFx.gameJSON.current_player = currentPlayerIndex;
+        jsonFx.gameJSON.current_roll = currentRoll;
 
-		for (int i = 0; i < players.Count; i++)
-		{
-			int jsonPlayerIndex = jsonFx.findPlayerJsonIndex(i);
-			jsonFx.gameJSON.entities[jsonPlayerIndex].row = (int)players[i].Position.x;
-			jsonFx.gameJSON.entities[jsonPlayerIndex].col = (int)players[i].Position.y;
+        for (int i = 0; i < players.Count; i++)
+        {
+            int jsonPlayerIndex = jsonFx.findPlayerJsonIndex(i);
+            jsonFx.gameJSON.entities[jsonPlayerIndex].row = (int)players[i].Position.x;
+            jsonFx.gameJSON.entities[jsonPlayerIndex].col = (int)players[i].Position.y;
 
-			for (int n = 0; n < players[i].stakedCards.Count; n++)
-			{
-				//how do we know the index within entity?
-			}
+            for (int n = 0; n < players[i].stakedCards.Count; n++)
+            {
+                //how do we know the index within entity?
+            }
 
-			for (int n = 0; n < players[i].hand.Count; n++)
-			{
-				//how do we know the index within cards?
-			}
-		}
-	}
+            for (int n = 0; n < players[i].hand.Count; n++)
+            {
+                //how do we know the index within cards?
+            }
+        }
+    }
 
-	public void endTurn()
+    public void endTurn()
     {
         FeedbackGUI.setText("Ending turn of Player " + currentPlayerIndex + ".");
 
@@ -1031,21 +1037,22 @@ public class GameManager : MonoBehaviour
         clearHighlights();
 
         //mark cards as minable again
-		if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
-		{
-
-        for (int i = 0; i < BOARD_WIDTH; i++)
+        if (gameState.CurrentGameState == GameStateManager.GameState.GAME_MINING_STATE)
         {
-            for (int j = 0; j < BOARD_HEIGHT; j++)
-            {
-                if (board[i, j] != null)
-						if (board[i, j].GetComponent<Card>().data.Minable == false)
-						{
 
-                    board[i, j].GetComponent<Card>().data.Minable = true;
-							jsonFx.PerformUpdate("update_card_minable/1/" + board[i,j].GetComponent<Card>().data.serverID);
-						}
-				}
+            for (int i = 0; i < BOARD_WIDTH; i++)
+            {
+                for (int j = 0; j < BOARD_HEIGHT; j++)
+                {
+                    if (board[i, j] != null)
+                        if (board[i, j].GetComponent<Card>().data.Minable == false)
+                        {
+
+                            board[i, j].GetComponent<Card>().data.Minable = true;
+                            if (isOnline)
+                                jsonFx.PerformUpdate("update_card_minable/1/" + board[i, j].GetComponent<Card>().data.serverID);
+                        }
+                }
 
             }
         }
@@ -1063,28 +1070,29 @@ public class GameManager : MonoBehaviour
 
         //reset temporary stake
         clicker.TempStake = null;
-        clicker.selectedCard = false;
+        clicker.SelectedCard = false;
 
         //reset for this turn - the player hasn't moved or placed a stake
         pEnabled = sEnabled = false;
         cancelStake = false;
-        clicker.numToMove = 0;
+        clicker.NumToMove = 0;
         clicker.indexToMove = -1;
-        clicker.stakeIndex = clicker.stakeOwnerIndex = -1;
-        clicker.movedStake = false;
+        clicker.StakeIndex = clicker.StakeOwnerIndex = -1;
+        clicker.MovedStake = false;
 
         //turn card back over?
-        if (clicker.movedTo != null)
+        if (clicker.MovedTo != null)
         {
             Material newMat = new Material(Shader.Find("Diffuse"));
             newMat.mainTexture = CardTexture;
             newMat.mainTextureScale = new Vector2(0.0668f, 0.2f);
             newMat.mainTextureOffset = new Vector2(0.138f, 0.0f);
-            clicker.movedTo.renderer.material = newMat;
-            clicker.movedTo.data.isUp = false;
+            clicker.MovedTo.renderer.material = newMat;
+            clicker.MovedTo.data.isUp = false;
             UpdateBars();
-            clicker.movedTo = null;
-			jsonFx.PerformUpdate("update_card_up/" + currentPlayerIndex + "/" + clicker.movedTo.data.serverID);
+            clicker.MovedTo = null;
+            if (isOnline)
+                jsonFx.PerformUpdate("update_card_up/" + currentPlayerIndex + "/" + clicker.MovedTo.data.serverID);
             //clicker.TempCard.data.isUp = false; --------------------------broken line of code
 
         }
@@ -1097,7 +1105,8 @@ public class GameManager : MonoBehaviour
         {
             FeedbackGUI.setText("Moving into the Mining Phase.");
             gameState.CurrentGameState = GameStateManager.GameState.GAME_MINING_STATE;  //move on to the next game state
-			jsonFx.PerformUpdate("update_game_state/" + (int)gameState.CurrentGameState + "/" + id);
+            if (isOnline)
+                jsonFx.PerformUpdate("update_game_state/" + (int)gameState.CurrentGameState + "/" + id);
 
             phaseTurns = 0;
         }
@@ -1134,12 +1143,12 @@ public class GameManager : MonoBehaviour
             currentPlayerIndex = 0;
 
         FeedbackGUI.setText("Player " + currentPlayerIndex + "'s turn.");
-		jsonFx.PerformUpdate("update_current_player/" + currentPlayerIndex + "/" + id);
-
-
-        //move turn state back to the beginning
-        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;
-		jsonFx.PerformUpdate("update_turn_state/" + (int)gameState.CurrentTurnState + "/" + id);
+        gameState.CurrentTurnState = GameStateManager.TurnState.TURN_ROLL;  //move turn state back to the beginning
+        if (isOnline)
+        {
+            jsonFx.PerformUpdate("update_current_player/" + currentPlayerIndex + "/" + id);
+            jsonFx.PerformUpdate("update_turn_state/" + (int)gameState.CurrentTurnState + "/" + id);
+        }
 
         FeedbackGUI.setText("Please roll the dice or click the Skip button to remain at your current location.");
     }
@@ -1148,7 +1157,8 @@ public class GameManager : MonoBehaviour
     {
         FeedbackGUI.setText("Game over.");
         gameState.CurrentGameState = GameStateManager.GameState.GAME_END;
-		jsonFx.PerformUpdate("update_turn_state/" + (int)gameState.CurrentGameState + "/" + id);
+        if (isOnline)
+        jsonFx.PerformUpdate("update_turn_state/" + (int)gameState.CurrentGameState + "/" + id);
 
         finishHands();
         revealFaceDown();
@@ -1187,7 +1197,8 @@ public class GameManager : MonoBehaviour
     {
         int currentRoll = Random.Range(1, 6);
         FeedbackGUI.setText("A " + currentRoll + " was rolled.");
-		jsonFx.PerformUpdate("update_roll/" + currentRoll + "/" + id);
+        if (isOnline)
+            jsonFx.PerformUpdate("update_roll/" + currentRoll + "/" + id);
 
         return currentRoll;
     }
@@ -1249,41 +1260,41 @@ public class GameManager : MonoBehaviour
                 board[i, j].GetComponent<Card>().data = deck[counter];
 
 
-				BuildBar(i, j);
+                BuildBar(i, j);
 
-                
+
 
                 counter++;
             }
         }
     }
 
-	private void BuildBar(int i, int j)
-{
-if (board[i, j] != null)
-		{
-foreach (Transform child in board[i, j].transform)
+    private void BuildBar(int i, int j)
+    {
+        if (board[i, j] != null)
+        {
+            foreach (Transform child in board[i, j].transform)
+            {
+                child.localPosition = new Vector3(0f, ((1.5f * board[i, j].GetComponent<Card>().data.Value)), 0f);
+                child.localScale = new Vector3(.72f, ((3f * board[i, j].GetComponent<Card>().data.Value)), .77f);
+                switch (board[i, j].GetComponent<Card>().data.Suit)
                 {
-                    child.localPosition = new Vector3(0f, ((1.5f * board[i, j].GetComponent<Card>().data.Value)), 0f);
-                    child.localScale = new Vector3(.72f, ((3f * board[i, j].GetComponent<Card>().data.Value)), .77f);
-                    switch (board[i, j].GetComponent<Card>().data.Suit)
-                    {
-                        case 'S':
-                            child.GetComponent<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
-                            break;
-                        case 'C':
-                            child.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.4f, 0.4f, 0.8f);
-                            break;
-                        case 'H':
-                            child.GetComponent<MeshRenderer>().material.color = new Color(.75f, 0.25f, 0.5f, 0.8f);
-                            break;
-                        case 'D':
-                            child.GetComponent<MeshRenderer>().material.color = new Color(1.0f, 0.0f, 0.0f, 0.8f);
-                            break;
-                    }
+                    case 'S':
+                        child.GetComponent<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
+                        break;
+                    case 'C':
+                        child.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.4f, 0.4f, 0.8f);
+                        break;
+                    case 'H':
+                        child.GetComponent<MeshRenderer>().material.color = new Color(.75f, 0.25f, 0.5f, 0.8f);
+                        break;
+                    case 'D':
+                        child.GetComponent<MeshRenderer>().material.color = new Color(1.0f, 0.0f, 0.0f, 0.8f);
+                        break;
                 }
-	}
-}
+            }
+        }
+    }
 
     public void UpdateBars()
     {
@@ -1372,7 +1383,7 @@ foreach (Transform child in board[i, j].transform)
                 {
                     child.GetComponent<MeshRenderer>().enabled = false;
                 }
-                
+
             }
         }
     }
